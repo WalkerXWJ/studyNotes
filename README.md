@@ -7,8 +7,8 @@ Daily study notes [XWJ],Good wishes to you!!!
 ## 开发技术
 
 - [Java 编程学习笔记]()
-- [Bash 编程学习笔记]()
-- []()
+- [Bash 编程学习笔记](./dev/studyPython.md)
+- [Python 编程学习笔记](https://github.com/WalkerXWJ/studyNotes/blob/main/dev/studyPython.md)
 
 ## 信息安全
 - []()
