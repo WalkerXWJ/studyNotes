@@ -594,7 +594,7 @@ for value in range(1,4):   #使用for循环遍历range
 #### 3.4.1 创建数值列表
 
 - 使用`range()`函数和`list()`函数创建列表
-
+  
   `range(1,4)`生成一组数，list(range(1,4)返回列表
 
 ```python
@@ -605,7 +605,7 @@ print(strs)
 输出：`[1, 2, 3]`
 
 - 使用`range()`函数和`list()`函数创建一个具有一定步长的列表
-
+  
   创建一个包含10以内奇数的列表
 
 ```python
