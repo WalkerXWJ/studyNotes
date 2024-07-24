@@ -314,7 +314,24 @@ bash-3.2$ clear ;which clear
 
 ### 2.2.4 命令的组合符 `&&` 和 `||`
 
+```bash
+# 如果command1 执行成功则运行 command2
+command1 && command2
+# 如果command1 执行失败则运行 command2
+command1 || command2
+```
 
+### 2.2.4 `type`命令
+
+```bash
+# type 命令判断命令来源
+bash-3.2$ type type
+type is a shell builtin
+bash-3.2$ type ls
+ls is hashed (/bin/ls)
+```
+
+上面执行结果：`type `命令告诉我们，`type `是内部命令，`ls `是外部程序 `/bin/ls`
 
 # 3.模式扩展
 
