@@ -321,7 +321,7 @@ command1 && command2
 command1 || command2
 ```
 
-### 2.2.4 `type`命令
+### 2.2.5 `type`命令
 
 ```bash
 # type 命令判断命令来源
@@ -332,6 +332,54 @@ ls is hashed (/bin/ls)
 ```
 
 上面执行结果：`type `命令告诉我们，`type `是内部命令，`ls `是外部程序 `/bin/ls`
+
+```bash
+# type 命令 -a 参数：查看一个命令的所有定义
+bash-3.2$ type -a type
+type is a shell builtin
+type is /usr/bin/type
+```
+
+上面代码说明，`type`即是内置命令，也有对应的外部程序。
+
+```bash
+# type 命令 -t 参数，可以返回一个命令的类型：
+# 别名 alias
+# 关键词 keyword
+# 函数 function
+# 内置命令 builtin
+# 文件 file
+bash-3.2$ type -t type
+builtin
+bash-3.2$ type -t ls
+file
+bash-3.2$ type -t if
+keyword
+```
+
+上面的例子，type是内置命令，ls是文件，if是关键字
+
+### 2.2.6 快捷键
+
+- `Ctrl + L`：清楚屏幕并将当前行移动到页面顶部
+
+- `Ctrl + C`：终止当前正在执行的命令
+
+- `Shift +  PageUp`：向上滚动
+
+- `Shift + PageDown`：向下滚动
+
+- `Ctrl + U`：从光标位置删除到行首
+
+- `Ctrl + K`：从光标位置删除到行尾
+
+- `Ctrl + w`：删除光标前一个单词（以空格分割的内容）
+
+- `Ctrl + D`：关闭shell会话
+
+- `⬆️ + ⬇️ `
+
+
 
 # 3.模式扩展
 
