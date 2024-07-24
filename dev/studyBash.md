@@ -2,7 +2,7 @@
 
 Bash是Unix和Linux系统的一种shell（命令行环境），是目前大部分发行版Linux默认的shell。
 
-本次Bash学习使用mac m1的设备。
+本次Bash学习使用mac m1和parallels kali虚拟机设备。
 
 项目原文地址：[有道-Bash脚本教程-原文地址](https://wangdoc.com/bashhttps://wangdoc.com/bash)
 
@@ -239,7 +239,6 @@ $ command [arg1 ...[argN]]
 `arg1...argN` 是传递给命令的参数，是可选的，是命令的配置项。
 
 ```bash
-
 bash-3.2$ ls -l
 total 416712
 drwxr-xr-x@   7 hatred  staff        224 Jun  5  2023 AndroidStudioProjects
@@ -256,6 +255,66 @@ drwx------@ 126 hatred  staff       4032 Jul 12 14:03 Library
         参数通常以连词线开头，如：`-l`，同一个参数配置项通常有长和短令中形式，如`-l`是短形式，`--list`是长形式，作用完全相同。
 
         短形式方便手动输入，长形式一般用在脚本之中，可读性更好，利于自身含义。
+
+        长形式参数在mac上的bash环境中执行没有成功，怀疑是`version 3.2.57(1)-release` 版本低，在kali中`version 5.1.16(1)-release` 也有长形式执行失败的情况。
+
+```bash
+# mac 长形式参数执行结果
+bash-3.2$ ls --list
+ls: unrecognized option '--list'
+usage: ls [-@ABCFGHILOPRSTUWabcdefghiklmnopqrstuvwxy1%,] [--color=when] [-D format] [file ...]
+bash-3.2$ ls --reverse
+ls: unrecognized option '--reverse'
+usage: ls [-@ABCFGHILOPRSTUWabcdefghiklmnopqrstuvwxy1%,] [--color=when] [-D format] [file ...]
+
+#kali 长形式执行结果
+┌──(root㉿kali-linux-2022-2)-[/home/parallels]
+└─# ls --list                                                                                                                                                                         
+ls: unrecognized option '--list'
+Try 'ls --help' for more information.
+
+┌──(root㉿kali-linux-2022-2)-[/home/parallels]
+└─# ls --reverse                                                                                                                                                                      
+Videos  Templates  reports  Public  Pictures  Music  Downloads  Documents  Desktop
+```
+
+### 2.2.1 命令行结尾反斜杠
+
+命令行结尾加反斜杠，bash会将下一行和当前行放在一起解释。
+
+```bash
+bash-3.2$ echo a \
+> b
+a b
+# 和下面效果相同
+bash-3.2$ echo a b 
+a b
+```
+
+### 2.2.2 空格
+
+bash 使用空格或 tab 键区分不同的参数。如果参数间有多个空格，bash会自动忽略多余的空格。
+
+```bash
+bash-3.2$ echo aaa bbb test
+aaa bbb test
+#多空格忽略情况
+bash-3.2$ echo aaa bbb       test
+aaa bbb test
+```
+
+### 2.2.3 分号
+
+分号` ；`是命令的结束符，是的一行上可以放置多个命令，上一个命令执行结束后，在执行第二个命令。无论第一个命令执行成功或失败，第二个命令总是紧接着第一个命令执行。
+
+```bash
+bash-3.2$ clear;ls
+bash-3.2$ clear ;which clear
+```
+
+### 2.2.4 命令的组合符 `&&` 和 `||`
+
+
 
 # 3.模式扩展
 
