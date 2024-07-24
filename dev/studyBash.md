@@ -212,7 +212,50 @@ ab
 
 如果不使用`-e`参数，即默认情况下，引号会让特殊字符变成普通字符，`echo`不解释他们，原样输出。
 
+```bash
+bash-3.2$ echo "a \n b"
+a \n b
+bash-3.2$ echo -e "a \n b"
+a 
+ b
+# 单引号
+bash-3.2$ echo -e 'aaa\nbbbbb'
+aaa
+bbbbb
+```
 
+上面代码中，`-e`参数是的`\n`解释为换行符，导致输出的内容出现换行。
+
+## 2.2命令格式
+
+shell命令基本都是命令`/可执行文件 + 参数的格式`。
+
+```bash
+$ command [arg1 ...[argN]]
+```
+
+`command` 是具体命令或可执行文件；
+
+`arg1...argN` 是传递给命令的参数，是可选的，是命令的配置项。
+
+```bash
+
+bash-3.2$ ls -l
+total 416712
+drwxr-xr-x@   7 hatred  staff        224 Jun  5  2023 AndroidStudioProjects
+drwx------@   5 hatred  staff        160 Nov  3  2023 Applications
+drwxr-xr-x@   6 hatred  staff        192 Jul 23 13:41 Applications (Parallels)
+drwx------@  34 hatred  staff       1088 Jul 23 09:37 Desktop
+drwx------@  11 hatred  staff        352 Jul  5 09:20 Documents
+drwx------@ 473 hatred  staff      15136 Jul 23 16:14 Downloads
+drwx------@ 126 hatred  staff       4032 Jul 12 14:03 Library
+```
+
+        上面的命令 `ls` 是命令，`-l`是参数。
+
+        参数通常以连词线开头，如：`-l`，同一个参数配置项通常有长和短令中形式，如`-l`是短形式，`--list`是长形式，作用完全相同。
+
+        短形式方便手动输入，长形式一般用在脚本之中，可读性更好，利于自身含义。
 
 # 3.模式扩展
 
