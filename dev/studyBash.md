@@ -424,6 +424,40 @@ bash-3.2$ set +o noglob
 bash-3.2$ set +f
 ```
 
+## 3.2 波浪线扩展
+
+```bash
+# ~ 波浪线自动扩展成当前用户的的主目录
+bash-3.2$ echo ~
+/Users/hatred
+```
+
+```bash
+# ~/dir 表示扩展主目录下的某个子目录 dir是主目录下的一个子目录名
+bash-3.2$ cd ~/studyjava
+bash-3.2$ pwd
+/Users/hatred/studyjava
+```
+
+```bash
+# ~user 表示扩展成用户 user 的主目录
+
+```
+
+```bash
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 4.引号和转义
