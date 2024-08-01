@@ -1,6 +1,7 @@
 # javascript 学习笔记
 
-《javaScript权威指南 第6版》
+《javaScript权威指南 第6版》 
+2024年7月做的笔记，这里面的知识有些陈旧；和现用的javascript有区别；书籍内容基于2009年12月ECMA大会通过的ECMAScirpt 5；至2024年ECMAScript标准已经发布至第15版了。
 
 ## 1、词法结构
 
@@ -72,6 +73,7 @@ null    //空
 {x:1,y:2}    //对象
 [1,2,3,4,5]    //数组
 ```
+
 ### 1-3  标识和保留字
 
 标识符：就是一个名字，用户变量和函数命名或着用于某些循环语句的跳转位置的标记。
@@ -82,6 +84,58 @@ null    //空
 
 > 不能使用数字开头
 
+```javascript
+// 一些合法的标识符
+i
+my_variable_name
+_dummy
+$str
+```
+
+我们通常使用ASCII字母和数字来书写标识符；担javascript允许标识符出现Unicode字符全集中的字母和数字，从技术上讲ECMAScrip标准也允许在标识符的首字母后出现Unicode字符集中Mn类、Mc类、Pc类。
+
+- Mn类：表示基字符的修改中出现的非间距字符；
+- Mc类：表示基字符的修改中影响了基字符标志位的宽度的间距字符；
+- Pc类：指连接两个符号的连接符或标点符号。
+
+```javascript
+// 如下都是合法的标识符号
+var aí = "hello word";
+var π = 3.1415926
+```
+
+保留字（关键字）： javascript将一部分标识符号拿出来作为自己所用，用户不能在程序中将这些关键字用作标识符。
+
+```javascript
+//正在使用的关键字
+break        delete        function        return        typeof
+case        do            if                switch        var
+catch        else        instanceof        throw        while
+debugger    finally        new                true        with
+default        for            null            try        
+
+//ECMAScript 5未使用但保留的关键字
+class        const        enum            export        extends
+import        super
+
+//下面这些关键字在普通的javascript代码中是合法的，在严格模式下是保留字
+implements	let		private		public		yield
+interface	package	protected	static
+```
+
+### 1-4 可选的分号
+javascript使用分号`;`分割语句，这对增强代码的可读性和整洁性十分重要。如果一条语句独占一行，通常可以省了语句结尾的分号，右花括号`}`前的分号也可以省略。
+
+两种编程风格：
+- 正常使用分号`;`分割所有语句
+- 只在必须使用分割`;`时才使用分割符
+
+如下时一些示例：
+```javascript
+// 如下代码可以省略第一个分号
+var a = 1;
+var b = 2;
+```
 
 ## 2、类型、值、变量
 
