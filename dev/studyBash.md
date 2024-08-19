@@ -216,7 +216,7 @@ ab
 bash-3.2$ echo "a \n b"
 a \n b
 bash-3.2$ echo -e "a \n b"
-a 
+a
  b
 # 单引号
 bash-3.2$ echo -e 'aaa\nbbbbb'
@@ -287,7 +287,7 @@ bash-3.2$ echo a \
 > b
 a b
 # 和下面效果相同
-bash-3.2$ echo a b 
+bash-3.2$ echo a b
 a b
 ```
 
