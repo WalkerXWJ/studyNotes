@@ -52,7 +52,3 @@
 | 46  | TCP/3690             | SVN服务                        | SVN泄漏、未授权访问              |
 | 47  | TCP/50000            | SAP Management Console       | 远程执行                     |
 | 48  | TCP/50070, 50030     | Hadoop                       | 未授权访问                    |
-
-
-
-
