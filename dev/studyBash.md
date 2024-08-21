@@ -545,7 +545,34 @@ aba	bbb
 ⚠️ 如果要匹配 `[` 可以直接放在括号里`[[abc]`，如果要匹配只能放在括号的开头和结尾`[-abc]``[abc-]`。
 
 ### 3.5.2 `[start-end]`扩展
-
+方括号扩展有一个简写形式`[start-end]`扩展，表示一个连续的范围。如`[a-c]`等同于`[abc]`；`[0-9]`等同于`[0123456789]`；
+```bash
+# 存在文件 a.txt b.txt c.txt d.txt
+(base) hatred@子贡 studybash % ls [a-d].txt
+a.txt	b.txt	c.txt	d.txt
+#存在file1.txt file2.txt file3.txt file4.txt 
+(base) hatred@子贡 studybash % ls file[0-9].txt
+file1.txt	file2.txt	file3.txt	file4.txt
+```
+**一些常用的[start-end]扩展写法**
+```bash
+# 所有小写字母
+[a-z]
+# 所有小写字母及大些字母
+[a-zA-Z]
+# 所有小写字母、大写字母及数字
+[a-z-A-Z0-9]
+# 所有以 a \ b \ b 开头的文件
+[abc]*
+# 文件file.c 与 file.o
+file.[co]
+# 以backup开头，后三位为数字的文件
+backup[0-9][0-9][0-9]
+# 匹配非数字字符
+[!0-9]
+# 匹配非字母字符
+[!a-zA-Z]
+```
 # 仅存在
 
 # 4.引号和转义
