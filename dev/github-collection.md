@@ -38,8 +38,7 @@ WPS 0day，wps软件运行时会开放4709端口的api接口，攻击者可以�
 Windows TCP/IP 远程执行代码漏洞 POC
 [https://github.com/ynwarcs/CVE-2024-38063/raw/main/script/cve-2024-38063.py](https://github.com/ynwarcs/CVE-2024-38063/raw/main/script/cve-2024-38063.py)
 
-CVE-2024-42992
-Python Pip Pandas v2.2.2被发现包含一个任意文件
+CVE-2024-42992 Python Pip Pandas v2.2.2被发现包含一个任意文件
 [https://github.com/juwenyi/CVE-2024-42992](https://github.com/juwenyi/CVE-2024-42992)
 
 微软 SharePoint  RCE
