@@ -484,7 +484,7 @@ bash-3.2$ echo ?.bb
 ```bash
 # 匹配以.txt 结尾的文件和文件夹
 bash-3.2$ ls *.txt
-bash-3.2$ ls *.txt 
+bash-3.2$ ls *.txt
 1.txt    a.txt    ab.txt    b.txt    bb.txt    zb.txt
 
 ay.txt:
@@ -499,7 +499,7 @@ bash-3.2$ ls .*
 # 显示隐藏文件 同时排除 . .. 两个特殊隐藏文件可以与括号扩展结合 .[!.]*  指，匹配两个字符开头，第一位为.第二位不为.的文件或目录
 bash-3.2$ echo .[!.]*
 .abc.txt .bak .ooo.sh
-#` * `字符扩展属于文件名扩展，只有在文件/目录确实存在的前提下扩展才会发生。 
+#` * `字符扩展属于文件名扩展，只有在文件/目录确实存在的前提下扩展才会发生。
 bash-3.2$ ls g*
 ls: g*: No such file or directory
 bash-3.2$ echo g*
@@ -520,7 +520,7 @@ ay.txt/fisrt.md
 
 ## 3.5 方括号扩展
 ### 3.5.1 `[...]`扩展
-方括号扩展的形式是`[...]`，只有文件确实存在的前提下才会扩展，如果文件不存在就会原样输出；如`[aeiou]`可以匹配五个元音字母中的任意一个。 
+方括号扩展的形式是`[...]`，只有文件确实存在的前提下才会扩展，如果文件不存在就会原样输出；如`[aeiou]`可以匹配五个元音字母中的任意一个。
 
 ```bash
 # 存在 a.txt b.txt
@@ -550,7 +550,7 @@ aba	bbb
 # 存在文件 a.txt b.txt c.txt d.txt
 (base) hatred@子贡 studybash % ls [a-d].txt
 a.txt	b.txt	c.txt	d.txt
-#存在file1.txt file2.txt file3.txt file4.txt 
+#存在file1.txt file2.txt file3.txt file4.txt
 (base) hatred@子贡 studybash % ls file[0-9].txt
 file1.txt	file2.txt	file3.txt	file4.txt
 ```
