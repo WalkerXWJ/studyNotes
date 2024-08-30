@@ -49,3 +49,19 @@ Roundcube Webmail存在远程代码执行漏洞
 
 Windows CSC 提权漏洞 POC CVE-2024-26229
 [https://github.com/varwara/CVE-2024-26229](https://github.com/varwara/CVE-2024-26229)
+
+
+
+## 大模型
+
+通义千问 ---聊天和预训练大型语言模型的官方仓库
+
+[https://github.com/QwenLM/Qwen](https://github.com/QwenLM/Qwen)
+
+
+
+## 服务器
+
+OpenResty® 是一款基于 NGINX 和 LuaJIT 的 Web 平台。
+
+[OpenResty&reg; - 开源官方站](https://openresty.org/cn/)
