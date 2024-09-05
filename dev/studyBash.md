@@ -519,7 +519,9 @@ ay.txt/fisrt.md
 ⚠️ bash 4.0 引入了`globstar`，该参数打开时允许`**`匹配零个或多个子目录。因此`**/*.md`可以匹配顶层的md文件和任意深度子目录md文件。详见`shopt`命令。
 
 ## 3.5 方括号扩展
+
 ### 3.5.1 `[...]`扩展
+
 方括号扩展的形式是`[...]`，只有文件确实存在的前提下才会扩展，如果文件不存在就会原样输出；如`[aeiou]`可以匹配五个元音字母中的任意一个。
 
 ```bash
@@ -534,27 +536,34 @@ b.txt
 bash-3.2$ ls [ab].txt
 b.txt
 ```
+
 方括号的两种变体`[^...]`和`[!...]`，表示匹配不在括号内内的字符，这两种写法等价。
+
 ```bash
 # 存在 aaa bbb aba 三个文件, 匹配三个字符组成，中间字符不为a的文件
 bash-3.2$ ls ?[!a]?
-aba	bbb
+aba    bbb
 bash-3.2$ ls ?[^a]?
-aba	bbb
+aba    bbb
 ```
+
 ⚠️ 如果要匹配 `[` 可以直接放在括号里`[[abc]`，如果要匹配只能放在括号的开头和结尾`[-abc]``[abc-]`。
 
 ### 3.5.2 `[start-end]`扩展
+
 方括号扩展有一个简写形式`[start-end]`扩展，表示一个连续的范围。如`[a-c]`等同于`[abc]`；`[0-9]`等同于`[0123456789]`；
+
 ```bash
 # 存在文件 a.txt b.txt c.txt d.txt
 (base) hatred@子贡 studybash % ls [a-d].txt
-a.txt	b.txt	c.txt	d.txt
-#存在file1.txt file2.txt file3.txt file4.txt
+a.txt    b.txt    c.txt    d.txt
+# 存在file1.txt file2.txt file3.txt file4.txt
 (base) hatred@子贡 studybash % ls file[0-9].txt
-file1.txt	file2.txt	file3.txt	file4.txt
+file1.txt    file2.txt    file3.txt    file4.txt
 ```
+
 **一些常用的[start-end]扩展写法**
+
 ```bash
 # 所有小写字母
 [a-z]
@@ -573,6 +582,7 @@ backup[0-9][0-9][0-9]
 # 匹配非字母字符
 [!a-zA-Z]
 ```
+
 # 仅存在
 
 # 4.引号和转义

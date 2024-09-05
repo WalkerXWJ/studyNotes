@@ -30,6 +30,12 @@ SecGPT网络安全大模型
 车联网渗透测试系统
 [https://github.com/TianWen-Lab/TranSec](https://github.com/TianWen-Lab/TranSec)
 
+AuxTools - 图形化渗透测试辅助工具
+
+[https://github.com/doimet/AuxTools](https://github.com/doimet/AuxTools)
+
+
+
 ## POC
 
 WPS 0day，wps软件运行时会开放4709端口的api接口，攻击者可以请求此接口执行命令
