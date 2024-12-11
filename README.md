@@ -12,11 +12,15 @@ Daily study notes [XWJ],Good wishes to you!!!
 - [Python 编程学习笔记](./dev/studyPython.md)
 - [JavaScript 编程学习笔记](./dev/studyJavaScript.md)
 
-## 信息安全
+## 攻防技术
 
-- []()
-- []()
+- [高级可持续性威胁](./hack/apt.md)
+- [攻防安全认证专业人员](./hack/oscp.md)
 
-## 文化
+## 金融安全
+
+- [金融反欺诈]()
+
+- [金融反洗钱]()
 
 ## 制度

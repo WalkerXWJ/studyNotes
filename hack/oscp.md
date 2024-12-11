@@ -1,8 +1,6 @@
 # Offensive Security Certified Professional
 
-基本信息：
-
-[官网证书介绍](https://www.offensive-security.com/information-security-certifications/oscp-offensive-security-certified-professional/)    [Linux提权指南](https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/)     [Windows提权辅助脚本](https://github.com/pentestmonkey/windows-privesc-check)    [模拟练习平台vulnhub](https://www.vulnhub.com/)     [模拟练习平台hackthebox](https://www.hackthebox.eu/)   [badchars工具](https://github.com/mgeeky/expdevBadChars) 
+[官网证书介绍](https://www.offsec.com/courses-and-certifications/)   [Linux提权指南](https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/)     [Windows提权辅助脚本](https://github.com/pentestmonkey/windows-privesc-check)    [模拟练习平台vulnhub](https://www.vulnhub.com/)     [模拟练习平台hackthebox](https://www.hackthebox.eu/)   [badchars工具](https://github.com/mgeeky/expdevBadChars) 
 
 [官网考试说明](https://www.offsec.com/courses/pen-200/)    
 
