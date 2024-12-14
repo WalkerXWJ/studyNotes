@@ -48,7 +48,7 @@ ln -s /opt/dnscat2/client/dnscat /usr/bin/dnscat
 
 - 不需要root权限就允许shell访问和传输数据
 
-- DNS的C2连接，通常不会向直接使用tcp或udp那样受到限制。
+- DNS的C2连接，通常不会像直接使用tcp或udp那样受到限制。
 
 **被利用点：** 受保护的网络可能包含一个DNS服务器来解析内部主机，同时允许解析外部资源。
 

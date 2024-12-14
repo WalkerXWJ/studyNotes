@@ -34,8 +34,6 @@ AuxTools - 图形化渗透测试辅助工具
 
 [https://github.com/doimet/AuxTools](https://github.com/doimet/AuxTools)
 
-
-
 ## POC
 
 WPS 0day，wps软件运行时会开放4709端口的api接口，攻击者可以请求此接口执行命令
@@ -56,15 +54,11 @@ Roundcube Webmail存在远程代码执行漏洞
 Windows CSC 提权漏洞 POC CVE-2024-26229
 [https://github.com/varwara/CVE-2024-26229](https://github.com/varwara/CVE-2024-26229)
 
-
-
 ## 大模型
 
 通义千问 ---聊天和预训练大型语言模型的官方仓库
 
 [https://github.com/QwenLM/Qwen](https://github.com/QwenLM/Qwen)
-
-
 
 ## 服务器
 
