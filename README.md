@@ -4,10 +4,10 @@ Daily study notes XWJ,Good wishes to you!!!
 
 ## 开发技术
 
-- [Java ](./dev/studyJava.md)
-- [Bash ](./dev/studyPython.md)
-- [Python ](./dev/studyPython.md)
-- [JavaScript ](./dev/studyJavaScript.md)
+- [Java](./dev/studyJava.md)
+- [Bash](./dev/studyPython.md)
+- [Python](./dev/studyPython.md)
+- [JavaScript](./dev/studyJavaScript.md)
 
 ## 攻防技术
 
@@ -16,7 +16,6 @@ Daily study notes XWJ,Good wishes to you!!!
 - [红队攻防技术](./hack/RedTeam.md)
 - [攻防工具信息](./hack/tools.md)
 - [Web漏洞挖掘](./hack/web-hack.md)
-- 
 
 ## 金融安全
 
