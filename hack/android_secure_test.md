@@ -1,11 +1,13 @@
 # 安卓安全测试
 
 App的安全问题包含两方面：
+
 - app是否具有攻击行为，即是否有信息窃取、恶意扣费、远程控制等高危险的行为；
 - app是否具有防御能力，即是否能够抵御逆向入侵、劫持篡改等攻击行为；
-以下围绕app的安全防御能力开展测试，介绍测试要求和测试方法。
+  以下围绕app的安全防御能力开展测试，介绍测试要求和测试方法。
 
 普遍存在的安全问题：
+
 - apk反编译后暴力关键业务代码
 - 网络通信明文传输关键业务数据
 - 受限服务接口未经授权可以远程任意访问
@@ -15,6 +17,7 @@ App的安全问题包含两方面：
 
 Android app编程语言：主要为java
 Android 四大组建：
+
 - Activity
 - Service
 - Broadcast Receiver
@@ -73,7 +76,6 @@ public class Test {
 ```
 
  android上的app使用自带的`Dalvik`虚拟机运行，并不使用标准的java虚拟机。两个虚拟机的指令集不同，通过javac编译生成的class文件无法在`Dalvik`虚拟机上运行，需要使用`dx`命令将所有的class文件和jar包转换成符合`Dalvik`字节码格式的`classes.dex`文件。
- - `dx`命令位置：`\sdk\build-tools\`路径下
- - 命令格式：`dx --dex --output=classes.dex Test.class`
- 
 
+- `dx`命令位置：`\sdk\build-tools\`路径下
+- 命令格式：`dx --dex --output=classes.dex Test.class`
