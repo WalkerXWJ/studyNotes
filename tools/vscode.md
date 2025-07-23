@@ -1,5 +1,9 @@
 # vs code
 
+## 快捷键
+
+显示所有命令: `shift` + `command` + `P`
+
 ## 插件
 
 ### Live Server
