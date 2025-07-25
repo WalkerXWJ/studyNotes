@@ -125,3 +125,14 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/605.1.15 
 [*] Auxiliary module execution completed
 msf auxiliary(scanner/http/title) > 
 ```
+#安装Metasploit练习虚拟机
+## Mac上安装Metasploitable 2
+设备：Mac M1
+下载MetaSploitable 2
+```bash
+wget https://download.vulnhub.com/metasploitable/metasploitable-linux-2.0.0.zip
+```
+安装UTM
+```bash
+brew install --cask utm
+```
