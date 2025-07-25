@@ -128,11 +128,16 @@ msf auxiliary(scanner/http/title) >
 #安装Metasploit练习虚拟机
 ## Mac上安装Metasploitable 2
 设备：Mac M1
-下载MetaSploitable 2
+- 下载MetaSploitable 2
 ```bash
+# file SHA1：84133002EF79FC191E726D41265CF5AB0DFAD2F0
 wget https://download.vulnhub.com/metasploitable/metasploitable-linux-2.0.0.zip
 ```
-安装UTM
+- 安装UTM
 ```bash
 brew install --cask utm
+```
+- 安装QEMU
+```bash
+brew install qemu 
 ```
