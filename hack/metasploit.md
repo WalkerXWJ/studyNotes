@@ -141,3 +141,18 @@ brew install --cask utm
 ```bash
 brew install qemu 
 ```
+- 解压metasploitable-linux-2.0.0.zip
+```bash
+unzip metasploitable-linux-2.0.0.zip
+```
+- 将文件`.vmdk`转成`.qcow2`
+```bash
+# 打开文件所在目录
+cd Metasploitable2-Linux
+# 转换文件
+qemu-img convert -O qcow2 Metasploitable.vmdk Metasploitable.qcow2
+```
+启动虚拟机
+```bash
+qemu-system-x86_64 -hda Metasploitable.qcow2
+```
