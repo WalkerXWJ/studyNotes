@@ -36,7 +36,7 @@ docker-compose -p oneblog ps
 # 查看日志
 docker-compose -p oneblog logs -f
 ```
-解决报错
+解决报错 [参考链接](https://cloud.tencent.com/developer/article/2516747)
 ```bash
 root@ubuntu24:~/OneBlog/docs/docker# docker-compose -p oneblog up -d
 Pulling blog-redis (redis:)...
