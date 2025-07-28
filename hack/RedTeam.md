@@ -42,7 +42,7 @@ ln -s /opt/dnscat2/client/dnscat /usr/bin/dnscat
 
 #### dnscat2使用：
 
-利用DNS创建的加密隧道，几乎在每个网络中都可以使用。<span style="color:blue">dnscat2 分为`客户端`和`服务端`两部分。</span>
+利用DNS创建的加密隧道，几乎在每个网络中都可以使用。<span style="color:yellow">dnscat2 分为`客户端`和`服务端`两部分。</span>
 
 **dnscant2优点：**
 

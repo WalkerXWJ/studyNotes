@@ -15,7 +15,7 @@ msfupdate
 msfdb init
 msfcontrol 
 ```
-### 搜素模块
+### 搜索模块
 msf基于模块的概念，最常用的模块如下：
 - auxiliary - 辅助模块不利用目标，但可以执行数据收集或管理任务
 - exploit - 漏洞利用模块以允许框架在目标主机上执行任意代码的方式利用漏洞
@@ -35,4 +35,125 @@ Matching Modules
 
 
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/scanner/http/title
+```
+指定当前活动的模块`use`,指定从服务器获取HTTP标题（网页的title）的模块
+```bash
+msf > use auxiliary/scanner/http/title 
+msf auxiliary(scanner/http/title) > 
+```
+###运行服务模块
+每个模块都提供可配置的选项，使用`show options`或`options`查看选项：
+```bash
+msf auxiliary(scanner/http/title) > show options
+
+Module options (auxiliary/scanner/http/title):
+
+   Name         Current Setting  Required  Description
+   ----         ---------------  --------  -----------
+   Proxies                       no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: socks5, socks5h, sapni, http, socks4
+   RHOSTS                        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT        80               yes       The target port (TCP)
+   SHOW_TITLES  true             yes       Show the titles on the console as they are grabbed
+   SSL          false            no        Negotiate SSL/TLS for outgoing connections
+   STORE_NOTES  true             yes       Store the captured information in notes. Use "notes -t http.title" to view
+   TARGETURI    /                yes       The base path
+   THREADS      1                yes       The number of concurrent threads (max one per host)
+   VHOST                         no        HTTP server virtual host
+
+
+View the full module info with the info, or info -d command.
+
+msf auxiliary(scanner/http/title) > 
+```
+设置模块选项，使用`set`，eg：`set command rhost`
+```bash
+msf auxiliary(scanner/http/title) > set rhosts www.jd.com
+rhosts => www.jd.com
+```
+`run`命令，运营模块，显示目标的title。
+```bash
+msf auxiliary(scanner/http/title) > run
+[+] [116.78.120.73:80] [C:302] [R:https://www.jd.com/] [S:nginx] 302 Found
+[*] Scanned 1 of 2 hosts (50% complete)
+[*] Scanned 2 of 2 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+metasploit6新增功能，增加了对运行模块的支持，并将选项设置为`run`命令的一部分：
+```bash
+msf auxiliary(scanner/http/title) > run rhosts=www.jd.com httptrace=true
+####################
+# Request:
+####################
+GET / HTTP/1.1
+Host: www.jd.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15
+
+
+####################
+# Response:
+####################
+HTTP/1.1 302 Moved Temporarily
+Server: nginx
+Date: Wed, 23 Jul 2025 07:00:43 GMT
+Content-Type: text/html
+Content-Length: 138
+Connection: keep-alive
+Location: https://www.jd.com/
+Timing-Allow-Origin: *
+X-Trace: 302-1753254043649-0-0-0-0-0
+Strict-Transport-Security: max-age=3600
+
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+[+] [116.78.120.73:80] [C:302] [R:https://www.jd.com/] [S:nginx] 302 Found
+[*] Scanned 1 of 2 hosts (50% complete)
+####################
+# Request:
+####################
+GET / HTTP/1.1
+Host: www.jd.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15
+
+
+[*] Scanned 2 of 2 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf auxiliary(scanner/http/title) > 
+```
+#安装Metasploit练习虚拟机
+## Mac上安装Metasploitable 2
+[文章](https://medium.com/@cy3eranna/installation-of-metasploitable-2-on-macos-with-m1-chip-591e59da26f1)
+设备：Mac M1
+- 下载MetaSploitable 2
+```bash
+# file SHA1：84133002EF79FC191E726D41265CF5AB0DFAD2F0
+wget https://download.vulnhub.com/metasploitable/metasploitable-linux-2.0.0.zip
+```
+- 安装UTM
+```bash
+brew install --cask utm
+```
+- 安装QEMU
+```bash
+brew install qemu 
+```
+- 解压metasploitable-linux-2.0.0.zip
+```bash
+unzip metasploitable-linux-2.0.0.zip
+```
+- 将文件`.vmdk`转成`.qcow2`
+```bash
+# 打开文件所在目录
+cd Metasploitable2-Linux
+# 转换文件
+qemu-img convert -O qcow2 Metasploitable.vmdk Metasploitable.qcow2
+```
+启动虚拟机
+```bash
+qemu-system-x86_64 -hda Metasploitable.qcow2
 ```
