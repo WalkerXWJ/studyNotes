@@ -15,7 +15,7 @@ msfupdate
 msfdb init
 msfcontrol 
 ```
-### 搜素模块
+### 搜索模块
 msf基于模块的概念，最常用的模块如下：
 - auxiliary - 辅助模块不利用目标，但可以执行数据收集或管理任务
 - exploit - 漏洞利用模块以允许框架在目标主机上执行任意代码的方式利用漏洞
@@ -127,6 +127,7 @@ msf auxiliary(scanner/http/title) >
 ```
 #安装Metasploit练习虚拟机
 ## Mac上安装Metasploitable 2
+[文章](https://medium.com/@cy3eranna/installation-of-metasploitable-2-on-macos-with-m1-chip-591e59da26f1)
 设备：Mac M1
 - 下载MetaSploitable 2
 ```bash
