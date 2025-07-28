@@ -1,4 +1,4 @@
-# <span style="color:blue">Firewall 防火墙</span>
+# Firewall 防火墙
 
 ## Linux Firewall
 

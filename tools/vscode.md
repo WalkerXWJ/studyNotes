@@ -12,4 +12,4 @@
 
 ### Type Markdown Editer
 
-一款所见即所得的即时渲染Markdown编辑插件。
+一款所见即所得的即时渲染Markdown编辑插件（不支持即使保存）。
