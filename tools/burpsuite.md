@@ -8,7 +8,7 @@ mac安装burp专业版
 brew install --cask burp-suite-professional 
 ```
 
-下载破解程序 [burploader.jar](./../tools_file/burploader.jar) tools_file目录中有文件
+下载启动程序 [burploader.jar](./../tools_file/burploader.jar) tools_file目录中有文件
 
 ```bash
 # 百度网盘链接 https://pan.baidu.com/s/10hY7f0RGkupblCvBDlopVQ?pwd=2024
