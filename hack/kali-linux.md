@@ -95,12 +95,148 @@ kali-linux-large: 我们之前镜像的默认工具集
 kali-linux-everything: 包含此处列出的所有元包和工具  
 kali-desktop-live: 从镜像启动时的实时会话使用
 ```
-..................
-..................
-..................
+## 安装 Flatpak
+```bash
+# Flatpak 是一个用于 Linux 系统的通用软件打包和分发技术
+# 搜索应用：flatpak search 应用名称
+# 安装应用：flatpak install flathub 应用ID
+# 已安装应用：flatpak list
+# 运行应用：flatpak run 应用ID
+# 更新flatpak应用：flatpak update
+# 卸载flatpak应用：flatpak uninstall 应用ID
+apt update
+apt install -y flatpak
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+# 为 GNOME 软件安装 Flatpak 插件,之后就可以在软件中心 安装flatpak软件了 ,kali 应用中：software
+apt install gnome-software-plugin-flatpak
+
+```
+主题支持：
+```bash
+# 如果你想让 flatpak 应用程序看起来与系统更一致，你可以强制它们使用你的本地主题：
+mkdir -p ~/.themes
+cp -a /usr/share/themes/* ~/.themes/
+flatpak override --filesystem=~/.themes/
+```
+## 安装 snap
+```bash
+# Snap 是 Canonical 开发的另一种通用 Linux 软件打包格式，类似于 Flatpak
+# 搜索应用：snap find 关键词
+# 安装应用：snap install 应用名称
+# 列出安装应用：snap list
+# 运行应用：snap run 应用名称
+# 更新所有应用：snap refresh
+# 更新特定应用：snap refresh 应用名称
+# 卸载应用：snap remove 应用名称
+apt install -y snapd
+# 允许开机启动服务：snapd snapd.apparmor
+systemctl enable --now snapd apparmor
+# 重启系统
+```
+## 安装tor浏览器
+<span style="color:green">官方命令，提示找不到torbrowser-launcher</span>
+```bash
+sudo apt install -y tor torbrowser-launcher
+# 第一次它将下载并安装 Tor 浏览器，包括签名验证
+# 下次它将用于更新和启动 Tor 浏览器。
+torbrowser-launcher
+```
+## 工具信息查询
+### 本地工具信息查询
+```bash
+man 工具名称
+工具名称 --help
+```
+### 在线信息查询
+https://www.kali.org/tools/
+## MetaSploit框架
+根据 [Kali Linux 网络服务策略](https://www.kali.org/docs/policy/kali-linux-network-service-policy/)，默认情况下，没有网络服务（包括数据库服务_）_在启动时运行，因此需要采取几个步骤才能启动并运行 [Metasploit](https://www.metasploit.com/) 并支持数据库。
+快速启动并运行所有内容：
+```bash
+sudo msfdb init
+```
+1. 查看msfdb的命令交互有哪些
+```bash
+msfdb       
+
+Manage the metasploit framework database
+
+You can use an specific port number for the
+PostgreSQL connection setting the PGPORT variable
+in the current shell.
+
+Example: PGPORT=5433 msfdb init
+
+  msfdb init     # start and initialize the database
+  msfdb reinit   # delete and reinitialize the database
+  msfdb delete   # delete database and stop using it
+  msfdb start    # start the database
+  msfdb stop     # stop the database
+  msfdb status   # check service status
+  msfdb run      # start the database and run msfconsole
+```
+2. 启动metasploit的postgresql
+```bash
+msfdb start
+```
+3. 检查是否正在监听 5432 端口，验证postgresql是否正在运行
+```bash
+┌──(root㉿vbox-kali)-[~]
+└─# ss -ant 
+┌──(root㉿vbox-kali)-[~]
+└─# msfdb status
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/usr/lib/systemd/system/postgresql.service; disabled; preset: disabled)
+     Active: active (exited) since Tue 2025-07-29 02:33:10 CDT; 5min ago
+ Invocation: 466ebb98d90d485cab4be32e0f0b9976
+    Process: 23081 ExecStart=/bin/true (code=exited, status=0/SUCCESS)
+   Main PID: 23081 (code=exited, status=0/SUCCESS)
+   Mem peak: 1.7M
+        CPU: 2ms
+
+Jul 29 02:33:10 vbox-kali systemd[1]: Starting postgresql.service - PostgreSQL RDBMS...
+Jul 29 02:33:10 vbox-kali systemd[1]: Finished postgresql.service - PostgreSQL RDBMS.
+
+COMMAND    PID     USER FD   TYPE DEVICE SIZE/OFF NODE NAME
+postgres 23047 postgres 6u  IPv6  56883      0t0  TCP localhost:5432 (LISTEN)
+postgres 23047 postgres 7u  IPv4  56884      0t0  TCP localhost:5432 (LISTEN)
+
+UID          PID    PPID  C STIME TTY      STAT   TIME CMD
+postgres   23047       1  0 02:33 ?        Ss     0:00 /usr/lib/postgresql/17/bin/postgres -D /var/lib/postgresql/17/main -c config_file=/etc/postgresql/17/main/postgresql.conf
+
+[+] Detected configuration file (/usr/share/metasploit-framework/config/database.yml)
+```
+4. 初始化 msf 的 postgresql数据库
+```bash
+sudo msfdb init
+
+```
+5. 启动msfconsole
+```bash
+msfconsole -q
+```
+
+# kali tools
+## THC Hydra
+Hydra 是一个并行登录破解程序，支持多种协议 攻击。它非常快速和灵活，并且很容易添加新模块。
+hydra支持的协议：
+```text
+Cisco AAA, Cisco auth, Cisco enable, CVS, FTP, HTTP(S)-FORM-GET, HTTP(S)-FORM-POST, HTTP(S)-GET, HTTP(S)-HEAD, HTTP-Proxy, ICQ, IMAP, IRC, LDAP, MS-SQL, MySQL, NNTP, Oracle Listener, Oracle SID, PC-Anywhere, PC-NFS, POP3, PostgreSQL, RDP, Rexec, Rlogin, Rsh, SIP, SMB(NT), SMTP, SMTP Enum, SNMP v1+v2+v3, SOCKS5, SSH (v1 and v2), SSHKEY, Subversion, Teamspeak (TS2), Telnet, VMware-Auth, VNC and XMPP
+```
+安装hydra
+```bash
+apt install hydra
+```
+dpl4hydra 生成一个默认的密码列表文件
+```
+dpl4hydra -h
+dpl4hydra refresh
+```
+.................
+
 # 常见问题
 ## 由kali linux签名密钥过期导致的`apt`错误
-GPG 密钥用于对存储库进行签名，以确保更新包时的真实性、完整性和信任度。每隔 2-3 年，Kali 团队要么延长用于签署 APT 存储库的 GPG 密钥的生命周期，要么用新密钥替换它。这可能会导致长时间未更新其 kali-archive-keyring 包的用户出现错误。错误将如下所示：
+[[GPG]] 密钥用于对存储库进行签名，以确保更新包时的真实性、完整性和信任度。每隔 2-3 年，Kali 团队要么延长用于签署 APT 存储库的 [[GPG]] 密钥的生命周期，要么用新密钥替换它。这可能会导致长时间未更新其 kali-archive-keyring 包的用户出现错误。错误将如下所示：
 ```bash
 ┌──(root㉿vbox-kali)-[~]
 └─# apt update              
