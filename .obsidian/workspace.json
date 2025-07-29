@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "temporary/blog.md",
+                "file": "tools/burpsuite.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "blog"
+              "title": "burpsuite"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 283.5,
     "collapsed": true
   },
   "right": {
@@ -143,13 +143,27 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "temporary/blog.md",
+                "file": "tools/burpsuite.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "blog 的大纲"
+              "title": "burpsuite 的大纲"
+            }
+          },
+          {
+            "id": "132d81e989b1b954",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
             }
           }
         ],
@@ -169,17 +183,19 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "8368033758ea74e1",
+  "active": "1fe744c58fe29305",
   "lastOpenFiles": [
+    "hack/web-hack.md",
+    "tools/burpsuite.md",
+    "hack/RedTeam.md",
+    "README.md",
+    "temporary/blog.md",
+    "Pasted image 20250728154228.png",
     "code/GPG.md",
     "code",
-    "tools/burpsuite.md",
     "hack/kali-linux.md",
     "tools/browser.md",
-    "hack/RedTeam.md",
     "tools/vscode.md",
-    "Pasted image 20250728154228.png",
-    "hack/web-hack.md",
     "hack/oscp.md",
     "hack/apt.md",
     "hack/android_secure_test.md",
@@ -192,7 +208,6 @@
     "server/代理服务器nginx.md",
     "小视频.md",
     "hack/firewall.md",
-    "README.md",
     "未命名.canvas",
     "未命名",
     "dev/studyJava.md"

@@ -37,6 +37,45 @@ java -jar burploader.jar
 5. 启动台打开burp-pro-loader.app，窗口中点击`run`，burp pro就启动了。
 
 # 使用
+## 官网的练习网站
+网站1:
+网站2:
+## 评估输入
+### 手动评估单个输入
+1. 发送请求到Repeater
+2. 切换到Repeater tab中，一次修改每个参数的value，如：
+	1. 删除参数的value
+	2. 输入一个空值
+	3. 选中高亮输入，右键选择 Insert Collaborator payload
+3. 点Send发送请求，并检查响应的差异，比如输入反馈和响应时间差异。
+4. 比较时可以依次将响应发送到 Comparer 比较器中
+	1. 选择要比较的两个响应
+	2. 可以选择 Words 或 Bytes  进行比较，将在新窗口显示高亮标记的结果。
+### 扫描单个输入
+1. 可以在任何报文编辑器中，选中高亮value，如 Proxy > HTTP history
+2. 右键，选择 Scan selected  insertion point ，scan launcher 窗口将打开。
+3. 点击 Scan 将使用默认配置进行扫描。扫描记录可以在 Dashboard 窗口的 Tasks 列表中看到，扫描发现的问题的在 Issues tab 中。
+### 扫描多个输入
+1. 将请求发送到 Intruder 
+2. 在 Intruder 中为参数添加payload的位置
+	1. 选中高亮参数
+	2. 点击 Add §，可以添加多个参数
+3. 右键选择 Scan defined insertion point，scan launcher 窗口将打开。
+4. 点击 Scan 将使用默认配置进行扫描。扫描记录可以在 Dashboard 窗口的 Tasks 列表中看到，扫描发现的问题的在 Issues tab 中。 
+### 模糊测试输入
+1. 将请求发送到 Intruder
+2. 在 Intruder 中为参数添加 payload 的位置
+	1. 选中高亮参数
+	2. 点击 Add §，可以添加多个参数
+3. 在 Payload Configuration 中添加模糊测试字符串列表，点击 add form list ，选择 Fuzzing - full 完整列表或添加其他列表。
+4. 点击 start attack ，攻击测试将在新窗口开始，burp 将发送模糊测试的 payload 。
+5. 攻击测试结束后通过通过查看响应发现漏洞问题。
+### 分析难以理解的数据
+
+
+
+
+
 # 插件
 ## Param Miner
 **简介：**

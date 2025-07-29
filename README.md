@@ -1,6 +1,7 @@
 # 学习笔记
 
-Daily study notes XWJ,Good wishes to you!!!
+- 学习是一种信仰，不死不休
+
 
 ## 开发技术
 

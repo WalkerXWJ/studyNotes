@@ -1,5 +1,7 @@
 {
   "accentColor": "#7df29a",
   "translucency": false,
-  "cssTheme": ""
+  "cssTheme": "",
+  "showViewHeader": true,
+  "showRibbon": true
 }

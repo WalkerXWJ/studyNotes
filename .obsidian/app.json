@@ -1,7 +1,9 @@
 {
-  "promptDelete": false,
+  "promptDelete": true,
   "alwaysUpdateLinks": true,
   "attachmentFolderPath": "/",
   "readableLineLength": false,
-  "showLineNumber": true
+  "showLineNumber": true,
+  "smartIndentList": true,
+  "showInlineTitle": true
 }
