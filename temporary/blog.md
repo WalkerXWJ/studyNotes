@@ -206,3 +206,26 @@ main() {
 # 执行主函数
 main
 ```
+报错
+```bash
+构建博客-mysql  
+[ ] 构建 242.7s （2/2） 完成 docker：default  
+=> [内部] 从 Dockerfile 0.0s 加载构建定义  
+=> =>传输 dockerfile：350B 0.0s  
+=> WARN：MaintainerDeprecated：维护者指令已被弃用，转而使用标签（第 3 行）0.0s  
+=> 错误 [内部] 加载 docker.io/library/mysql:5.7 242.6s 的元数据  
+------  
+> [内部] 加载 docker.io/library/mysql:5.7 的元数据：  
+------  
+  
+发现 1 个警告（使用 docker --debug 展开）：  
+- MaintainerDeprecated：维护者指令已被弃用，转而使用标签（第 3 行）  
+Dockerfile：1  
+--------------------  
+1 |>>>来自 mysql：5.7  
+2 |  
+3 |维护者 yadong.zhang0415@gmail.com  
+--------------------  
+错误：构建失败：解决失败：mysql：5.7：无法解析 docker.io/library/mysql:5.7 的源元数据：清单中与平台不匹配：未找到  
+错误：服务“blog-mysql”构建失败：构建失败
+```
