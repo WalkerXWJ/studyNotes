@@ -149,6 +149,8 @@ man 工具名称
 ```
 ### 在线信息查询
 https://www.kali.org/tools/
+# kali tools
+
 ## MetaSploit框架
 根据 [Kali Linux 网络服务策略](https://www.kali.org/docs/policy/kali-linux-network-service-policy/)，默认情况下，没有网络服务（包括数据库服务_）_在启动时运行，因此需要采取几个步骤才能启动并运行 [Metasploit](https://www.metasploit.com/) 并支持数据库。
 快速启动并运行所有内容：
@@ -216,22 +218,53 @@ sudo msfdb init
 msfconsole -q
 ```
 
-# kali tools
 ## THC Hydra
-Hydra 是一个并行登录破解程序，支持多种协议 攻击。它非常快速和灵活，并且很容易添加新模块。
+Hydra 是一个并行网络登录破解程序，支持多种协议 攻击。它非常快速和灵活，并且很容易添加新模块。
 hydra支持的协议：
 ```text
-Cisco AAA, Cisco auth, Cisco enable, CVS, FTP, HTTP(S)-FORM-GET, HTTP(S)-FORM-POST, HTTP(S)-GET, HTTP(S)-HEAD, HTTP-Proxy, ICQ, IMAP, IRC, LDAP, MS-SQL, MySQL, NNTP, Oracle Listener, Oracle SID, PC-Anywhere, PC-NFS, POP3, PostgreSQL, RDP, Rexec, Rlogin, Rsh, SIP, SMB(NT), SMTP, SMTP Enum, SNMP v1+v2+v3, SOCKS5, SSH (v1 and v2), SSHKEY, Subversion, Teamspeak (TS2), Telnet, VMware-Auth, VNC and XMPP
+adam6500 asterisk cisco cisco-enable cobaltstrike cvs firebird ftp[s] http[s]-{head|get|post} http[s]-{get|post}-form http-proxy http-proxy-urlenum icq imap[s] irc ldap2[s] ldap3[-{cram|digest}md5][s] memcached mongodb mssql mysql nntp oracle-listener oracle-sid pcanywhere pcnfs pop3[s] postgres radmin2 rdp redis rexec rlogin rpcap rsh rtsp s7-300 sip smb smtp[s] smtp-enum snmp socks5 ssh sshkey svn teamspeak telnet[s] vmauthd vnc xmpp
 ```
-安装hydra
+安装<span style="color:green">hydra</span>
 ```bash
 apt install hydra
 ```
-dpl4hydra 生成一个默认的密码列表文件
+<span style="color:green">dpl4hydra </span>生成一个默认的密码列表文件
 ```
 dpl4hydra -h
 dpl4hydra refresh
+
 ```
+<span style="color:green">hydra-wizard </span> 交互式测试命令
+```bash
+# man hydra-wizard
+
+HYDRA-WIZARD(1) 通用命令手册 
+
+名称  
+HYDRA-WIZARD - 命令行模式下的Hydra使用向导
+
+描述  
+本脚本通过简易向导引导用户使用hydra工具，通过交互式提问快速生成hydra命令行攻击参数  
+1. 向导首先询问要攻击的服务类型  
+2. 接着询问攻击目标地址  
+3. 要求输入用户名或用户名字典文件路径  
+4. 要求输入密码或密码字典文件路径  
+5. 向导会询问是否测试与登录名相同的密码、空密码或反向登录名密码  
+6. 最后询问要攻击的端口号  
+向导将显示攻击参数摘要，并确认是否立即执行攻击
+
+参见  
+hydra(1), dpl4hydra(1),
+
+作者  
+hydra-wizard由Shivang Desai shivang.ice.2010@gmail.com开发。
+
+ 本手册页由Daniel Echeverry <epsilon77@gmail.com>为Debian项目撰写（其他发行版亦可使用）。
+
+                                                                                2014年1月19日 
+```
+<span style="color:green">pw-inspeactor</span> 减少密码列表的工具
+
 .................
 
 # 常见问题

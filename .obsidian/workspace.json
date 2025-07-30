@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tools/burpsuite.md",
+                "file": "hack/kali-linux.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "burpsuite"
+              "title": "kali-linux"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5,
+    "width": 300,
     "collapsed": true
   },
   "right": {
@@ -143,27 +143,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "tools/burpsuite.md",
+                "file": "hack/kali-linux.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "burpsuite 的大纲"
-            }
-          },
-          {
-            "id": "132d81e989b1b954",
-            "type": "leaf",
-            "state": {
-              "type": "all-properties",
-              "state": {
-                "sortOrder": "frequency",
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-archive",
-              "title": "添加笔记属性"
+              "title": "kali-linux 的大纲"
             }
           }
         ],
@@ -185,17 +171,15 @@
   },
   "active": "1fe744c58fe29305",
   "lastOpenFiles": [
-    "hack/web-hack.md",
-    "tools/burpsuite.md",
-    "hack/RedTeam.md",
-    "README.md",
-    "temporary/blog.md",
-    "Pasted image 20250728154228.png",
     "code/GPG.md",
-    "code",
     "hack/kali-linux.md",
+    "code",
     "tools/browser.md",
+    "hack/RedTeam.md",
+    "tools/burpsuite.md",
     "tools/vscode.md",
+    "Pasted image 20250728154228.png",
+    "hack/web-hack.md",
     "hack/oscp.md",
     "hack/apt.md",
     "hack/android_secure_test.md",
@@ -208,8 +192,8 @@
     "server/代理服务器nginx.md",
     "小视频.md",
     "hack/firewall.md",
+    "README.md",
     "未命名.canvas",
-    "未命名",
     "dev/studyJava.md"
   ]
 }
