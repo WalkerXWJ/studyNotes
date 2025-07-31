@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "hack/kali-linux.md",
+                "file": "dev/burp插件开发.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "kali-linux"
+              "title": "burp插件开发"
             }
           }
         ]
@@ -95,7 +95,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "hack/kali-linux.md",
+                "file": "dev/burp插件开发.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "kali-linux 的反向链接列表"
+              "title": "burp插件开发 的反向链接列表"
             }
           },
           {
@@ -114,12 +114,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "hack/kali-linux.md",
+                "file": "dev/burp插件开发.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "kali-linux 的出链列表"
+              "title": "burp插件开发 的出链列表"
             }
           },
           {
@@ -143,13 +143,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "hack/kali-linux.md",
-                "followCursor": false,
+                "file": "dev/burp插件开发.md",
+                "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "kali-linux 的大纲"
+              "title": "burp插件开发 的大纲"
             }
           }
         ],
@@ -171,12 +171,13 @@
   },
   "active": "1fe744c58fe29305",
   "lastOpenFiles": [
-    "code/GPG.md",
+    "dev/burp插件开发.md",
+    "tools/burpsuite.md",
     "hack/kali-linux.md",
+    "code/GPG.md",
     "code",
     "tools/browser.md",
     "hack/RedTeam.md",
-    "tools/burpsuite.md",
     "tools/vscode.md",
     "Pasted image 20250728154228.png",
     "hack/web-hack.md",
