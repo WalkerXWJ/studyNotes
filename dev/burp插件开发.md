@@ -6452,19 +6452,8174 @@ public interface PayloadData
     IntruderInsertionPoint insertionPoint();
 }
 ```
-###
+###PayloadGenerator
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * Intruder载荷生成器接口。
+ * <p>
+ * 扩展程序注册{@link PayloadGeneratorProvider}后，
+ * 在进行新的Intruder攻击时需要返回此接口的新实例。
+ */
+public interface PayloadGenerator
+{
+    /**
+     * 由Burp调用以获取下一个载荷值。
+     * <p>
+     * 当生成器完成时应返回{@link GeneratedPayload#end()}实例，
+     * 向Burp发出生成结束的信号。
+     *
+     * @param insertionPoint 载荷的插入点信息
+     * @return 生成的Intruder载荷对象
+     */
+    GeneratedPayload generatePayloadFor(IntruderInsertionPoint insertionPoint);
+}
+```
+### PayloadGenerator
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * Intruder载荷生成器接口。
+ * <p>
+ * 扩展程序在注册{@link PayloadGeneratorProvider}后，
+ * 当发起新的Intruder攻击时需要实现此接口，
+ * 提供载荷生成功能。
+ */
+public interface PayloadGenerator
+{
+    /**
+     * 生成下一个攻击载荷。
+     * <p>
+     * Burp会重复调用此方法获取攻击载荷，
+     * 当所有载荷生成完成后应返回{@link GeneratedPayload#end()}，
+     * 通知Burp生成过程结束。
+     *
+     * @param insertionPoint 指定载荷插入位置的信息
+     * @return 生成的攻击载荷对象
+     */
+    GeneratedPayload generatePayloadFor(IntruderInsertionPoint insertionPoint);
+}
+```
+### PayloadGeneratorProvider
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是使用方式不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * 载荷生成器提供者接口。
+ * <p>
+ * 扩展程序可实现此接口，并通过调用{@link Intruder#registerPayloadGeneratorProvider}
+ * 来注册自定义的Intruder载荷生成器。
+ */
+public interface PayloadGeneratorProvider
+{
+    /**
+     * 获取载荷生成器在UI下拉列表中显示的名称
+     *
+     * @return 载荷生成器的显示名称
+     */
+    String displayName();
+
+    /**
+     * 由Burp调用以获取要添加到Intruder的{@link PayloadGenerator}实例
+     *
+     * @param attackConfiguration 包含当前选定的攻击配置标签页信息的对象
+     * @return 实现{@link PayloadGenerator}接口的对象实例
+     */
+    PayloadGenerator providePayloadGenerator(AttackConfiguration attackConfiguration);
+}
+```
+### PayloadProcessingAction
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * 载荷处理器可对当前载荷执行的操作指令
+ */
+public enum PayloadProcessingAction 
+{
+    /**
+     * 跳过当前载荷（不处理）
+     */
+    SKIP_PAYLOAD,
+    
+    /**
+     * 使用当前载荷（正常处理） 
+     */
+    USE_PAYLOAD
+}
+```
+### PayloadProcessingResult
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.ByteArray;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 载荷处理结果接口。
+ * <p>
+ * 当自定义的{@link PayloadProcessor}在Intruder中注册后，
+ * 应通过{@link PayloadProcessor#processPayload}方法返回此接口的实例。
+ */
+public interface PayloadProcessingResult
+{
+    /**
+     * 获取处理后的载荷值
+     * 
+     * @return 处理后的载荷字节数组
+     */
+    ByteArray processedPayload();
+
+    /**
+     * 获取载荷处理动作指令
+     * <p>
+     * Burp调用此方法决定如何处理载荷：
+     * - 返回{@link PayloadProcessingAction#USE_PAYLOAD}时使用该载荷
+     * - 返回{@link PayloadProcessingAction#SKIP_PAYLOAD}时跳过该载荷
+     *
+     * @return 载荷处理动作指令
+     */
+    PayloadProcessingAction action();
+
+    /**
+     * 创建使用载荷的处理结果实例
+     *
+     * @param processedPayload 处理后的载荷值
+     * @return 新的载荷处理结果实例
+     */
+    static PayloadProcessingResult usePayload(ByteArray processedPayload)
+    {
+        return FACTORY.usePayload(processedPayload);
+    }
+
+    /**
+     * 创建跳过载荷的处理结果实例
+     * 
+     * @return 新的载荷处理结果实例
+     */
+    static PayloadProcessingResult skipPayload()
+    {
+        return FACTORY.skipPayload();
+    }
+
+    /**
+     * 创建自定义动作的载荷处理结果实例
+     *
+     * @param processedPayload 处理后的载荷值
+     * @param action 要执行的处理动作
+     * @return 新的载荷处理结果实例
+     */
+    static PayloadProcessingResult payloadProcessingResult(ByteArray processedPayload, PayloadProcessingAction action)
+    {
+        return FACTORY.payloadProcessingResult(processedPayload, action);
+    }
+}
+```
+### PayloadProcessor
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * 载荷处理器接口。
+ * <p>
+ * 扩展程序可实现此接口，并通过调用{@link Intruder#registerPayloadProcessor}方法
+ * 来注册自定义的Intruder载荷处理器。
+ */
+public interface PayloadProcessor
+{
+    /**
+     * 获取处理器在UI下拉列表中显示的名称
+     * 
+     * @return 载荷处理器的显示名称
+     */
+    String displayName();
+
+    /**
+     * 处理Intruder载荷的核心方法。
+     * <p>
+     * 当需要处理载荷时，Burp会调用此方法。
+     *
+     * @param payloadData 包含当前待处理载荷信息的对象
+     * @return 载荷处理结果，包含处理后的值和操作指令
+     */
+    PayloadProcessingResult processPayload(PayloadData payloadData);
+}
+
+```
+## logger
+### LoggerCaptureHttpRequestResponse
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.logger;
+
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.handler.TimingData;
+import burp.api.montoya.http.message.MimeType;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
+
+/**
+ * HTTP请求/响应记录条目接口。
+ * <p>
+ * 定义可被Logger记录的HTTP请求和响应之间的关联关系。
+ */
+public interface LoggerCaptureHttpRequestResponse
+{
+    /**
+     * 获取HTTP请求消息
+     * @return HTTP请求对象
+     */
+    HttpRequest request();
+
+    /**
+     * 获取HTTP响应消息
+     * @return HTTP响应对象（可能为null）
+     */
+    HttpResponse response();
+
+    /**
+     * 获取请求的HTTP服务信息
+     * @return 包含HTTP服务详细信息的对象
+     */
+    HttpService httpService();
+
+    /**
+     * 获取Logger收到请求的时间
+     * @return 请求接收时间
+     */
+    ZonedDateTime time();
+
+    /**
+     * 获取Burp判定的响应或请求的MIME类型
+     * <p>
+     * 若无响应，则根据请求URL确定MIME类型
+     * @return MIME类型枚举值
+     */
+    MimeType mimeType();
+
+    /**
+     * 检查是否存在响应
+     * @return 存在响应返回true
+     */
+    boolean hasResponse();
+
+    /**
+     * 获取请求的计时数据
+     * @return 计时数据对象
+     */
+    TimingData timingData();
+
+    /**
+     * 获取响应页面标题
+     * @return 页面标题字符串（无标题返回空字符串）
+     */
+    String pageTitle();
+
+    /**
+     * 获取发起请求的工具来源
+     * @return 工具来源枚举值
+     */
+    ToolSource toolSource();
+
+    /**
+     * 在请求/响应数据中搜索指定内容
+     * @param searchTerm 要搜索的内容
+     * @param caseSensitive 是否区分大小写
+     * @return 找到返回true
+     */
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 使用正则表达式搜索请求/响应数据
+     * @param pattern 正则表达式
+     * @return 匹配成功返回true
+     */
+    boolean contains(Pattern pattern);
+
+    /**
+     * 检查是否为会话处理请求
+     * @return 是会话处理请求返回true
+     */
+    boolean isSessionHandlingEvent();
+}
+```
+### LoggerHttpRequestResponse
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.logger;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.handler.TimingData;
+import burp.api.montoya.http.message.MimeType;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
+
+/**
+ * Logger模块的HTTP请求/响应记录接口。
+ * <p>
+ * 定义Logger中HTTP请求和响应的关联关系及元数据信息。
+ */
+public interface LoggerHttpRequestResponse
+{
+    /**
+     * 获取HTTP请求对象
+     * @return HTTP请求实例
+     */
+    HttpRequest request();
+
+    /**
+     * 获取HTTP响应对象
+     * @return HTTP响应实例（可能为null）
+     */
+    HttpResponse response();
+
+    /**
+     * 获取请求的目标服务信息
+     * @return 包含主机、端口和协议的服务对象
+     */
+    HttpService httpService();
+
+    /**
+     * 获取请求/响应的注释信息
+     * @return 注释对象
+     */
+    Annotations annotations();
+
+    /**
+     * 获取Logger记录该请求的时间
+     * @return 带时区的时间对象
+     */
+    ZonedDateTime time();
+
+    /**
+     * 获取Burp自动判定的内容类型
+     * <p>
+     * 若无响应，则根据请求URL推测MIME类型
+     * @return MIME类型枚举值
+     */
+    MimeType mimeType();
+
+    /**
+     * 检查是否存在响应
+     * @return 存在响应返回true
+     */
+    boolean hasResponse();
+
+    /**
+     * 获取请求的计时信息
+     * @return 包含RTT等计时数据的对象
+     */
+    TimingData timingData();
+
+    /**
+     * 获取HTML响应的页面标题
+     * @return 页面标题（无标题返回空字符串）
+     */
+    String pageTitle();
+
+    /**
+     * 获取发起请求的Burp工具来源
+     * @return 工具来源枚举值
+     */
+    ToolSource toolSource();
+
+    /**
+     * 全文搜索请求/响应数据
+     * @param searchTerm 搜索关键词
+     * @param caseSensitive 是否区分大小写
+     * @return 匹配成功返回true
+     */
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 使用正则表达式搜索请求/响应数据
+     * @param pattern 正则表达式对象
+     * @return 匹配成功返回true
+     */
+    boolean contains(Pattern pattern);
+}
+```
+## logging
+### Logging
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.logging;
+
+import java.io.PrintStream;
+
+/**
+ * 日志记录功能接口。
+ * <p>
+ * 提供扩展程序的日志记录和事件通知功能。
+ */
+public interface Logging
+{
+    /**
+     * 获取扩展程序的标准输出流（已弃用）。
+     * <p>
+     * 扩展程序应通过此流输出信息，用户可在UI中配置输出处理方式。
+     *
+     * @return 标准输出流对象
+     * @deprecated 请使用 {@link burp.api.montoya.logging.Logging#logToOutput} 替代
+     */
+    @Deprecated
+    PrintStream output();
+
+    /**
+     * 获取扩展程序的标准错误流（已弃用）。
+     * <p>
+     * 扩展程序应通过此流输出错误信息，用户可在UI中配置输出处理方式。
+     *
+     * @return 标准错误流对象
+     * @deprecated 请使用 {@link burp.api.montoya.logging.Logging#logToError} 替代
+     */
+    @Deprecated
+    PrintStream error();
+
+    /**
+     * 输出日志信息到标准输出流。
+     *
+     * @param message 要输出的日志信息
+     */
+    void logToOutput(String message);
+
+    /**
+     * 输出对象信息到标准输出流。
+     *
+     * @param object 要输出的对象
+     */
+    void logToOutput(Object object);
+
+    /**
+     * 输出错误信息到标准错误流。
+     *
+     * @param message 要输出的错误信息
+     */
+    void logToError(String message);
+
+    /**
+     * 输出错误信息和异常堆栈到标准错误流。
+     *
+     * @param message 错误描述信息
+     * @param cause 导致错误的异常对象
+     */
+    void logToError(String message, Throwable cause);
+
+    /**
+     * 输出异常堆栈到标准错误流。
+     *
+     * @param cause 导致错误的异常对象
+     */
+    void logToError(Throwable cause);
+
+    /**
+     * 在Burp事件日志中记录调试级别事件。
+     *
+     * @param message 调试信息
+     */
+    void raiseDebugEvent(String message);
+
+    /**
+     * 在Burp事件日志中记录信息级别事件。
+     *
+     * @param message 提示信息
+     */
+    void raiseInfoEvent(String message);
+
+    /**
+     * 在Burp事件日志中记录错误级别事件。
+     *
+     * @param message 错误信息
+     */
+    void raiseErrorEvent(String message);
+
+    /**
+     * 在Burp事件日志中记录严重级别事件。
+     *
+     * @param message 严重错误信息
+     */
+    void raiseCriticalEvent(String message);
+}
+```
+## organizer
+### Organizer
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.organizer;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+/**
+ * Organizer工具功能接口。
+ * <p>
+ * 提供对Burp Organizer工具功能的访问能力。
+ */
+public interface Organizer
+{
+    /**
+     * 发送HTTP请求到Organizer工具。
+     * <p>
+     * 该请求将在Organizer界面中显示并可用于后续分析。
+     *
+     * @param request 要发送的完整HTTP请求
+     */
+    void sendToOrganizer(HttpRequest request);
+
+    /**
+     * 发送HTTP请求和响应到Organizer工具。
+     * <p>
+     * 该请求和响应将在Organizer界面中显示并可用于后续分析。
+     *
+     * @param requestResponse 包含完整HTTP请求和响应的对象
+     */
+    void sendToOrganizer(HttpRequestResponse requestResponse);
+}
+```
+## persistence
+### PersistedList
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.persistence;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 持久化列表接口。
+ * <p>
+ * 表示项目中持久化存储的列表数据，所有操作都会直接影响底层持久化数据。
+ */
+public interface PersistedList<T> extends List<T>
+{
+    /**
+     * 创建存储Boolean类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<Boolean> persistedBooleanList()
+    {
+        return FACTORY.persistedBooleanList();
+    }
+
+    /**
+     * 创建存储Short类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<Short> persistedShortList()
+    {
+        return FACTORY.persistedShortList();
+    }
+
+    /**
+     * 创建存储Integer类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<Integer> persistedIntegerList()
+    {
+        return FACTORY.persistedIntegerList();
+    }
+
+    /**
+     * 创建存储Long类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<Long> persistedLongList()
+    {
+        return FACTORY.persistedLongList();
+    }
+
+    /**
+     * 创建存储String类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<String> persistedStringList()
+    {
+        return FACTORY.persistedStringList();
+    }
+
+    /**
+     * 创建存储ByteArray类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<ByteArray> persistedByteArrayList()
+    {
+        return FACTORY.persistedByteArrayList();
+    }
+
+    /**
+     * 创建存储HttpRequest类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<HttpRequest> persistedHttpRequestList()
+    {
+        return FACTORY.persistedHttpRequestList();
+    }
+
+    /**
+     * 创建存储HttpResponse类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<HttpResponse> persistedHttpResponseList()
+    {
+        return FACTORY.persistedHttpResponseList();
+    }
+
+    /**
+     * 创建存储HttpRequestResponse类型的持久化列表
+     * @return 新的持久化列表实例
+     */
+    static PersistedList<HttpRequestResponse> persistedHttpRequestResponseList()
+    {
+        return FACTORY.persistedHttpRequestResponseList();
+    }
+}
+```
+### PersistedObject
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.persistence;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.util.Set;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 持久化对象接口（仅限专业版）。
+ * <p>
+ * 支持将HTTP请求、响应、字节数组、基本类型及其列表等数据持久化存储到Burp项目中。
+ */
+public interface PersistedObject
+{
+    /**
+     * 获取指定键关联的子持久化对象
+     * @param key 要查找的键
+     * @return 关联的持久化对象，未找到返回null
+     */
+    PersistedObject getChildObject(String key);
+
+    /**
+     * 设置键值关联的子持久化对象
+     * @param key 键名
+     * @param childObject 要关联的持久化对象
+     */
+    void setChildObject(String key, PersistedObject childObject);
+
+    /**
+     * 删除指定键关联的子持久化对象
+     * @param key 要删除的键
+     */
+    void deleteChildObject(String key);
+
+    /**
+     * 获取所有子持久化对象的键集合
+     * @return 键集合
+     */
+    Set<String> childObjectKeys();
+
+    /**
+     * 获取字符串值
+     * @param key 键名
+     * @return 字符串值，未找到返回null
+     */
+    String getString(String key);
+
+    /**
+     * 设置字符串值
+     * @param key 键名
+     * @param value 字符串值
+     */
+    void setString(String key, String value);
+
+    /**
+     * 删除字符串值
+     * @param key 要删除的键
+     */
+    void deleteString(String key);
+
+    /**
+     * 获取所有字符串键集合
+     * @return 键集合
+     */
+    Set<String> stringKeys();
+
+    /**
+     * 获取布尔值
+     * @param key 键名
+     * @return 布尔值，未找到返回null
+     */
+    Boolean getBoolean(String key);
+
+    /**
+     * 设置布尔值
+     * @param key 键名
+     * @param value 布尔值
+     */
+    void setBoolean(String key, boolean value);
+
+    /**
+     * 删除布尔值
+     * @param key 要删除的键
+     */
+    void deleteBoolean(String key);
+
+    /**
+     * 获取所有布尔值键集合
+     * @return 键集合
+     */
+    Set<String> booleanKeys();
+
+    /**
+     * 获取字节值
+     * @param key 键名
+     * @return 字节值，未找到返回null
+     */
+    Byte getByte(String key);
+
+    /**
+     * 设置字节值
+     * @param key 键名
+     * @param value 字节值
+     */
+    void setByte(String key, byte value);
+
+    /**
+     * 删除字节值
+     * @param key 要删除的键
+     */
+    void deleteByte(String key);
+
+    /**
+     * 获取所有字节值键集合
+     * @return 键集合
+     */
+    Set<String> byteKeys();
+
+    /**
+     * 获取短整型值
+     * @param key 键名
+     * @return 短整型值，未找到返回null
+     */
+    Short getShort(String key);
+
+    /**
+     * 设置短整型值
+     * @param key 键名
+     * @param value 短整型值
+     */
+    void setShort(String key, short value);
+
+    /**
+     * 删除短整型值
+     * @param key 要删除的键
+     */
+    void deleteShort(String key);
+
+    /**
+     * 获取所有短整型值键集合
+     * @return 键集合
+     */
+    Set<String> shortKeys();
+
+    /**
+     * 获取整型值
+     * @param key 键名
+     * @return 整型值，未找到返回null
+     */
+    Integer getInteger(String key);
+
+    /**
+     * 设置整型值
+     * @param key 键名
+     * @param value 整型值
+     */
+    void setInteger(String key, int value);
+
+    /**
+     * 删除整型值
+     * @param key 要删除的键
+     */
+    void deleteInteger(String key);
+
+    /**
+     * 获取所有整型值键集合
+     * @return 键集合
+     */
+    Set<String> integerKeys();
+
+    /**
+     * 获取长整型值
+     * @param key 键名
+     * @return 长整型值，未找到返回null
+     */
+    Long getLong(String key);
+
+    /**
+     * 设置长整型值
+     * @param key 键名
+     * @param value 长整型值
+     */
+    void setLong(String key, long value);
+
+    /**
+     * 删除长整型值
+     * @param key 要删除的键
+     */
+    void deleteLong(String key);
+
+    /**
+     * 获取所有长整型值键集合
+     * @return 键集合
+     */
+    Set<String> longKeys();
+
+    /**
+     * 获取字节数组值
+     * @param key 键名
+     * @return 字节数组，未找到返回null
+     */
+    ByteArray getByteArray(String key);
+
+    /**
+     * 设置字节数组值
+     * @param key 键名
+     * @param value 字节数组
+     */
+    void setByteArray(String key, ByteArray value);
+
+    /**
+     * 删除字节数组值
+     * @param key 要删除的键
+     */
+    void deleteByteArray(String key);
+
+    /**
+     * 获取所有字节数组键集合
+     * @return 键集合
+     */
+    Set<String> byteArrayKeys();
+
+    /**
+     * 获取HTTP请求
+     * @param key 键名
+     * @return HTTP请求对象，未找到返回null
+     */
+    HttpRequest getHttpRequest(String key);
+
+    /**
+     * 设置HTTP请求
+     * @param key 键名
+     * @param value HTTP请求对象
+     */
+    void setHttpRequest(String key, HttpRequest value);
+
+    /**
+     * 删除HTTP请求
+     * @param key 要删除的键
+     */
+    void deleteHttpRequest(String key);
+
+    /**
+     * 获取所有HTTP请求键集合
+     * @return 键集合
+     */
+    Set<String> httpRequestKeys();
+
+    /**
+     * 获取HTTP请求列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<HttpRequest> getHttpRequestList(String key);
+
+    /**
+     * 设置HTTP请求列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setHttpRequestList(String key, PersistedList<HttpRequest> value);
+
+    /**
+     * 删除HTTP请求列表
+     * @param key 要删除的键
+     */
+    void deleteHttpRequestList(String key);
+
+    /**
+     * 获取所有HTTP请求列表键集合
+     * @return 键集合
+     */
+    Set<String> httpRequestListKeys();
+
+    /**
+     * 获取HTTP响应
+     * @param key 键名
+     * @return HTTP响应对象，未找到返回null
+     */
+    HttpResponse getHttpResponse(String key);
+
+    /**
+     * 设置HTTP响应
+     * @param key 键名
+     * @param value HTTP响应对象
+     */
+    void setHttpResponse(String key, HttpResponse value);
+
+    /**
+     * 删除HTTP响应
+     * @param key 要删除的键
+     */
+    void deleteHttpResponse(String key);
+
+    /**
+     * 获取所有HTTP响应键集合
+     * @return 键集合
+     */
+    Set<String> httpResponseKeys();
+
+    /**
+     * 获取HTTP响应列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<HttpResponse> getHttpResponseList(String key);
+
+    /**
+     * 设置HTTP响应列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setHttpResponseList(String key, PersistedList<HttpResponse> value);
+
+    /**
+     * 删除HTTP响应列表
+     * @param key 要删除的键
+     */
+    void deleteHttpResponseList(String key);
+
+    /**
+     * 获取所有HTTP响应列表键集合
+     * @return 键集合
+     */
+    Set<String> httpResponseListKeys();
+
+    /**
+     * 获取HTTP请求响应对
+     * @param key 键名
+     * @return HTTP请求响应对象，未找到返回null
+     */
+    HttpRequestResponse getHttpRequestResponse(String key);
+
+    /**
+     * 设置HTTP请求响应对
+     * @param key 键名
+     * @param value HTTP请求响应对象
+     */
+    void setHttpRequestResponse(String key, HttpRequestResponse value);
+
+    /**
+     * 删除HTTP请求响应对
+     * @param key 要删除的键
+     */
+    void deleteHttpRequestResponse(String key);
+
+    /**
+     * 获取所有HTTP请求响应对键集合
+     * @return 键集合
+     */
+    Set<String> httpRequestResponseKeys();
+
+    /**
+     * 获取HTTP请求响应对列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<HttpRequestResponse> getHttpRequestResponseList(String key);
+
+    /**
+     * 设置HTTP请求响应对列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setHttpRequestResponseList(String key, PersistedList<HttpRequestResponse> value);
+
+    /**
+     * 删除HTTP请求响应对列表
+     * @param key 要删除的键
+     */
+    void deleteHttpRequestResponseList(String key);
+
+    /**
+     * 获取所有HTTP请求响应对列表键集合
+     * @return 键集合
+     */
+    Set<String> httpRequestResponseListKeys();
+
+    /**
+     * 获取布尔值列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<Boolean> getBooleanList(String key);
+
+    /**
+     * 设置布尔值列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setBooleanList(String key, PersistedList<Boolean> value);
+
+    /**
+     * 删除布尔值列表
+     * @param key 要删除的键
+     */
+    void deleteBooleanList(String key);
+
+    /**
+     * 获取所有布尔值列表键集合
+     * @return 键集合
+     */
+    Set<String> booleanListKeys();
+
+    /**
+     * 获取短整型值列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<Short> getShortList(String key);
+
+    /**
+     * 设置短整型值列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setShortList(String key, PersistedList<Short> value);
+
+    /**
+     * 删除短整型值列表
+     * @param key 要删除的键
+     */
+    void deleteShortList(String key);
+
+    /**
+     * 获取所有短整型值列表键集合
+     * @return 键集合
+     */
+    Set<String> shortListKeys();
+
+    /**
+     * 获取整型值列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<Integer> getIntegerList(String key);
+
+    /**
+     * 设置整型值列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setIntegerList(String key, PersistedList<Integer> value);
+
+    /**
+     * 删除整型值列表
+     * @param key 要删除的键
+     */
+    void deleteIntegerList(String key);
+
+    /**
+     * 获取所有整型值列表键集合
+     * @return 键集合
+     */
+    Set<String> integerListKeys();
+
+    /**
+     * 获取长整型值列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<Long> getLongList(String key);
+
+    /**
+     * 设置长整型值列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setLongList(String key, PersistedList<Long> value);
+
+    /**
+     * 删除长整型值列表
+     * @param key 要删除的键
+     */
+    void deleteLongList(String key);
+
+    /**
+     * 获取所有长整型值列表键集合
+     * @return 键集合
+     */
+    Set<String> longListKeys();
+
+    /**
+     * 获取字符串列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<String> getStringList(String key);
+
+    /**
+     * 设置字符串列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setStringList(String key, PersistedList<String> value);
+
+    /**
+     * 删除字符串列表
+     * @param key 要删除的键
+     */
+    void deleteStringList(String key);
+
+    /**
+     * 获取所有字符串列表键集合
+     * @return 键集合
+     */
+    Set<String> stringListKeys();
+
+    /**
+     * 获取字节数组列表
+     * @param key 键名
+     * @return 持久化列表，未找到返回null
+     */
+    PersistedList<ByteArray> getByteArrayList(String key);
+
+    /**
+     * 设置字节数组列表
+     * @param key 键名
+     * @param value 持久化列表
+     */
+    void setByteArrayList(String key, PersistedList<ByteArray> value);
+
+    /**
+     * 删除字节数组列表
+     * @param key 要删除的键
+     */
+    void deleteByteArrayList(String key);
+
+    /**
+     * 获取所有字节数组列表键集合
+     * @return 键集合
+     */
+    Set<String> byteArrayListKeys();
+
+    /**
+     * 创建新的持久化对象实例
+     * @return 新实例
+     */
+    static PersistedObject persistedObject()
+    {
+        return FACTORY.persistedObject();
+    }
+}
+```
+### Persistence
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.persistence;
+
+/**
+ * 持久化功能接口。
+ * <p>
+ * 提供对Burp Suite持久化功能的访问。
+ */
+public interface Persistence
+{
+    /**
+     * 获取扩展数据存储功能。
+     * <p>
+     * 当Burp在没有项目文件的情况下启动时，数据将存储在内存中。
+     *
+     * @return 实现了{@link PersistedObject}接口的对象，
+     *         用于在项目文件或内存中存储数据
+     */
+    PersistedObject extensionData();
+
+    /**
+     * 获取Java偏好设置存储功能。
+     * <p>
+     * 该存储方式在扩展重载和Burp Suite重启后仍然保持。
+     *
+     * @return 实现了{@link Preferences}接口的对象，
+     *         用于持久化存储数据
+     */
+    Preferences preferences();
+}
+```
+### Preferences
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.persistence;
+
+import java.util.Set;
+
+/**
+ * Java偏好设置存储接口。
+ * <p>
+ * 支持基本数据类型的持久化存储和访问。
+ */
+public interface Preferences
+{
+    /**
+     * 获取字符串值
+     * @param key 键名
+     * @return 字符串值，未找到返回null
+     */
+    String getString(String key);
+
+    /**
+     * 设置字符串值
+     * @param key 键名
+     * @param value 字符串值
+     */
+    void setString(String key, String value);
+
+    /**
+     * 删除字符串值
+     * @param key 要删除的键
+     */
+    void deleteString(String key);
+
+    /**
+     * 获取所有字符串键集合
+     * @return 键集合
+     */
+    Set<String> stringKeys();
+
+    /**
+     * 获取布尔值
+     * @param key 键名
+     * @return 布尔值，未找到返回null
+     */
+    Boolean getBoolean(String key);
+
+    /**
+     * 设置布尔值
+     * @param key 键名
+     * @param value 布尔值
+     */
+    void setBoolean(String key, boolean value);
+
+    /**
+     * 删除布尔值
+     * @param key 要删除的键
+     */
+    void deleteBoolean(String key);
+
+    /**
+     * 获取所有布尔值键集合
+     * @return 键集合
+     */
+    Set<String> booleanKeys();
+
+    /**
+     * 获取字节值
+     * @param key 键名
+     * @return 字节值，未找到返回null
+     */
+    Byte getByte(String key);
+
+    /**
+     * 设置字节值
+     * @param key 键名
+     * @param value 字节值
+     */
+    void setByte(String key, byte value);
+
+    /**
+     * 删除字节值
+     * @param key 要删除的键
+     */
+    void deleteByte(String key);
+
+    /**
+     * 获取所有字节值键集合
+     * @return 键集合
+     */
+    Set<String> byteKeys();
+
+    /**
+     * 获取短整型值
+     * @param key 键名
+     * @return 短整型值，未找到返回null
+     */
+    Short getShort(String key);
+
+    /**
+     * 设置短整型值
+     * @param key 键名
+     * @param value 短整型值
+     */
+    void setShort(String key, short value);
+
+    /**
+     * 删除短整型值
+     * @param key 要删除的键
+     */
+    void deleteShort(String key);
+
+    /**
+     * 获取所有短整型值键集合
+     * @return 键集合
+     */
+    Set<String> shortKeys();
+
+    /**
+     * 获取整型值
+     * @param key 键名
+     * @return 整型值，未找到返回null
+     */
+    Integer getInteger(String key);
+
+    /**
+     * 设置整型值
+     * @param key 键名
+     * @param value 整型值
+     */
+    void setInteger(String key, int value);
+
+    /**
+     * 删除整型值
+     * @param key 要删除的键
+     */
+    void deleteInteger(String key);
+
+    /**
+     * 获取所有整型值键集合
+     * @return 键集合
+     */
+    Set<String> integerKeys();
+
+    /**
+     * 获取长整型值
+     * @param key 键名
+     * @return 长整型值，未找到返回null
+     */
+    Long getLong(String key);
+
+    /**
+     * 设置长整型值
+     * @param key 键名
+     * @param value 长整型值
+     */
+    void setLong(String key, long value);
+
+    /**
+     * 删除长整型值
+     * @param key 要删除的键
+     */
+    void deleteLong(String key);
+
+    /**
+     * 获取所有长整型值键集合
+     * @return 键集合
+     */
+    Set<String> longKeys();
+}
+```
+## project
+### Project
+```java
+package burp.api.montoya.project;
+
+/**
+ * 项目功能接口。
+ * <p>
+ * 提供对当前Burp项目相关功能的访问。
+ */
+public interface Project
+{
+    /**
+     * 获取当前项目名称。
+     * 
+     * @return 项目名称字符串
+     */
+    String name();
+
+    /**
+     * 获取当前项目的唯一标识符。
+     * 
+     * @return 项目唯一ID字符串
+     */
+    String id();
+}
+```
+## proxy
+### MessageReceivedAction
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+/**
+ * 代理拦截动作枚举。
+ * <p>
+ * 表示Proxy拦截HTTP和WebSocket消息时的初始处理动作。
+ */
+public enum MessageReceivedAction
+{
+    /**
+     * 遵循当前拦截规则处理消息。
+     * <p>
+     * Burp Proxy将根据配置的拦截规则决定如何处理该消息。
+     */
+    CONTINUE,
+
+    /**
+     * 拦截消息并交由用户手动处理。
+     * <p>
+     * 消息将被暂停在拦截队列中，等待用户查看或修改。
+     */
+    INTERCEPT,
+
+    /**
+     * 不拦截直接转发消息。
+     * <p>
+     * 消息将绕过拦截队列直接转发到目标服务器/客户端。
+     */
+    DO_NOT_INTERCEPT,
+
+    /**
+     * 丢弃消息。
+     * <p>
+     * 消息将被直接丢弃，不会转发到目标。
+     */
+    DROP
+}
+```
+### MessageToBeSentAction
+
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+/**
+ * 代理发送动作枚举。
+ * <p>
+ * 表示Proxy处理完拦截的HTTP和WebSocket消息后要执行的最终动作。
+ */
+public enum MessageToBeSentAction
+{
+    /**
+     * 继续转发消息。
+     * <p>
+     * 消息将被正常转发到目标服务器/客户端。
+     */
+    CONTINUE,
+
+    /**
+     * 丢弃消息。
+     * <p>
+     * 消息将被直接丢弃，不会转发到目标。
+     */
+    DROP
+}
+```
+### Proxy
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和专业版的功能，
+ * 前提是该使用不违反产品许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.proxy.http.ProxyRequestHandler;
+import burp.api.montoya.proxy.http.ProxyResponseHandler;
+import burp.api.montoya.proxy.websocket.ProxyWebSocketCreationHandler;
+
+import java.util.List;
+
+/**
+ * 代理工具功能接口。
+ * <p>
+ * 提供对Burp Proxy工具功能的访问和控制。
+ */
+public interface Proxy
+{
+    /**
+     * 启用代理主拦截功能。
+     * <p>
+     * 启用后，Proxy将根据配置拦截HTTP/WebSocket消息。
+     */
+    void enableIntercept();
+
+    /**
+     * 禁用代理主拦截功能。
+     * <p>
+     * 禁用后，Proxy将不再拦截任何消息。
+     */
+    void disableIntercept();
+
+    /**
+     * 检查代理主拦截功能是否启用。
+     * @return 如果拦截功能启用返回true，否则返回false
+     */
+    boolean isInterceptEnabled();
+
+    /**
+     * 获取Proxy历史记录中的所有HTTP请求/响应。
+     * @return 包含所有历史记录的ProxyHttpRequestResponse列表
+     */
+    List<ProxyHttpRequestResponse> history();
+
+    /**
+     * 根据过滤条件获取Proxy历史记录中的HTTP请求/响应。
+     * @param filter 用于过滤历史记录的ProxyHistoryFilter实例
+     * @return 符合过滤条件的ProxyHttpRequestResponse列表
+     */
+    List<ProxyHttpRequestResponse> history(ProxyHistoryFilter filter);
+
+    /**
+     * 获取Proxy历史记录中的所有WebSocket消息。
+     * @return 包含所有历史记录的ProxyWebSocketMessage列表
+     */
+    List<ProxyWebSocketMessage> webSocketHistory();
+
+    /**
+     * 根据过滤条件获取Proxy历史记录中的WebSocket消息。
+     * @param filter 用于过滤历史记录的ProxyWebSocketHistoryFilter实例
+     * @return 符合过滤条件的ProxyWebSocketMessage列表
+     */
+    List<ProxyWebSocketMessage> webSocketHistory(ProxyWebSocketHistoryFilter filter);
+
+    /**
+     * 注册请求处理程序。
+     * <p>
+     * 扩展可以通过此处理程序对Proxy处理的请求进行自定义分析或修改，并控制UI中的消息拦截。
+     *
+     * @param handler 实现ProxyRequestHandler接口的扩展对象
+     * @return 处理程序的注册对象
+     */
+    Registration registerRequestHandler(ProxyRequestHandler handler);
+
+    /**
+     * 注册响应处理程序。
+     * <p>
+     * 扩展可以通过此处理程序对Proxy处理的响应进行自定义分析或修改，并控制UI中的消息拦截。
+     *
+     * @param handler 实现ProxyResponseHandler接口的扩展对象
+     * @return 处理程序的注册对象
+     */
+    Registration registerResponseHandler(ProxyResponseHandler handler);
+
+    /**
+     * 注册WebSocket创建处理程序。
+     * <p>
+     * 当Proxy创建WebSocket连接时，将调用此处理程序。
+     *
+     * @param handler 实现ProxyWebSocketCreationHandler接口的扩展对象
+     * @return 处理程序的注册对象
+     */
+    Registration registerWebSocketCreationHandler(ProxyWebSocketCreationHandler handler);
+}
+```
+### ProxyHistoryFilter
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Proxy#history(ProxyHistoryFilter)} 来获取代理历史中经过筛选的项目列表。
+ */
+public interface ProxyHistoryFilter
+{
+    /**
+     * 此方法会对代理历史中的每个项目调用，以确定
+     * 是否应将其包含在筛选后的项目列表中。
+     *
+     * @param requestResponse 一个 {@link ProxyHttpRequestResponse} 对象，
+     *                        扩展可以使用该对象来确定是否应将项目包含在
+     *                        筛选后的项目列表中。
+     *
+     * @return 如果该项目应包含在筛选后的项目列表中，则返回 {@code true}。
+     */
+    boolean matches(ProxyHttpRequestResponse requestResponse);
+}
+```
+### ProxyHttpRequestResponse
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.handler.TimingData;
+import burp.api.montoya.http.message.MimeType;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.MalformedRequestException;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
+
+/**
+ * 被Burp Proxy拦截的HTTP请求和响应。
+ */
+public interface ProxyHttpRequestResponse
+{
+    /**
+     * 获取由Burp Proxy发送的HTTP请求。
+     *
+     * @return 由Burp Proxy发送的 {@link HttpRequest}。
+     * @see ProxyHttpRequestResponse#finalRequest()
+     */
+    HttpRequest request();
+
+    /**
+     * 获取由Burp Proxy发送的最终HTTP请求（可能经过修改）。
+     *
+     * @return 由Burp Proxy发送的 {@link HttpRequest}。
+     */
+    HttpRequest finalRequest();
+
+    /**
+     * 获取由Burp Proxy接收的HTTP响应。
+     *
+     * @return 由Burp Proxy接收的 {@link HttpResponse}。
+     * @see ProxyHttpRequestResponse#originalResponse()
+     */
+    HttpResponse response();
+
+    /**
+     * 获取由Burp Proxy接收的原始HTTP响应（未经修改）。
+     *
+     * @return 由Burp Proxy接收的 {@link HttpResponse}。
+     */
+    HttpResponse originalResponse();
+
+    /**
+     * 获取请求/响应对的注释信息。
+     *
+     * @return 请求/响应对的 {@link Annotations}。
+     */
+    Annotations annotations();
+
+    /**
+     * 获取请求的HTTP服务信息。
+     *
+     * @return 包含HTTP服务详情的 {@link HttpService} 对象。
+     */
+    HttpService httpService();
+
+    /**
+     * 获取最终请求的URL。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 请求中的URL。
+     * @throws MalformedRequestException 如果请求格式错误。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 方法。
+     */
+    @Deprecated(forRemoval = true)
+    String url();
+
+    /**
+     * 获取最终请求的HTTP方法。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 请求中使用的HTTP方法。
+     * @throws MalformedRequestException 如果请求格式错误。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 方法。
+     */
+    @Deprecated(forRemoval = true)
+    String method();
+
+    /**
+     * 获取最终请求的路径和文件名。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 请求中的路径和文件名。
+     * @throws MalformedRequestException 如果请求格式错误。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 路径。
+     */
+    @Deprecated(forRemoval = true)
+    String path();
+
+    /**
+     * @return 服务的主机名或IP地址。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的httpService。
+     */
+    @Deprecated(forRemoval = true)
+    String host();
+
+    /**
+     * @return 服务的端口号。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的httpService。
+     */
+    @Deprecated(forRemoval = true)
+    int port();
+
+    /**
+     * @return 如果连接使用安全协议则返回true，否则返回false。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的httpService。
+     */
+    @Deprecated(forRemoval = true)
+    boolean secure();
+
+    /**
+     * @return 服务的字符串表示形式。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的httpService。
+     */
+    @Deprecated(forRemoval = true)
+    String httpServiceString();
+
+    /**
+     * 从HTTP 1.x消息的请求行中解析的HTTP版本文本。
+     * HTTP 2消息将返回"HTTP/2"。
+     *
+     * @return 版本字符串。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的httpVersion。
+     */
+    @Deprecated(forRemoval = true)
+    String requestHttpVersion();
+
+    /**
+     * 获取最终请求的正文内容。
+     *
+     * @return 消息正文作为 {@code String}。
+     * @deprecated 将在未来版本中移除，建议使用 {@link #finalRequest()} 的body。
+     */
+    @Deprecated(forRemoval = true)
+    String requestBody();
+
+    /**
+     * @return 如果请求或响应被编辑过则返回true。
+     */
+    boolean edited();
+
+    /**
+     * 获取Burp Proxy接收请求的日期和时间。
+     *
+     * @return Burp Proxy接收请求的时间。
+     */
+    ZonedDateTime time();
+
+    /**
+     * 获取用于请求/响应的代理监听端口。
+     *
+     * @return 代理监听器使用的端口号。
+     */
+    int listenerPort();
+
+    /**
+     * 获取Burp Suite确定的响应或请求的MIME类型。
+     * 如果没有响应，则从请求URL确定MIME类型。
+     *
+     * @return MIME类型。
+     */
+    MimeType mimeType();
+
+    /**
+     * @return 如果存在响应则返回true。
+     */
+    boolean hasResponse();
+
+    /**
+     * 在HTTP请求和响应的数据中搜索指定的搜索词。
+     *
+     * @param searchTerm    要搜索的值。
+     * @param caseSensitive 指定搜索是否区分大小写。
+     *
+     * @return 如果找到搜索词则返回true。
+     */
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 在HTTP请求和响应的数据中搜索指定的正则表达式。
+     *
+     * @param pattern 要搜索的正则表达式。
+     *
+     * @return 如果匹配到模式则返回true。
+     */
+    boolean contains(Pattern pattern);
+
+    /**
+     * 获取与此请求和响应关联的计时数据。
+     *
+     * @return 计时数据。
+     */
+    TimingData timingData();
+}
+```
+### ProxyWebSocketHistoryFilter
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Proxy#webSocketHistory(ProxyWebSocketHistoryFilter)} 来获取代理WebSocket历史中
+ * 经过筛选的项目列表。
+ */
+public interface ProxyWebSocketHistoryFilter
+{
+    /**
+     * 此方法会对代理WebSocket历史中的每个项目调用，以确定
+     * 是否应将其包含在筛选后的项目列表中。
+     *
+     * @param message 一个 {@link ProxyWebSocketMessage} 对象，
+     *                扩展可以使用该对象来确定是否应将项目包含在
+     *                筛选后的项目列表中。
+     *
+     * @return 如果该项目应包含在筛选后的项目列表中，则返回 {@code true}。
+     */
+    boolean matches(ProxyWebSocketMessage message);
+}
+```
+### ProxyWebSocketMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.ui.contextmenu.WebSocketMessage;
+import burp.api.montoya.websocket.Direction;
+
+import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
+
+/**
+ * 被Burp Proxy拦截的WebSocket消息。
+ */
+public interface ProxyWebSocketMessage extends WebSocketMessage
+{
+    /**
+     * 获取消息的注释信息。
+     *
+     * @return 消息的 {@link Annotations}。
+     */
+    @Override
+    Annotations annotations();
+
+    /**
+     * @return 消息的传输方向。
+     */
+    @Override
+    Direction direction();
+
+    /**
+     * @return WebSocket消息的有效载荷。
+     */
+    @Override
+    ByteArray payload();
+
+    /**
+     * @return 用于创建WebSocket连接的 {@link HttpRequest}。
+     */
+    @Override
+    HttpRequest upgradeRequest();
+
+    /**
+     * @return 此消息所属的WebSocket连接ID。
+     */
+    int webSocketId();
+
+    /**
+     * @return 表示消息发送时间的 {@link ZonedDateTime} 实例。
+     */
+    ZonedDateTime time();
+
+    /**
+     * @return 经过工具和扩展修改后的有效载荷。如果消息未被编辑则返回 {@code null}。
+     */
+    ByteArray editedPayload();
+
+    /**
+     * 获取用于WebSocket消息的代理监听端口。
+     *
+     * @return 代理监听器使用的端口号。
+     */
+    int listenerPort();
+
+    /**
+     * 在WebSocket消息数据中搜索指定的搜索词。
+     *
+     * @param searchTerm    要搜索的值。
+     * @param caseSensitive 指定搜索是否区分大小写。
+     *
+     * @return 如果找到搜索词则返回true。
+     */
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 在WebSocket消息数据中搜索指定的正则表达式。
+     *
+     * @param pattern 要搜索的正则表达式。
+     *
+     * @return 如果匹配到模式则返回true。
+     */
+    boolean contains(Pattern pattern);
+}
+```
+### http
+#### InterceptedHttpMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import java.net.InetAddress;
+
+/**
+ * 被Burp Proxy拦截的HTTP消息。
+ */
+public interface InterceptedHttpMessage
+{
+    /**
+     * 获取此请求/响应对的唯一标识符。
+     *
+     * @return 唯一标识单个请求/响应对的ID。
+     * 扩展可以使用此ID来关联请求和响应的详细信息，
+     * 并据此对响应消息进行相应处理。
+     */
+    int messageId();
+
+    /**
+     * 获取处理此拦截消息的Burp Proxy监听器名称。
+     *
+     * @return 处理拦截消息的Burp Proxy监听器名称。
+     * 格式与Proxy监听器UI中显示的相同，例如"127.0.0.1:8080"。
+     */
+    String listenerInterface();
+
+    /**
+     * 获取拦截消息的源IP地址。
+     *
+     * @return 拦截消息的源IP地址。
+     */
+    InetAddress sourceIpAddress();
+
+    /**
+     * 获取拦截消息的目标IP地址。
+     *
+     * @return 拦截消息的目标IP地址。
+     */
+    InetAddress destinationIpAddress();
+}
+```
+#### InterceptedRequest
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Marker;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.message.ContentType;
+import burp.api.montoya.http.message.HttpHeader;
+import burp.api.montoya.http.message.params.HttpParameter;
+import burp.api.montoya.http.message.params.HttpParameterType;
+import burp.api.montoya.http.message.params.ParsedHttpParameter;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.HttpTransformation;
+import burp.api.montoya.http.message.requests.MalformedRequestException;
+
+import java.net.InetAddress;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * 被Burp Proxy拦截的HTTP请求。
+ */
+public interface InterceptedRequest extends InterceptedHttpMessage, HttpRequest
+{
+    /**
+     * @return 请求/响应的注释信息。
+     */
+    Annotations annotations();
+
+    /**
+     * @return 如果请求在扫描范围内则返回true。
+     */
+    @Override
+    boolean isInScope();
+
+    /**
+     * 获取请求的HTTP服务信息。
+     *
+     * @return 包含HTTP服务详情的 {@link HttpService} 对象。
+     */
+    @Override
+    HttpService httpService();
+
+    /**
+     * 获取请求的URL。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 请求中的URL。
+     * @throws MalformedRequestException 如果请求格式错误。
+     */
+    @Override
+    String url();
+
+    /**
+     * 获取请求的HTTP方法。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 请求中使用的HTTP方法。
+     * @throws MalformedRequestException 如果请求格式错误。
+     */
+    @Override
+    String method();
+
+    /**
+     * 获取包含查询参数的请求路径。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 包含查询参数的路径。
+     * @throws MalformedRequestException 如果请求格式错误。
+     */
+    @Override
+    String path();
+
+    /**
+     * 获取不包含查询参数的请求路径。
+     * 如果请求格式错误，则抛出 {@link MalformedRequestException}。
+     *
+     * @return 不包含查询参数的路径。
+     * @throws MalformedRequestException 如果请求格式错误。
+     */
+    @Override
+    String pathWithoutQuery();
+
+    /**
+     * 从HTTP 1.x消息的请求行中解析的HTTP版本。
+     * HTTP 2消息将返回"HTTP/2"。
+     *
+     * @return HTTP版本字符串。
+     */
+    @Override
+    String httpVersion();
+
+    /**
+     * 获取消息中的HTTP头信息。
+     *
+     * @return HTTP头列表。
+     */
+    @Override
+    List<HttpHeader> headers();
+
+    /**
+     * @param header 要检查是否存在的头信息。
+     *
+     * @return 如果请求中包含该头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(HttpHeader header);
+
+    /**
+     * @param name 要查询的头名称。
+     *
+     * @return 如果请求中包含该名称的头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(String name);
+
+    /**
+     * @param name  要检查的头名称。
+     * @param value 要检查的头值。
+     *
+     * @return 如果请求中包含匹配名称和值的头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(String name, String value);
+
+    /**
+     * @param name 要获取的头名称。
+     *
+     * @return 匹配名称的 {@link HttpHeader} 实例，未找到则返回 {@code null}。
+     */
+    @Override
+    HttpHeader header(String name);
+
+    /**
+     * @param name 要获取的头名称。
+     *
+     * @return 匹配名称的头值字符串，未找到则返回 {@code null}。
+     */
+    @Override
+    String headerValue(String name);
+
+    /**
+     * @return 如果请求包含参数则返回true。
+     */
+    @Override
+    boolean hasParameters();
+
+    /**
+     * @return 如果请求包含指定 {@link HttpParameterType} 类型的参数则返回true。
+     */
+    @Override
+    boolean hasParameters(HttpParameterType type);
+
+    /**
+     * @param name 要查找的参数名称。
+     * @param type 要查找的参数类型。
+     *
+     * @return 匹配类型和名称的 {@link ParsedHttpParameter} 实例，未找到则返回 {@code null}。
+     */
+    @Override
+    ParsedHttpParameter parameter(String name, HttpParameterType type);
+
+    /**
+     * @param name 要获取值的参数名称。
+     * @param type 要获取值的参数类型。
+     *
+     * @return 匹配名称和类型的参数值，未找到则返回 {@code null}。
+     */
+    @Override
+    String parameterValue(String name, HttpParameterType type);
+
+    /**
+     * @param name 要查找的参数名称。
+     * @param type 要查找的参数类型。
+     *
+     * @return 如果存在匹配名称和类型的参数则返回true。
+     */
+    @Override
+    boolean hasParameter(String name, HttpParameterType type);
+
+    /**
+     * @param parameter 要匹配的 {@link HttpParameter} 实例。
+     *
+     * @return 如果存在匹配 {@link HttpParameter} 数据的参数则返回true。
+     */
+    @Override
+    boolean hasParameter(HttpParameter parameter);
+
+    /**
+     * @return 请求检测到的内容类型。
+     */
+    @Override
+    ContentType contentType();
+
+    /**
+     * @return 请求中包含的所有参数。
+     */
+    @Override
+    List<ParsedHttpParameter> parameters();
+
+    /**
+     * @param type 要返回的参数类型。
+     *
+     * @return 只包含指定类型的 {@link ParsedHttpParameter} 列表。
+     */
+    @Override
+    List<ParsedHttpParameter> parameters(HttpParameterType type);
+
+    /**
+     * 获取消息体字节数组。
+     *
+     * @return 消息体字节数组。
+     */
+    @Override
+    ByteArray body();
+
+    /**
+     * 获取消息体字符串。
+     *
+     * @return 消息体字符串。
+     */
+    @Override
+    String bodyToString();
+
+    /**
+     * 获取消息体中消息正文的起始偏移量。
+     *
+     * @return 消息正文偏移量。
+     */
+    @Override
+    int bodyOffset();
+
+    /**
+     * 获取消息标记。
+     *
+     * @return 标记列表。
+     */
+    @Override
+    List<Marker> markers();
+
+    /**
+     * 在HTTP消息数据中搜索指定的搜索词。
+     *
+     * @param searchTerm    要搜索的值。
+     * @param caseSensitive 指定搜索是否区分大小写。
+     *
+     * @return 如果找到搜索词则返回true。
+     */
+    @Override
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 在HTTP消息数据中搜索指定的正则表达式。
+     *
+     * @param pattern 要搜索的正则表达式。
+     *
+     * @return 如果匹配到模式则返回true。
+     */
+    @Override
+    boolean contains(Pattern pattern);
+
+    /**
+     * 获取消息字节数组。
+     *
+     * @return 消息字节数组。
+     */
+    @Override
+    ByteArray toByteArray();
+
+    /**
+     * 获取消息字符串。
+     *
+     * @return 消息字符串。
+     */
+    @Override
+    String toString();
+
+    /**
+     * 将 {@code HttpRequest} 复制到临时文件中。<br>
+     * 此方法用于将 {@code HttpRequest} 对象保存到临时文件，
+     * 使其不再保留在内存中。扩展可以使用此方法将
+     * {@code HttpRequest} 对象转换为适合长期使用的形式。
+     *
+     * @return 存储在临时文件中的新 {@code HttpRequest} 实例。
+     */
+    HttpRequest copyToTempFile();
+
+    /**
+     * 使用新的服务创建 {@code HttpRequest} 副本。
+     *
+     * @param service 要添加的 {@link HttpService} 引用。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withService(HttpService service);
+
+    /**
+     * 使用新路径创建 {@code HttpRequest} 副本。
+     *
+     * @param path 要使用的路径。
+     *
+     * @return 更新路径后的新 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withPath(String path);
+
+    /**
+     * 使用新方法创建 {@code HttpRequest} 副本。
+     *
+     * @param method 要使用的方法。
+     *
+     * @return 更新方法后的新 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withMethod(String method);
+
+    /**
+     * 创建添加或更新头信息的 {@code HttpRequest} 副本。<br>
+     * 如果头信息已存在则更新，不存在则添加。
+     *
+     * @param header 要添加或更新的HTTP头。
+     *
+     * @return 添加或更新头信息后的新 {@code HttpRequest}。
+     */
+    @Override
+    HttpRequest withHeader(HttpHeader header);
+
+    /**
+     * 创建添加或更新头信息的 {@code HttpRequest} 副本。<br>
+     * 如果头信息已存在则更新，不存在则添加。
+     *
+     * @param name  头名称。
+     * @param value 头值。
+     *
+     * @return 添加或更新头信息后的新 {@code HttpRequest}。
+     */
+    @Override
+    HttpRequest withHeader(String name, String value);
+
+    /**
+     * 创建添加或更新HTTP参数的 {@code HttpRequest} 副本。<br>
+     * 如果参数已存在则更新，不存在则添加。
+     *
+     * @param parameters 要添加或更新的HTTP参数。
+     *
+     * @return 添加或更新参数后的新 {@code HttpRequest}。
+     */
+    @Override
+    HttpRequest withParameter(HttpParameter parameters);
+
+    /**
+     * 创建添加HTTP参数的 {@code HttpRequest} 副本。
+     *
+     * @param parameters 要添加的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withAddedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建添加HTTP参数的 {@code HttpRequest} 副本。
+     *
+     * @param parameters 要添加的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withAddedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建移除HTTP参数的 {@code HttpRequest} 副本。
+     *
+     * @param parameters 要移除的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withRemovedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建移除HTTP参数的 {@code HttpRequest} 副本。
+     *
+     * @param parameters 要移除的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withRemovedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建更新HTTP参数的 {@code HttpRequest} 副本。<br>
+     *
+     * @param parameters 要更新的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withUpdatedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建更新HTTP参数的 {@code HttpRequest} 副本。<br>
+     *
+     * @param parameters 要更新的HTTP参数。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withUpdatedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建应用转换后的 {@code HttpRequest} 副本。
+     *
+     * @param transformation 要应用的转换。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withTransformationApplied(HttpTransformation transformation);
+
+    /**
+     * 创建更新正文后的 {@code HttpRequest} 副本。<br>
+     * 同时更新Content-Length头。
+     *
+     * @param body 请求的新正文。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withBody(String body);
+
+    /**
+     * 创建更新正文后的 {@code HttpRequest} 副本。<br>
+     * 同时更新Content-Length头。
+     *
+     * @param body 请求的新正文字节数组。
+     *
+     * @return 新的 {@code HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withBody(ByteArray body);
+
+    /**
+     * 创建添加头信息后的 {@code HttpRequest} 副本。
+     *
+     * @param name  头名称。
+     * @param value 头值。
+     *
+     * @return 添加头信息后的HTTP请求。
+     */
+    @Override
+    HttpRequest withAddedHeader(String name, String value);
+
+    /**
+     * 创建添加头信息后的 {@code HttpRequest} 副本。
+     *
+     * @param header 要添加的 {@link HttpHeader}。
+     *
+     * @return 添加头信息后的HTTP请求。
+     */
+    @Override
+    HttpRequest withAddedHeader(HttpHeader header);
+
+    /**
+     * 创建更新头信息后的 {@code HttpRequest} 副本。
+     *
+     * @param name  要更新的头名称。
+     * @param value 指定HTTP头的新值。
+     *
+     * @return 包含更新头信息后的请求。
+     */
+    @Override
+    HttpRequest withUpdatedHeader(String name, String value);
+
+    /**
+     * 创建更新头信息后的 {@code HttpRequest} 副本。
+     *
+     * @param header 包含新值的 {@link HttpHeader}。
+     *
+     * @return 包含更新头信息后的请求。
+     */
+    @Override
+    HttpRequest withUpdatedHeader(HttpHeader header);
+
+    /**
+     * 从当前请求中移除现有的HTTP头。
+     *
+     * @param name 要从请求中移除的HTTP头名称。
+     *
+     * @return 包含移除头信息后的请求。
+     */
+    @Override
+    HttpRequest withRemovedHeader(String name);
+
+    /**
+     * 从当前请求中移除现有的HTTP头。
+     *
+     * @param header 要从请求中移除的 {@link HttpHeader}。
+     *
+     * @return 包含移除头信息后的请求。
+     */
+    @Override
+    HttpRequest withRemovedHeader(HttpHeader header);
+
+    /**
+     * 创建添加标记后的 {@code HttpRequest} 副本。
+     *
+     * @param markers 要添加的请求标记。
+     *
+     * @return 新的 {@link HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withMarkers(List<Marker> markers);
+
+    /**
+     * 创建添加标记后的 {@code HttpRequest} 副本。
+     *
+     * @param markers 要添加的请求标记。
+     *
+     * @return 新的 {@link HttpRequest} 实例。
+     */
+    @Override
+    HttpRequest withMarkers(Marker... markers);
+
+    /**
+     * 创建添加默认头信息后的 {@code HttpRequest} 副本。
+     *
+     * @return 添加默认头信息后的新 {@link HttpRequest}。
+     */
+    @Override
+    HttpRequest withDefaultHeaders();
+
+    /**
+     * 获取此请求/响应对的唯一标识符。
+     *
+     * @return 唯一标识单个请求/响应对的ID。
+     * 扩展可以使用此ID来关联请求和响应的详细信息，
+     * 并据此对响应消息进行相应处理。
+     */
+    @Override
+    int messageId();
+
+    /**
+     * 获取处理此拦截消息的Burp Proxy监听器名称。
+     *
+     * @return 处理拦截消息的Burp Proxy监听器名称。
+     * 格式与Proxy监听器UI中显示的相同，例如"127.0.0.1:8080"。
+     */
+    @Override
+    String listenerInterface();
+
+    /**
+     * 获取拦截消息的源IP地址。
+     *
+     * @return 拦截消息的源IP地址。
+     */
+    @Override
+    InetAddress sourceIpAddress();
+
+    /**
+     * 获取拦截消息的目标IP地址。
+     *
+     * @return 拦截消息的目标IP地址。
+     */
+    @Override
+    InetAddress destinationIpAddress();
+}
+```
+#### InterceptedResponse
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Marker;
+import burp.api.montoya.http.message.Cookie;
+import burp.api.montoya.http.message.HttpHeader;
+import burp.api.montoya.http.message.MimeType;
+import burp.api.montoya.http.message.StatusCodeClass;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.http.message.responses.analysis.Attribute;
+import burp.api.montoya.http.message.responses.analysis.AttributeType;
+import burp.api.montoya.http.message.responses.analysis.KeywordCount;
+
+import java.net.InetAddress;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * 被Burp Proxy拦截的HTTP响应。
+ */
+public interface InterceptedResponse extends InterceptedHttpMessage, HttpResponse
+{
+    /**
+     * @return 触发此响应的HTTP请求。
+     * @see InterceptedResponse#initiatingRequest()
+     */
+    HttpRequest request();
+
+    /**
+     * @return 触发此响应的HTTP请求。
+     */
+    HttpRequest initiatingRequest();
+
+    /**
+     * @return 请求/响应的注释信息。
+     */
+    Annotations annotations();
+
+    /**
+     * 获取响应中包含的HTTP状态码。
+     *
+     * @return HTTP状态码。
+     */
+    @Override
+    short statusCode();
+
+    /**
+     * 获取HTTP 1.x消息响应行中的原因短语。
+     * HTTP 2消息将基于状态码返回映射的短语。
+     *
+     * @return HTTP原因短语。
+     */
+    @Override
+    String reasonPhrase();
+
+    /**
+     * 测试状态码是否属于指定类别。
+     *
+     * @param statusCodeClass 要测试的状态码类别。
+     *
+     * @return 如果状态码属于该类别则返回true。
+     */
+    @Override
+    boolean isStatusCodeClass(StatusCodeClass statusCodeClass);
+
+    /**
+     * 从HTTP 1.x消息的响应行中解析的HTTP版本。
+     * HTTP 2消息将返回"HTTP/2"。
+     *
+     * @return HTTP版本字符串。
+     */
+    @Override
+    String httpVersion();
+
+    /**
+     * 获取消息中的HTTP头信息。
+     *
+     * @return HTTP头列表。
+     */
+    @Override
+    List<HttpHeader> headers();
+
+    /**
+     * 检查响应中是否包含指定的头信息。
+     *
+     * @param header 要检查的头信息。
+     *
+     * @return 如果包含该头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(HttpHeader header);
+
+    /**
+     * @param name 要查询的头名称。
+     *
+     * @return 如果响应中包含该名称的头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(String name);
+
+    /**
+     * @param name  要检查的头名称。
+     * @param value 要检查的头值。
+     *
+     * @return 如果响应中包含匹配名称和值的头信息则返回true。
+     */
+    @Override
+    boolean hasHeader(String name, String value);
+
+    /**
+     * @param name 要获取的头名称。
+     *
+     * @return 匹配名称的 {@link HttpHeader} 实例，未找到则返回 {@code null}。
+     */
+    @Override
+    HttpHeader header(String name);
+
+    /**
+     * @param name 要获取的头名称。
+     *
+     * @return 匹配名称的头值字符串，未找到则返回 {@code null}。
+     */
+    @Override
+    String headerValue(String name);
+
+    /**
+     * 获取消息体字节数组。
+     *
+     * @return 消息体字节数组。
+     */
+    @Override
+    ByteArray body();
+
+    /**
+     * 获取消息体字符串。
+     *
+     * @return 消息体字符串。
+     */
+    @Override
+    String bodyToString();
+
+    /**
+     * 获取消息体中消息正文的起始偏移量。
+     *
+     * @return 消息正文偏移量。
+     */
+    @Override
+    int bodyOffset();
+
+    /**
+     * 获取消息标记。
+     *
+     * @return 标记列表。
+     */
+    @Override
+    List<Marker> markers();
+
+    /**
+     * 获取响应中设置的HTTP Cookie。
+     *
+     * @return 表示响应中设置的Cookie的 {@link Cookie} 对象列表。
+     */
+    @Override
+    List<Cookie> cookies();
+
+    /**
+     * @param name 要查找的Cookie名称。
+     *
+     * @return 匹配名称的 {@link Cookie} 实例，未找到则返回 {@code null}。
+     */
+    @Override
+    Cookie cookie(String name);
+
+    /**
+     * @param name 要获取值的Cookie名称。
+     *
+     * @return 匹配名称的Cookie值，未找到则返回 {@code null}。
+     */
+    @Override
+    String cookieValue(String name);
+
+    /**
+     * @param name 要检查是否存在的Cookie名称。
+     *
+     * @return 如果响应中包含该名称的Cookie则返回true。
+     */
+    @Override
+    boolean hasCookie(String name);
+
+    /**
+     * @param cookie 要检查是否存在的 {@link Cookie} 实例。
+     *
+     * @return 如果响应中包含匹配的Cookie则返回true。
+     */
+    @Override
+    boolean hasCookie(Cookie cookie);
+
+    /**
+     * 获取Burp Suite确定的响应MIME类型。
+     *
+     * @return MIME类型。
+     */
+    @Override
+    MimeType mimeType();
+
+    /**
+     * 获取HTTP头中声明的响应MIME类型。
+     *
+     * @return 声明的MIME类型。
+     */
+    @Override
+    MimeType statedMimeType();
+
+    /**
+     * 获取从HTTP消息正文内容推断的MIME类型。
+     *
+     * @return 推断的MIME类型。
+     */
+    @Override
+    MimeType inferredMimeType();
+
+    /**
+     * 获取指定关键词在响应中出现的次数。
+     *
+     * @param keywords 要统计的关键词。
+     *
+     * @return 按提供顺序排列的关键词计数列表。
+     */
+    @Override
+    List<KeywordCount> keywordCounts(String... keywords);
+
+    /**
+     * 获取响应属性的值。
+     *
+     * @param types 要获取值的响应属性类型。
+     *
+     * @return {@link Attribute} 对象列表。
+     */
+    @Override
+    List<Attribute> attributes(AttributeType... types);
+
+    /**
+     * 在HTTP消息数据中搜索指定的搜索词。
+     *
+     * @param searchTerm    要搜索的值。
+     * @param caseSensitive 指定搜索是否区分大小写。
+     *
+     * @return 如果找到搜索词则返回true。
+     */
+    @Override
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 在HTTP消息数据中搜索指定的正则表达式。
+     *
+     * @param pattern 要搜索的正则表达式。
+     *
+     * @return 如果匹配到模式则返回true。
+     */
+    @Override
+    boolean contains(Pattern pattern);
+
+    /**
+     * 获取消息字节数组。
+     *
+     * @return 消息字节数组。
+     */
+    @Override
+    ByteArray toByteArray();
+
+    /**
+     * 获取消息字符串。
+     *
+     * @return 消息字符串。
+     */
+    @Override
+    String toString();
+
+    /**
+     * 创建使用新状态码的 {@code HttpResponse} 副本。
+     *
+     * @param statusCode 新的状态码。
+     *
+     * @return 新的 {@code HttpResponse} 实例。
+     */
+    @Override
+    HttpResponse withStatusCode(short statusCode);
+
+    /**
+     * 创建使用新原因短语的 {@code HttpResponse} 副本。
+     *
+     * @param reasonPhrase 新的原因短语。
+     *
+     * @return 新的 {@code HttpResponse} 实例。
+     */
+    @Override
+    HttpResponse withReasonPhrase(String reasonPhrase);
+
+    /**
+     * 创建使用新HTTP版本的 {@code HttpResponse} 副本。
+     *
+     * @param httpVersion 新的HTTP版本。
+     *
+     * @return 新的 {@code HttpResponse} 实例。
+     */
+    @Override
+    HttpResponse withHttpVersion(String httpVersion);
+
+    /**
+     * 创建更新正文后的 {@code HttpResponse} 副本。<br>
+     * 同时更新Content-Length头。
+     *
+     * @param body 响应新正文。
+     *
+     * @return 新的 {@code HttpResponse} 实例。
+     */
+    @Override
+    HttpResponse withBody(String body);
+
+    /**
+     * 创建更新正文后的 {@code HttpResponse} 副本。<br>
+     * 同时更新Content-Length头。
+     *
+     * @param body 响应新正文字节数组。
+     *
+     * @return 新的 {@code HttpResponse} 实例。
+     */
+    @Override
+    HttpResponse withBody(ByteArray body);
+
+    /**
+     * 创建添加头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param header 要添加的 {@link HttpHeader}。
+     *
+     * @return 添加头信息后的响应。
+     */
+    @Override
+    HttpResponse withAddedHeader(HttpHeader header);
+
+    /**
+     * 创建添加头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param name  头名称。
+     * @param value 头值。
+     *
+     * @return 添加头信息后的响应。
+     */
+    @Override
+    HttpResponse withAddedHeader(String name, String value);
+
+    /**
+     * 创建更新头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param header 包含新值的 {@link HttpHeader}。
+     *
+     * @return 更新头信息后的响应。
+     */
+    @Override
+    HttpResponse withUpdatedHeader(HttpHeader header);
+
+    /**
+     * 创建更新头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param name  要更新的头名称。
+     * @param value 指定HTTP头的新值。
+     *
+     * @return 更新头信息后的响应。
+     */
+    @Override
+    HttpResponse withUpdatedHeader(String name, String value);
+
+    /**
+     * 创建移除头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param header 要从响应中移除的 {@link HttpHeader}。
+     *
+     * @return 移除头信息后的响应。
+     */
+    @Override
+    HttpResponse withRemovedHeader(HttpHeader header);
+
+    /**
+     * 创建移除头信息后的 {@code HttpResponse} 副本。
+     *
+     * @param name 要从响应中移除的HTTP头名称。
+     *
+     * @return 移除头信息后的响应。
+     */
+    @Override
+    HttpResponse withRemovedHeader(String name);
+
+    /**
+     * 创建添加标记后的 {@code HttpResponse} 副本。
+     *
+     * @param markers 要添加的标记。
+     *
+     * @return 新的 {@code MarkedHttpRequestResponse} 实例。
+     */
+    @Override
+    HttpResponse withMarkers(List<Marker> markers);
+
+    /**
+     * 创建添加标记后的 {@code HttpResponse} 副本。
+     *
+     * @param markers 要添加的标记。
+     *
+     * @return 新的 {@code MarkedHttpRequestResponse} 实例。
+     */
+    @Override
+    HttpResponse withMarkers(Marker... markers);
+
+    /**
+     * 获取此请求/响应对的唯一标识符。
+     *
+     * @return 唯一标识单个请求/响应对的ID。
+     * 扩展可以使用此ID来关联请求和响应的详细信息，
+     * 并据此对响应消息进行相应处理。
+     */
+    @Override
+    int messageId();
+
+    /**
+     * 获取处理此拦截消息的Burp Proxy监听器名称。
+     *
+     * @return 处理拦截消息的Burp Proxy监听器名称。
+     * 格式与Proxy监听器UI中显示的相同，例如"127.0.0.1:8080"。
+     */
+    @Override
+    String listenerInterface();
+
+    /**
+     * 获取拦截消息的源IP地址。
+     *
+     * @return 拦截消息的源IP地址。
+     */
+    @Override
+    InetAddress sourceIpAddress();
+
+    /**
+     * 获取拦截消息的目标IP地址。
+     *
+     * @return 拦截消息的目标IP地址。
+     */
+    @Override
+    InetAddress destinationIpAddress();
+}
+```
+#### ProxyRequestHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.proxy.Proxy;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Proxy#registerRequestHandler(ProxyRequestHandler)} 来注册一个
+ * 代理请求处理器。该处理器将会收到Proxy工具处理的请求通知。
+ * 扩展可以对这些消息执行自定义分析或修改，并控制UI中的消息拦截。
+ */
+public interface ProxyRequestHandler
+{
+    /**
+     * 此方法在HTTP请求被Proxy接收前调用。<br>
+     * 可以修改请求。<br>
+     * 可以修改注释。<br>
+     * 可以控制是否拦截请求并显示给用户进行手动审查或修改。<br>
+     * 可以丢弃请求。<br>
+     *
+     * @param interceptedRequest 一个 {@link InterceptedRequest} 对象，
+     *                           扩展可以用它来查询和更新请求的详细信息。
+     *
+     * @return 包含所需操作、注释和要通过代理传递的HTTP请求的 {@link ProxyRequestReceivedAction}。
+     */
+    ProxyRequestReceivedAction handleRequestReceived(InterceptedRequest interceptedRequest);
+
+    /**
+     * 此方法在HTTP请求被Proxy处理后、发送前调用。<br>
+     * 可以修改请求。<br>
+     * 可以修改注释。<br>
+     * 可以控制请求是发送还是丢弃。<br>
+     *
+     * @param interceptedRequest 一个 {@link InterceptedRequest} 对象，
+     *                           扩展可以用它来查询和更新拦截请求的详细信息。
+     *
+     * @return 包含所需操作、注释和要从代理发送的HTTP请求的 {@link ProxyRequestToBeSentAction}。
+     */
+    ProxyRequestToBeSentAction handleRequestToBeSent(InterceptedRequest interceptedRequest);
+}
+```
+#### ProxyRequestReceivedAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.proxy.MessageReceivedAction;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyRequestHandler#handleRequestReceived(InterceptedRequest)} 返回结果时可实现此接口。
+ */
+public interface ProxyRequestReceivedAction
+{
+    /**
+     * 获取当前的初始拦截动作。
+     *
+     * @return {@link MessageReceivedAction} 实例
+     */
+    MessageReceivedAction action();
+
+    /**
+     * 获取经过扩展修改后要转发的HTTP请求。
+     *
+     * @return 修改后的 {@link HttpRequest} 实例
+     */
+    HttpRequest request();
+
+    /**
+     * 获取经过扩展修改后的当前请求的注释信息。
+     *
+     * @return 拦截的HTTP请求的 {@link Annotations} 实例
+     */
+    Annotations annotations();
+
+    /**
+     * 创建一个结果，使Burp Proxy遵循当前拦截规则决定对请求采取的操作。<br>
+     * 注释信息不会被修改。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @return 遵循用户规则的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction continueWith(HttpRequest request)
+    {
+        return FACTORY.requestInitialInterceptResultFollowUserRules(request);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy遵循当前拦截规则决定对请求采取的操作。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}
+     * @return 遵循用户规则的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction continueWith(HttpRequest request, Annotations annotations)
+    {
+        return FACTORY.requestInitialInterceptResultFollowUserRules(request, annotations);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy将请求提交给用户进行手动审查或修改。<br>
+     * 注释信息不会被修改。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @return 需要用户干预的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction intercept(HttpRequest request)
+    {
+        return FACTORY.requestInitialInterceptResultIntercept(request);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy将请求提交给用户进行手动审查或修改。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}
+     * @return 需要用户干预的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction intercept(HttpRequest request, Annotations annotations)
+    {
+        return FACTORY.requestInitialInterceptResultIntercept(request, annotations);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy直接转发请求而不提交给用户。<br>
+     * 注释信息不会被修改。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @return 直接转发的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction doNotIntercept(HttpRequest request)
+    {
+        return FACTORY.requestInitialInterceptResultDoNotIntercept(request);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy直接转发请求而不提交给用户。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}
+     * @return 直接转发的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction doNotIntercept(HttpRequest request, Annotations annotations)
+    {
+        return FACTORY.requestInitialInterceptResultDoNotIntercept(request, annotations);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy丢弃该请求。
+     *
+     * @return 丢弃请求的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction drop()
+    {
+        return FACTORY.requestInitialInterceptResultDrop();
+    }
+
+    /**
+     * 创建HTTP请求初始拦截结果的默认实现。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}，为null则保持原样
+     * @param action HTTP请求的 {@link MessageReceivedAction}
+     * @return 包含HTTP请求、注释和初始拦截动作的 {@link ProxyRequestReceivedAction} 实例
+     */
+    static ProxyRequestReceivedAction proxyRequestReceivedAction(HttpRequest request, Annotations annotations, MessageReceivedAction action)
+    {
+        return FACTORY.proxyRequestReceivedAction(request, annotations, action);
+    }
+}
+```
+#### ProxyRequestToBeSentAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.proxy.MessageToBeSentAction;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyRequestHandler#handleRequestToBeSent(InterceptedRequest)} 返回结果时可实现此接口。
+ */
+public interface ProxyRequestToBeSentAction
+{
+    /**
+     * 获取当前的最终拦截动作。
+     *
+     * @return {@link MessageToBeSentAction} 实例
+     */
+    MessageToBeSentAction action();
+
+    /**
+     * 获取经过扩展修改后要转发的HTTP请求。
+     *
+     * @return 修改后的 {@link HttpRequest} 实例
+     */
+    HttpRequest request();
+
+    /**
+     * 获取经过扩展修改后的当前请求的注释信息。
+     *
+     * @return 拦截的HTTP请求的 {@link Annotations} 实例
+     */
+    Annotations annotations();
+
+    /**
+     * 创建一个结果，使Burp Proxy转发该请求。<br>
+     * 注释信息不会被修改。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @return 转发请求的 {@link ProxyRequestToBeSentAction} 实例
+     */
+    static ProxyRequestToBeSentAction continueWith(HttpRequest request)
+    {
+        return FACTORY.requestFinalInterceptResultContinueWith(request);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy转发该请求。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}
+     * @return 转发请求的 {@link ProxyRequestToBeSentAction} 实例
+     */
+    static ProxyRequestToBeSentAction continueWith(HttpRequest request, Annotations annotations)
+    {
+        return FACTORY.requestFinalInterceptResultContinueWith(request, annotations);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy丢弃该请求。
+     *
+     * @return 丢弃请求的 {@link ProxyRequestToBeSentAction} 实例
+     */
+    static ProxyRequestToBeSentAction drop()
+    {
+        return FACTORY.requestFinalInterceptResultDrop();
+    }
+
+    /**
+     * 创建HTTP请求最终拦截结果的默认实现。
+     *
+     * @param request 经过扩展修改后的 {@link HttpRequest}
+     * @param annotations 拦截的HTTP请求的 {@link Annotations}，为null则保持原样
+     * @param action HTTP请求的 {@link MessageToBeSentAction}
+     * @return 包含HTTP请求、注释和最终拦截动作的 {@link ProxyRequestToBeSentAction} 实例
+     */
+    static ProxyRequestToBeSentAction proxyRequestToBeSentAction(HttpRequest request, Annotations annotations, MessageToBeSentAction action)
+    {
+        return FACTORY.proxyRequestToBeSentAction(request, annotations, action);
+    }
+}
+```
+#### ProxyResponseHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.proxy.Proxy;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Proxy#registerResponseHandler(ProxyResponseHandler)} 来注册一个
+ * 代理响应处理器。该处理器将会收到Proxy工具处理的响应通知。
+ * 扩展可以对这些响应执行自定义分析或修改，并控制UI中的消息拦截。
+ */
+public interface ProxyResponseHandler
+{
+    /**
+     * 当Proxy接收到HTTP响应时调用此方法。
+     *
+     * @param interceptedResponse 一个 {@link InterceptedResponse} 对象，
+     *                            扩展可以用它来查询和更新响应的详细信息，
+     *                            并控制是否拦截响应并显示给用户进行手动审查或修改。
+     *
+     * @return 包含所需操作、HTTP响应和注释的 {@link ProxyResponseReceivedAction}，
+     *         这些信息将被传递下去。
+     */
+    ProxyResponseReceivedAction handleResponseReceived(InterceptedResponse interceptedResponse);
+
+    /**
+     * 当Proxy处理完HTTP响应但还未返回给客户端时调用此方法。
+     *
+     * @param interceptedResponse 一个 {@link InterceptedResponse} 对象，
+     *                            扩展可以用它来查询和更新响应的详细信息。
+     *
+     * @return 包含所需操作、HTTP响应和注释的 {@link ProxyResponseToBeSentAction}，
+     *         这些信息将被传递下去。
+     */
+    ProxyResponseToBeSentAction handleResponseToBeSent(InterceptedResponse interceptedResponse);
+}
+```
+#### ProxyResponseReceivedAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.proxy.MessageReceivedAction;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyResponseHandler#handleResponseReceived(InterceptedResponse)} 返回结果时可实现此接口。
+ */
+public interface ProxyResponseReceivedAction
+{
+    /**
+     * 获取当前的初始拦截动作。
+     *
+     * @return {@link MessageReceivedAction} 实例
+     */
+    MessageReceivedAction action();
+
+    /**
+     * 获取经过扩展修改后要转发的HTTP响应。
+     *
+     * @return 修改后的 {@link HttpResponse} 实例
+     */
+    HttpResponse response();
+
+    /**
+     * 获取经过扩展修改后的当前响应的注释信息。
+     *
+     * @return 拦截的HTTP响应的 {@link Annotations} 实例
+     */
+    Annotations annotations();
+
+    /**
+     * 创建一个动作，使Burp Proxy遵循当前拦截规则决定对响应采取的操作。<br>
+     * 注释信息不会被修改。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @return 遵循用户规则的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction continueWith(HttpResponse response)
+    {
+        return FACTORY.responseInitialInterceptResultFollowUserRules(response);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy遵循当前拦截规则决定对响应采取的操作。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}
+     * @return 遵循用户规则的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction continueWith(HttpResponse response, Annotations annotations)
+    {
+        return FACTORY.responseInitialInterceptResultFollowUserRules(response, annotations);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy将响应提交给用户进行手动审查或修改。<br>
+     * 注释信息不会被修改。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @return 需要用户干预的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction intercept(HttpResponse response)
+    {
+        return FACTORY.responseInitialInterceptResultIntercept(response);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy将响应提交给用户进行手动审查或修改。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}
+     * @return 需要用户干预的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction intercept(HttpResponse response, Annotations annotations)
+    {
+        return FACTORY.responseInitialInterceptResultIntercept(response, annotations);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy直接转发响应而不提交给用户。<br>
+     * 注释信息不会被修改。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @return 直接转发的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction doNotIntercept(HttpResponse response)
+    {
+        return FACTORY.responseInitialInterceptResultDoNotIntercept(response);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy直接转发响应而不提交给用户。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}
+     * @return 直接转发的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction doNotIntercept(HttpResponse response, Annotations annotations)
+    {
+        return FACTORY.responseInitialInterceptResultDoNotIntercept(response, annotations);
+    }
+
+    /**
+     * 创建一个动作，使Burp Proxy丢弃该响应。
+     *
+     * @return 丢弃响应的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction drop()
+    {
+        return FACTORY.responseInitialInterceptResultDrop();
+    }
+
+    /**
+     * 创建HTTP响应初始拦截结果的默认实现。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}，为null则保持原样
+     * @param action HTTP响应的 {@link MessageReceivedAction}
+     * @return 包含HTTP响应、注释和拦截动作的 {@link ProxyResponseReceivedAction} 实例
+     */
+    static ProxyResponseReceivedAction proxyResponseReceivedAction(HttpResponse response, Annotations annotations, MessageReceivedAction action)
+    {
+        return FACTORY.proxyResponseReceivedAction(response, annotations, action);
+    }
+}
+```
+#### ProxyResponseToBeSentAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.http;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.proxy.MessageToBeSentAction;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyResponseHandler#handleResponseToBeSent(InterceptedResponse)} 
+ * 返回结果时可实现此接口。
+ */
+public interface ProxyResponseToBeSentAction
+{
+    /**
+     * 获取当前的最终拦截动作。
+     *
+     * @return {@link MessageToBeSentAction} 实例
+     */
+    MessageToBeSentAction action();
+
+    /**
+     * 获取经过扩展修改后要转发的HTTP响应。
+     *
+     * @return 修改后的 {@link HttpResponse} 实例
+     */
+    HttpResponse response();
+
+    /**
+     * 获取经过扩展修改后的当前响应的注释信息。
+     *
+     * @return 拦截的HTTP响应的 {@link Annotations} 实例
+     */
+    Annotations annotations();
+
+    /**
+     * 创建一个结果，使Burp Proxy转发该响应。<br>
+     * 注释信息不会被修改。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @return 转发响应的 {@link ProxyResponseToBeSentAction} 实例
+     */
+    static ProxyResponseToBeSentAction continueWith(HttpResponse response)
+    {
+        return FACTORY.responseFinalInterceptResultContinueWith(response);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy转发该响应。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}
+     * @return 转发响应的 {@link ProxyResponseToBeSentAction} 实例
+     */
+    static ProxyResponseToBeSentAction continueWith(HttpResponse response, Annotations annotations)
+    {
+        return FACTORY.responseFinalInterceptResultContinueWith(response, annotations);
+    }
+
+    /**
+     * 创建一个结果，使Burp Proxy丢弃该响应。
+     *
+     * @return 丢弃响应的 {@link ProxyResponseToBeSentAction} 实例
+     */
+    static ProxyResponseToBeSentAction drop()
+    {
+        return FACTORY.responseFinalInterceptResultDrop();
+    }
+
+    /**
+     * 创建HTTP响应最终拦截结果的默认实现。
+     *
+     * @param response 经过扩展修改后的 {@link HttpResponse}
+     * @param annotations 拦截的HTTP响应的 {@link Annotations}，为null则保持原样
+     * @param action HTTP响应的 {@link MessageToBeSentAction}
+     * @return 包含HTTP响应、注释和最终拦截动作的 {@link ProxyResponseToBeSentAction} 实例
+     */
+    static ProxyResponseToBeSentAction proxyResponseToReturnAction(HttpResponse response, Annotations annotations, MessageToBeSentAction action)
+    {
+        return FACTORY.proxyResponseToReturnAction(response, annotations, action);
+    }
+}
+```
+### websocket
+#### BinaryMessageReceivedAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.proxy.MessageReceivedAction;
+import burp.api.montoya.websocket.BinaryMessage;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyMessageHandler#handleBinaryMessageReceived(InterceptedBinaryMessage)} 
+ * 返回二进制消息时可实现此接口。
+ */
+public interface BinaryMessageReceivedAction
+{
+    /**
+     * @return 与此消息关联的动作
+     */
+    MessageReceivedAction action();
+
+    /**
+     * @return 此消息的有效载荷
+     */
+    ByteArray payload();
+
+    /**
+     * 构建一个二进制WebSocket消息，
+     * 遵循当前拦截规则决定对消息采取的适当操作。
+     *
+     * @param payload 二进制消息有效载荷
+     * @return 允许遵循用户规则的 {@link BinaryMessageReceivedAction}
+     */
+    static BinaryMessageReceivedAction continueWith(ByteArray payload)
+    {
+        return FACTORY.followUserRulesInitialProxyBinaryMessage(payload);
+    }
+
+    /**
+     * 构建一个二进制WebSocket消息，
+     * 遵循当前拦截规则决定对消息采取的适当操作。
+     *
+     * @param message 二进制消息
+     * @return 允许遵循用户规则的 {@link BinaryMessageReceivedAction}
+     */
+    static BinaryMessageReceivedAction continueWith(BinaryMessage message)
+    {
+        return FACTORY.followUserRulesInitialProxyBinaryMessage(message.payload());
+    }
+
+    /**
+     * 构建一个要在Proxy中拦截的二进制WebSocket消息。
+     *
+     * @param payload 二进制消息有效载荷
+     * @return 要拦截的消息
+     */
+    static BinaryMessageReceivedAction intercept(ByteArray payload)
+    {
+        return FACTORY.interceptInitialProxyBinaryMessage(payload);
+    }
+
+    /**
+     * 构建一个要在Proxy中拦截的二进制WebSocket消息。
+     *
+     * @param message 二进制消息
+     * @return 要拦截的消息
+     */
+    static BinaryMessageReceivedAction intercept(BinaryMessage message)
+    {
+        return FACTORY.interceptInitialProxyBinaryMessage(message.payload());
+    }
+
+    /**
+     * 构建一个要在Proxy中继续传输而不被拦截的二进制WebSocket消息。
+     *
+     * @param payload 二进制消息有效载荷
+     * @return 不被拦截的消息
+     */
+    static BinaryMessageReceivedAction doNotIntercept(ByteArray payload)
+    {
+        return FACTORY.doNotInterceptInitialProxyBinaryMessage(payload);
+    }
+
+    /**
+     * 构建一个要在Proxy中继续传输而不被拦截的二进制WebSocket消息。
+     *
+     * @param message 二进制消息
+     * @return 不被拦截的消息
+     */
+    static BinaryMessageReceivedAction doNotIntercept(BinaryMessage message)
+    {
+        return FACTORY.doNotInterceptInitialProxyBinaryMessage(message.payload());
+    }
+
+    /**
+     * 构建一个要被丢弃的二进制WebSocket消息。
+     *
+     * @return 要被丢弃的消息
+     */
+    static BinaryMessageReceivedAction drop()
+    {
+        return FACTORY.dropInitialProxyBinaryMessage();
+    }
+}
+```
+#### BinaryMessageToBeSentAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.proxy.MessageToBeSentAction;
+import burp.api.montoya.websocket.BinaryMessage;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyMessageHandler#handleBinaryMessageToBeSent(InterceptedBinaryMessage)} 
+ * 返回二进制消息时可实现此接口。
+ */
+public interface BinaryMessageToBeSentAction
+{
+    /**
+     * @return 与此消息关联的动作
+     */
+    MessageToBeSentAction action();
+
+    /**
+     * @return 此消息的有效载荷
+     */
+    ByteArray payload();
+
+    /**
+     * 构建一个要通过Burp继续传输的二进制WebSocket消息。
+     *
+     * @param payload 二进制消息有效载荷
+     * @return 要继续传输的消息
+     */
+    static BinaryMessageToBeSentAction continueWith(ByteArray payload)
+    {
+        return FACTORY.continueWithFinalProxyBinaryMessage(payload);
+    }
+
+    /**
+     * 构建一个要通过Burp继续传输的二进制WebSocket消息。
+     *
+     * @param message 二进制消息
+     * @return 要继续传输的消息
+     */
+    static BinaryMessageToBeSentAction continueWith(BinaryMessage message)
+    {
+        return FACTORY.continueWithFinalProxyBinaryMessage(message.payload());
+    }
+
+    /**
+     * 构建一个要被丢弃的二进制WebSocket消息。
+     *
+     * @return 要被丢弃的消息
+     */
+    static BinaryMessageToBeSentAction drop()
+    {
+        return FACTORY.dropFinalProxyBinaryMessage();
+    }
+}
+```
+#### InterceptedBinaryMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.websocket.BinaryMessage;
+import burp.api.montoya.websocket.Direction;
+
+/**
+ * 被Burp Proxy拦截的二进制WebSocket消息。
+ */
+public interface InterceptedBinaryMessage extends BinaryMessage
+{
+    /**
+     * @return 消息的注释信息
+     */
+    Annotations annotations();
+
+    /**
+     * @return 基于二进制的WebSocket消息载荷
+     */
+    @Override
+    ByteArray payload();
+
+    /**
+     * @return 消息的传输方向
+     */
+    @Override
+    Direction direction();
+}
+```
+#### InterceptedTextMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.websocket.Direction;
+import burp.api.montoya.websocket.TextMessage;
+
+/**
+ * 被Burp Proxy拦截的文本格式WebSocket消息。
+ */
+public interface InterceptedTextMessage extends TextMessage
+{
+    /**
+     * @return 消息的注释信息
+     */
+    Annotations annotations();
+
+    /**
+     * @return 基于文本的WebSocket消息内容
+     */
+    @Override
+    String payload();
+
+    /**
+     * @return 消息的传输方向
+     */
+    @Override
+    Direction direction();
+}
+```
+#### ProxyMessageHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+/**
+ * 此接口允许扩展在通过代理WebSocket发送/接收消息或连接关闭时收到通知。
+ */
+public interface ProxyMessageHandler
+{
+    /**
+     * 当从客户端或服务端接收到文本消息时调用。
+     * 扩展可以在此修改消息内容，然后才由Burp处理。
+     *
+     * @param interceptedTextMessage 被拦截的文本WebSocket消息
+     * @return 包含所需操作和待传递文本消息的 {@link TextMessageReceivedAction}
+     */
+    TextMessageReceivedAction handleTextMessageReceived(InterceptedTextMessage interceptedTextMessage);
+
+    /**
+     * 当文本消息即将发送给客户端或服务端时调用。
+     * 扩展可以在此修改消息内容，然后才发送。
+     *
+     * @param interceptedTextMessage 被拦截的文本WebSocket消息
+     * @return 包含所需操作和待传递文本消息的 {@link TextMessageToBeSentAction}
+     */
+    TextMessageToBeSentAction handleTextMessageToBeSent(InterceptedTextMessage interceptedTextMessage);
+
+    /**
+     * 当从客户端或服务端接收到二进制消息时调用。
+     * 扩展可以在此修改消息内容，然后才由Burp处理。
+     *
+     * @param interceptedBinaryMessage 被拦截的二进制WebSocket消息
+     * @return 包含所需操作和待传递二进制消息的 {@link BinaryMessageReceivedAction}
+     */
+    BinaryMessageReceivedAction handleBinaryMessageReceived(InterceptedBinaryMessage interceptedBinaryMessage);
+
+    /**
+     * 当二进制消息即将发送给客户端或服务端时调用。
+     * 扩展可以在此修改消息内容，然后才发送。
+     *
+     * @param interceptedBinaryMessage 被拦截的二进制WebSocket消息
+     * @return 包含所需操作和待传递二进制消息的 {@link BinaryMessageToBeSentAction}
+     */
+    BinaryMessageToBeSentAction handleBinaryMessageToBeSent(InterceptedBinaryMessage interceptedBinaryMessage);
+
+    /**
+     * 当WebSocket连接关闭时调用。
+     */
+    default void onClose()
+    {
+    }
+}
+```
+#### ProxyWebSocket
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.websocket.Direction;
+
+/**
+ * Burp中的代理WebSocket接口。
+ */
+public interface ProxyWebSocket
+{
+    /**
+     * 允许扩展通过WebSocket向客户端或服务端发送文本消息。
+     *
+     * @param textMessage 要发送的文本消息
+     * @param direction   消息的传输方向
+     */
+    void sendTextMessage(String textMessage, Direction direction);
+
+    /**
+     * 允许扩展通过WebSocket向客户端或服务端发送二进制消息。
+     *
+     * @param binaryMessage 要发送的二进制消息
+     * @param direction     消息的传输方向
+     */
+    void sendBinaryMessage(ByteArray binaryMessage, Direction direction);
+
+    /**
+     * 关闭WebSocket连接。
+     */
+    void close();
+
+    /**
+     * 注册消息处理器，用于在WebSocket收发消息时执行操作。
+     *
+     * @param handler 扩展实现的 {@link ProxyMessageHandler} 接口对象
+     * @return 处理器的 {@link Registration} 注册对象
+     */
+    Registration registerProxyMessageHandler(ProxyMessageHandler handler);
+}
+```
+#### ProxyWebSocketCreation
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+/**
+ * 正在创建的代理WebSocket连接相关信息。
+ */
+public interface ProxyWebSocketCreation
+{
+    /**
+     * @return 正在创建的ProxyWebSocket实例
+     */
+    ProxyWebSocket proxyWebSocket();
+
+    /**
+     * @return 触发WebSocket创建的HTTP升级请求
+     */
+    HttpRequest upgradeRequest();
+}
+```
+#### ProxyWebSocketCreationHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.proxy.Proxy;
+
+/**
+ * 扩展可实现此接口并通过调用 {@link Proxy#registerWebSocketCreationHandler} 注册WebSocket处理器。<br>
+ * 当Proxy工具创建新WebSocket连接时，该处理器将收到通知。
+ */
+public interface ProxyWebSocketCreationHandler
+{
+    /**
+     * 当Proxy工具创建WebSocket连接时由Burp调用。<br>
+     * <b>注意</b>：客户端连接将在该方法执行完成后才会升级。
+     *
+     * @param webSocketCreation 包含正在创建的代理WebSocket相关信息的 {@link ProxyWebSocketCreation} 对象
+     */
+    void handleWebSocketCreation(ProxyWebSocketCreation webSocketCreation);
+}
+```
+#### TextMessageReceivedAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.proxy.MessageReceivedAction;
+import burp.api.montoya.websocket.TextMessage;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展在从 {@link ProxyMessageHandler#handleTextMessageReceived(InterceptedTextMessage)} 
+ * 返回文本消息时可实现此接口。
+ */
+public interface TextMessageReceivedAction
+{
+    /**
+     * @return 与此消息关联的操作
+     */
+    MessageReceivedAction action();
+
+    /**
+     * @return 此消息的有效载荷内容
+     */
+    String payload();
+
+    /**
+     * 构建文本WebSocket消息，遵循当前拦截规则决定对消息采取的操作。
+     *
+     * @param payload 文本消息内容
+     * @return 允许遵循用户规则的 {@link TextMessageReceivedAction}
+     */
+    static TextMessageReceivedAction continueWith(String payload)
+    {
+        return FACTORY.followUserRulesInitialProxyTextMessage(payload);
+    }
+
+    /**
+     * 构建文本WebSocket消息，遵循当前拦截规则决定对消息采取的操作。
+     *
+     * @param message 文本消息对象
+     * @return 允许遵循用户规则的 {@link TextMessageReceivedAction}
+     */
+    static TextMessageReceivedAction continueWith(TextMessage message)
+    {
+        return FACTORY.followUserRulesInitialProxyTextMessage(message.payload());
+    }
+
+    /**
+     * 构建要在Proxy中拦截的文本WebSocket消息。
+     *
+     * @param payload 文本消息内容
+     * @return 要拦截的消息
+     */
+    static TextMessageReceivedAction intercept(String payload)
+    {
+        return FACTORY.interceptInitialProxyTextMessage(payload);
+    }
+
+    /**
+     * 构建要在Proxy中拦截的文本WebSocket消息。
+     *
+     * @param message 文本消息对象
+     * @return 要拦截的消息
+     */
+    static TextMessageReceivedAction intercept(TextMessage message)
+    {
+        return FACTORY.interceptInitialProxyTextMessage(message.payload());
+    }
+
+    /**
+     * 构建要在Proxy中继续传输而不被拦截的文本WebSocket消息。
+     *
+     * @param payload 文本消息内容
+     * @return 不被拦截的消息
+     */
+    static TextMessageReceivedAction doNotIntercept(String payload)
+    {
+        return FACTORY.doNotInterceptInitialProxyTextMessage(payload);
+    }
+
+    /**
+     * 构建要在Proxy中继续传输而不被拦截的文本WebSocket消息。
+     *
+     * @param message 文本消息对象
+     * @return 不被拦截的消息
+     */
+    static TextMessageReceivedAction doNotIntercept(TextMessage message)
+    {
+        return FACTORY.doNotInterceptInitialProxyTextMessage(message.payload());
+    }
+
+    /**
+     * 构建要被丢弃的文本WebSocket消息。
+     *
+     * @return 要被丢弃的消息
+     */
+    static TextMessageReceivedAction drop()
+    {
+        return FACTORY.dropInitialProxyTextMessage();
+    }
+}
+```
+#### TextMessageToBeSentAction
 ```java
 
 ```
-###
+## repeater
+### 
 ```java
 
 ```
-###
+### 
 ```java
 
 ```
-###
+### 
 ```java
 
+```
+## scanner
+## scope
+## sitemap
+## ui
+### 
+```java
+
+```
+### 
+```java
+
+```
+### 
+```java
+
+```
+### contextmenu
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+### editor
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### 
+```java
+
+```
+#### extension
+##### 
+```java
+
+```
+##### 
+```java
+
+```
+##### 
+```java
+
+```
+##### ExtensionProvidedEditor
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.editor.extension;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+
+/**
+ * 为不同类型的扩展提供的编辑器定义共享行为。
+ */
+public interface ExtensionProvidedEditor
+{
+    /**
+     * 在编辑器组件中设置提供的{@link HttpRequestResponse}对象。
+     *
+     * @param requestResponse 要在编辑器中设置的请求和响应
+     */
+    void setRequestResponse(HttpRequestResponse requestResponse);
+
+    /**
+     * 检查HTTP消息编辑器是否对特定的{@link HttpRequestResponse}启用
+     *
+     * @param requestResponse 要检查的{@link HttpRequestResponse}
+     *
+     * @return 如果HTTP消息编辑器对提供的请求和响应启用则返回true
+     */
+    boolean isEnabledFor(HttpRequestResponse requestResponse);
+
+    /**
+     * @return 消息编辑器标签页标题中显示的标题
+     */
+    String caption();
+
+    /**
+     * @return 在消息编辑器标签页中渲染的组件
+     */
+    Component uiComponent();
+
+    /**
+     * 如果用户没有选择任何数据，该方法应返回{@code null}。
+     *
+     * @return 用户当前选择的数据
+     */
+    Selection selectedData();
+
+    /**
+     * @return 如果用户在编辑器中修改了当前消息则返回true
+     */
+    boolean isModified();
+}
+```
+##### ExtensionProvidedHttpRequestEditor
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.editor.extension;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+
+/**
+ * 注册了{@link HttpRequestEditorProvider}的扩展必须返回此接口的实例。<br/>
+ * Burp将使用该实例在其HTTP请求编辑器中创建自定义标签页。
+ */
+public interface ExtensionProvidedHttpRequestEditor extends ExtensionProvidedEditor
+{
+    /**
+     * @return 从HTTP请求编辑器内容派生的{@link HttpRequest}实例
+     */
+    HttpRequest getRequest();
+
+    /**
+     * 在编辑器组件中设置提供的{@link HttpRequestResponse}对象。
+     *
+     * @param requestResponse 要在编辑器中设置的请求和响应
+     */
+    @Override
+    void setRequestResponse(HttpRequestResponse requestResponse);
+
+    /**
+     * 检查HTTP消息编辑器是否对特定的{@link HttpRequestResponse}启用
+     *
+     * @param requestResponse 要检查的{@link HttpRequestResponse}
+     *
+     * @return 如果HTTP消息编辑器对提供的请求和响应启用则返回true
+     */
+    @Override
+    boolean isEnabledFor(HttpRequestResponse requestResponse);
+
+    /**
+     * @return 消息编辑器标签页标题中显示的标题
+     */
+    @Override
+    String caption();
+
+    /**
+     * @return 在消息编辑器标签页中渲染的组件
+     */
+    @Override
+    Component uiComponent();
+
+    /**
+     * 如果用户没有选择任何数据，该方法应返回{@code null}。
+     *
+     * @return 用户当前选择的数据
+     */
+    @Override
+    Selection selectedData();
+
+    /**
+     * @return 如果用户在编辑器中修改了当前消息则返回true
+     */
+    @Override
+    boolean isModified();
+}
+```
+##### ExtensionProvidedHttpResponseEditor
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.editor.extension;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+
+/**
+ * 注册了{@link HttpResponseEditorProvider}的扩展必须返回此接口的实例。<br/>
+ * Burp将使用该实例在其HTTP响应编辑器中创建自定义标签页。
+ */
+public interface ExtensionProvidedHttpResponseEditor extends ExtensionProvidedEditor
+{
+    /**
+     * @return 从HTTP响应编辑器内容派生的{@link HttpResponse}实例
+     */
+    HttpResponse getResponse();
+
+    /**
+     * 在编辑器组件中设置提供的{@link HttpRequestResponse}对象。
+     *
+     * @param requestResponse 要在编辑器中设置的请求和响应
+     */
+    @Override
+    void setRequestResponse(HttpRequestResponse requestResponse);
+
+    /**
+     * 检查HTTP消息编辑器是否对特定的{@link HttpRequestResponse}启用
+     *
+     * @param requestResponse 要检查的{@link HttpRequestResponse}
+     *
+     * @return 如果HTTP消息编辑器对提供的请求和响应启用则返回true
+     */
+    @Override
+    boolean isEnabledFor(HttpRequestResponse requestResponse);
+
+    /**
+     * @return 消息编辑器标签页标题中显示的标题
+     */
+    @Override
+    String caption();
+
+    /**
+     * @return 在消息编辑器标签页中渲染的组件
+     */
+    @Override
+    Component uiComponent();
+
+    /**
+     * 如果用户没有选择任何数据，该方法应返回{@code null}。
+     *
+     * @return 用户当前选择的数据
+     */
+    @Override
+    Selection selectedData();
+
+    /**
+     * @return 如果用户在编辑器中修改了当前消息则返回true
+     */
+    @Override
+    boolean isModified();
+}
+```
+##### ExtensionProvidedWebSocketMessageEditor
+```java
+package burp.api.montoya.ui.editor.extension;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.ui.Selection;
+import burp.api.montoya.ui.contextmenu.WebSocketMessage;
+
+import java.awt.Component;
+
+/**
+ * 注册了{@link WebSocketMessageEditorProvider}的扩展必须返回此接口的实例。<br/>
+ * Burp将使用该实例在其WebSocket消息编辑器中创建自定义标签页。
+ */
+public interface ExtensionProvidedWebSocketMessageEditor
+{
+    /**
+     * @return 以{@link ByteArray}实例形式返回编辑器中当前设置的消息
+     */
+    ByteArray getMessage();
+    
+    /**
+     * 在编辑器组件中设置提供的{@link WebSocketMessage}消息。
+     *
+     * @param message 要在编辑器中设置的消息
+     */
+    void setMessage(WebSocketMessage message);
+
+    /**
+     * 检查WebSocket编辑器是否对特定的{@link WebSocketMessage}消息启用
+     *
+     * @param message 要检查的{@link WebSocketMessage}消息
+     *
+     * @return 如果WebSocket消息编辑器对提供的消息启用则返回true
+     */
+    boolean isEnabledFor(WebSocketMessage message);
+
+    /**
+     * @return 消息编辑器标签页标题中显示的标题
+     */
+    String caption();
+
+    /**
+     * @return 在消息编辑器标签页中渲染的组件
+     */
+    Component uiComponent();
+
+    /**
+     * 如果用户没有选择任何数据，该方法应返回{@code null}。
+     *
+     * @return 用户当前选择的数据
+     */
+    Selection selectedData();
+
+    /**
+     * @return 如果用户在编辑器中修改了当前消息则返回true
+     */
+    boolean isModified();
+}
+```
+##### HttpResponseEditorProvider
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.editor.extension;
+
+/**
+ * 扩展可以通过注册此接口的实例，在Burp用户界面中提供自定义的HTTP响应编辑器。
+ */
+public interface HttpResponseEditorProvider
+{
+    /**
+     * 当Burp需要从扩展获取新的HTTP响应编辑器时调用此方法。
+     *
+     * @param creationContext 包含需要响应编辑器的上下文详细信息
+     *
+     * @return 返回一个 {@link ExtensionProvidedHttpResponseEditor} 实例
+     */
+    ExtensionProvidedHttpResponseEditor provideHttpResponseEditor(EditorCreationContext creationContext);
+}
+```
+##### WebSocketMessageEditorProvider
+```java
+package burp.api.montoya.ui.editor.extension;
+
+/**
+ * 扩展可以通过注册此接口的实例，在Burp用户界面中提供自定义的WebSocket消息编辑器。
+ */
+public interface WebSocketMessageEditorProvider
+{
+    /**
+     * 当Burp需要从扩展获取新的WebSocket消息编辑器时调用此方法。
+     *
+     * @param creationContext 包含需要消息编辑器的上下文详细信息
+     *
+     * @return 返回一个 {@link ExtensionProvidedWebSocketMessageEditor} 实例
+     */
+    ExtensionProvidedWebSocketMessageEditor provideMessageEditor(EditorCreationContext creationContext);
+}
+```
+### hotkey
+#### HotKeyContext
+```java
+/*
+ * 版权所有 (c) 2022-2025。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.hotkey;
+
+/**
+ * 定义热键可触发的上下文环境枚举。
+ * <p>
+ * 目前仅支持HTTP消息编辑器上下文。
+ * </p>
+ */
+public enum HotKeyContext
+{
+    /**
+     * 表示热键可在HTTP消息编辑器上下文中触发。
+     * <p>
+     * 当用户焦点位于HTTP请求/响应编辑器时，
+     * 注册在此上下文的热键才会被激活。
+     * </p>
+     */
+    HTTP_MESSAGE_EDITOR
+}
+```
+#### HotKeyEvent
+```java
+/*
+ * 版权所有 (c) 2022-2025。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.hotkey;
+
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.ui.contextmenu.ComponentEvent;
+import burp.api.montoya.ui.contextmenu.InvocationSource;
+import burp.api.montoya.ui.contextmenu.MessageEditorHttpRequestResponse;
+
+import java.util.Optional;
+
+/**
+ * 提供由热键事件 {@link HotKeyHandler} 触发的上下文信息。
+ * <p>
+ * 该接口继承了组件事件、工具来源和调用来源接口，
+ * 提供了热键触发时的各种上下文信息访问能力。
+ * </p>
+ */
+public interface HotKeyEvent extends ComponentEvent, ToolSource, InvocationSource
+{
+    /**
+     * 获取热键触发时当前选中的HTTP请求/响应详情。
+     *
+     * @return 包含当前选中请求响应及其元数据的 {@link Optional} 对象，
+     *         如果无选中内容则返回空Optional
+     */
+    Optional<MessageEditorHttpRequestResponse> messageEditorRequestResponse();
+}
+```
+#### HotKeyHandler
+```java
+/*
+ * 版权所有 (c) 2022-2025。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.hotkey;
+
+/**
+ * 该接口允许扩展处理热键事件。
+ * <p>
+ * 实现此接口可以监听并响应Burp Suite中的热键操作。
+ * </p>
+ */
+public interface HotKeyHandler
+{
+    /**
+     * 当用户在界面中触发热键时由Burp Suite调用。
+     *
+     * @param event 热键事件对象，包含事件相关信息 {@link HotKeyEvent}
+     */
+    void handle(HotKeyEvent event);
+}
+```
+### menu
+#### BasicMenuItem
+```java
+package burp.api.montoya.ui.menu;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 表示一个基本的菜单项，继承自{@link MenuItem}接口。
+ * <p>
+ * 提供了菜单项的基本行为定义和操作方法，支持创建和修改菜单项实例。
+ * </p>
+ */
+public interface BasicMenuItem extends MenuItem
+{
+    /**
+     * 当点击该菜单项时执行的操作。
+     */
+    void action();
+
+    /**
+     * 创建一个带有新Runnable操作的菜单项副本。
+     *
+     * @param action 新的Runnable操作
+     * @return 更新后的菜单项副本
+     */
+    BasicMenuItem withAction(Runnable action);
+
+    /**
+     * 创建一个带有新标题的菜单项副本。
+     *
+     * @param caption 新的菜单项标题
+     * @return 更新后的菜单项副本
+     */
+    BasicMenuItem withCaption(String caption);
+
+    /**
+     * 创建一个新的基本菜单项实例。
+     *
+     * @param caption 菜单项的显示标题
+     * @return 新的BasicMenuItem实例
+     */
+    static BasicMenuItem basicMenuItem(String caption)
+    {
+        return FACTORY.basicMenuItem(caption);
+    }
+}
+```
+#### Menu
+```java
+package burp.api.montoya.ui.menu;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 表示显示在{@link MenuBar}中的菜单。
+ * <p>
+ * 该接口定义了菜单的基本属性和操作方法，支持创建和修改菜单实例。
+ * </p>
+ */
+public interface Menu
+{
+    /**
+     * 获取菜单的显示标题。
+     *
+     * @return 菜单标题文本
+     */
+    String caption();
+
+    /**
+     * 获取菜单中包含的所有菜单项列表。
+     *
+     * @return 菜单项列表
+     */
+    List<MenuItem> menuItems();
+
+    /**
+     * 创建一个带有新标题的菜单副本。
+     *
+     * @param caption 新的菜单标题
+     * @return 更新后的菜单副本
+     */
+    Menu withCaption(String caption);
+
+    /**
+     * 创建一个包含一个或多个菜单项的菜单副本。
+     *
+     * @param menuItems 要添加的菜单项数组
+     * @return 更新后的菜单副本
+     */
+    Menu withMenuItems(MenuItem... menuItems);
+
+    /**
+     * 创建一个包含新菜单项列表的菜单副本。
+     *
+     * @param menuItems 新的菜单项列表
+     * @return 更新后的菜单副本
+     */
+    Menu withMenuItems(List<MenuItem> menuItems);
+
+    /**
+     * 创建一个新的菜单实例。
+     *
+     * @param caption 菜单标题
+     * @return 新的菜单实例
+     */
+    static Menu menu(String caption)
+    {
+        return FACTORY.menu(caption);
+    }
+}
+```
+#### MenuBar
+```java
+package burp.api.montoya.ui.menu;
+
+import burp.api.montoya.core.Registration;
+import javax.swing.JMenu;
+
+/**
+ * 表示主框架窗口的顶部菜单栏。
+ * <p>
+ * 提供注册自定义菜单的方法，支持两种菜单注册方式。
+ * </p>
+ */
+public interface MenuBar
+{
+    /**
+     * 注册一个Swing JMenu菜单到菜单栏。
+     * <p>
+     * 此方法适用于需要更精细控制菜单结构的情况。
+     * </p>
+     *
+     * @param menu 要注册的Swing JMenu菜单对象
+     * @return 菜单的注册句柄，可用于取消注册
+     */
+    Registration registerMenu(JMenu menu);
+
+    /**
+     * 注册一个Burp Menu菜单到菜单栏。
+     * <p>
+     * 此方法适用于添加简单的菜单项。
+     * </p>
+     *
+     * @param menu 要注册的Burp Menu菜单对象
+     * @return 菜单的注册句柄，可用于取消注册
+     */
+    Registration registerMenu(Menu menu);
+}
+```
+#### MenuItem
+```java
+package burp.api.montoya.ui.menu;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 表示菜单中显示的菜单项。
+ * <p>
+ * 该接口定义了菜单项的基本属性和创建方法。
+ * </p>
+ */
+public interface MenuItem
+{
+    /**
+     * 获取菜单项的显示文本。
+     *
+     * @return 菜单项的标题文本
+     */
+    String caption();
+
+    /**
+     * 创建一个带有指定标题的基本菜单项实例。
+     *
+     * @param caption 菜单项的显示文本
+     * @return 新创建的BasicMenuItem实例
+     */
+    static BasicMenuItem basicMenuItem(String caption)
+    {
+        return FACTORY.basicMenuItem(caption);
+    }
+}
+```
+### settings
+#### SettingData
+```java
+package burp.api.montoya.ui.settings;
+
+/**
+ * 该接口用于从通过{@link SettingsPanelBuilder}创建的{@link SettingsPanel}中获取数据。
+ * <p>
+ * 提供了多种类型安全的方法来访问设置面板中的配置值。
+ * </p>
+ */
+public interface SettingData
+{
+    /**
+     * 获取字符串类型的设置值。
+     *
+     * @param name 设置项名称
+     * @return 对应的字符串值，如果不存在则返回空字符串
+     */
+    String getString(String name);
+
+    /**
+     * 获取布尔类型的设置值。
+     *
+     * @param name 设置项名称
+     * @return 对应的布尔值，如果不存在则返回false
+     */
+    boolean getBoolean(String name);
+
+    /**
+     * 获取整数类型的设置值。
+     *
+     * @param name 设置项名称
+     * @return 对应的整数值，如果不存在则返回0
+     */
+    int getInteger(String name);
+}
+```
+#### SettingsPanel
+```java
+package burp.api.montoya.ui.settings;
+
+import javax.swing.JComponent;
+import java.util.Set;
+
+import static java.util.Collections.emptySet;
+
+/**
+ * 表示Burp设置对话框中显示的自定义设置面板。
+ * <p>
+ * 该接口定义了设置面板的基本行为和属性。
+ * </p>
+ */
+public interface SettingsPanel
+{
+    /**
+     * 获取要在设置对话框中显示的UI组件。
+     *
+     * @return 返回用于显示的Swing组件
+     */
+    JComponent uiComponent();
+
+    /**
+     * 获取用于设置搜索功能的关键词集合，帮助用户找到此面板。
+     * <p>
+     * 默认返回空集合，子类可重写此方法提供具体关键词。
+     * </p>
+     *
+     * @return 关键词集合
+     */
+    default Set<String> keywords()
+    {
+        return emptySet();
+    }
+}
+```
+#### SettingsPanelBuilder
+```java
+package burp.api.montoya.ui.settings;
+
+import java.util.Collection;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 用于构建{@link SettingsPanelWithData}实例的构建器接口。
+ * <p>
+ * 提供链式方法配置设置面板的各项属性。
+ * </p>
+ */
+public interface SettingsPanelBuilder
+{
+    /**
+     * 设置数据持久化类型。
+     *
+     * @param persistence 数据持久化类型枚举值
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withPersistence(SettingsPanelPersistence persistence);
+
+    /**
+     * 设置显示在设置面板中的标题。
+     * <p>
+     * 如果未设置标题，将使用扩展名称作为默认标题。
+     * </p>
+     *
+     * @param title 面板标题文本
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withTitle(String title);
+
+    /**
+     * 设置显示在设置面板中的描述信息。
+     *
+     * @param description 描述文本
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withDescription(String description);
+
+    /**
+     * 向设置面板添加单个配置项。
+     *
+     * @param entry 要添加的配置项
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withSetting(SettingsPanelSetting entry);
+
+    /**
+     * 向设置面板添加多个配置项。
+     *
+     * @param entries 要添加的配置项数组
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withSettings(SettingsPanelSetting... entries);
+
+    /**
+     * 设置用于帮助用户通过搜索找到该设置面板的关键词集合。
+     *
+     * @param keywords 关键词数组
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withKeywords(String... keywords);
+
+    /**
+     * 设置用于帮助用户通过搜索找到该设置面板的关键词集合。
+     *
+     * @param keywords 关键词集合
+     * @return 当前构建器实例
+     */
+    SettingsPanelBuilder withKeywords(Collection<String> keywords);
+
+    /**
+     * 构建并返回设置面板实例。
+     *
+     * @return 配置完成的设置面板实例
+     */
+    SettingsPanelWithData build();
+
+    /**
+     * 获取SettingsPanelBuilder的实例。
+     *
+     * @return SettingsPanelBuilder实例
+     */
+    static SettingsPanelBuilder settingsPanel()
+    {
+        return FACTORY.settingsPanel();
+    }
+}
+```
+#### SettingsPanelPersistence
+```java
+package burp.api.montoya.ui.settings;
+
+/**
+ * 定义{@link SettingsPanelWithData}的持久化行为模式。
+ * <p>
+ * 该枚举用于控制设置面板数据的存储方式和生命周期。
+ * </p>
+ */
+public enum SettingsPanelPersistence
+{
+    /**
+     * 设置值仅保存在内存中，Burp关闭时不会保存。
+     * <p>
+     * 适用于临时性、会话级的设置项。
+     * </p>
+     */
+    NONE,
+
+    /**
+     * 设置保存在当前项目文件中。
+     * <p>
+     * 适用于项目特定的配置项，会随项目文件一起保存和加载。
+     * </p>
+     */
+    PROJECT_SETTINGS,
+
+    /**
+     * 设置保存在用户数据中。
+     * <p>
+     * 适用于用户级的全局配置项，会跨项目持久化保存。
+     * </p>
+     */
+    USER_SETTINGS
+}
+```
+#### SettingsPanelSetting
+```java
+package burp.api.montoya.ui.settings;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 表示设置面板中的一个配置项。
+ * <p>
+ * 提供多种静态工厂方法用于创建不同类型的设置项。
+ * </p>
+ */
+public interface SettingsPanelSetting
+{
+    /**
+     * 创建一个仅接受整数值的文本输入框设置项。
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting integerSetting(String name)
+    {
+        return FACTORY.integerSetting(name);
+    }
+
+    /**
+     * 创建一个带有默认值的整型文本输入框设置项。
+     * <p>
+     * 如果存在同名持久化值，将优先使用持久化值而非默认值。
+     * </p>
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @param defaultValue 初始默认值
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting integerSetting(String name, int defaultValue)
+    {
+        return FACTORY.integerSetting(name, defaultValue);
+    }
+
+    /**
+     * 创建一个复选框设置项。
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting booleanSetting(String name)
+    {
+        return FACTORY.booleanSetting(name);
+    }
+
+    /**
+     * 创建一个带有默认选中状态的复选框设置项。
+     * <p>
+     * 如果存在同名持久化状态，将优先使用持久化状态而非默认状态。
+     * </p>
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @param defaultValue 初始默认选中状态
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting booleanSetting(String name, boolean defaultValue)
+    {
+        return FACTORY.booleanSetting(name, defaultValue);
+    }
+
+    /**
+     * 创建一个文本输入框设置项。
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting stringSetting(String name)
+    {
+        return FACTORY.stringSetting(name);
+    }
+
+    /**
+     * 创建一个带有默认文本值的输入框设置项。
+     * <p>
+     * 如果存在同名持久化值，将优先使用持久化值而非默认值。
+     * </p>
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @param defaultValue 初始默认文本值
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting stringSetting(String name, String defaultValue)
+    {
+        return FACTORY.stringSetting(name, defaultValue);
+    }
+
+    /**
+     * 创建一个下拉选择框设置项。
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @param values 下拉框中的可选值数组
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting listSetting(String name, String... values)
+    {
+        return FACTORY.listSetting(name, values);
+    }
+
+    /**
+     * 创建一个带有默认选中值的下拉选择框设置项。
+     * <p>
+     * 如果存在同名持久化值，将优先使用持久化值而非默认值。
+     * </p>
+     *
+     * @param name 用于通过{@link SettingsPanelWithData}访问关联数据的名称
+     * @param values 下拉框中的可选值列表
+     * @param defaultValue 初始默认选中值
+     * @return 设置项实例
+     */
+    static SettingsPanelSetting listSetting(String name, List<String> values, String defaultValue)
+    {
+        return FACTORY.listSetting(name, values, defaultValue);
+    }
+}
+```
+#### SettingsPanelWithData
+```java
+package burp.api.montoya.ui.settings;
+
+/**
+ * 表示使用{@link SettingsPanelBuilder}构建的设置面板，
+ * 该面板显示在Burp的设置对话框中并包含关联数据。
+ * 
+ * <p>该接口同时继承了{@link SettingsPanel}和{@link SettingData}的功能，
+ * 既可作为设置面板使用，又能存储相关设置数据。</p>
+ */
+public interface SettingsPanelWithData extends SettingsPanel, SettingData
+{
+}
+```
+### swing
+#### SwingUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.swing;
+
+import burp.api.montoya.core.HighlightColor;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.Window;
+
+/**
+ * 该接口提供了Swing相关的实用工具方法。
+ */
+public interface SwingUtils
+{
+    /**
+     * 获取Burp套件的主框架窗口。
+     *
+     * @return Burp套件的主框架Frame对象
+     */
+    Frame suiteFrame();
+
+    /**
+     * 获取包含指定组件的顶层Window窗口。
+     *
+     * @param component 要查找的组件
+     * @return 包含该组件的顶层Window对象
+     */
+    Window windowForComponent(Component component);
+
+    /**
+     * 将高亮颜色转换为Java Color对象。
+     *
+     * @param highlightColor 要转换的{@link HighlightColor}高亮颜色
+     * @return 对应的Java Color对象
+     */
+    Color colorForHighLight(HighlightColor highlightColor);
+}
+```
+
+## utillties
+### Base64DecodingOptions
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该枚举定义了Base64解码选项。
+ */
+public enum Base64DecodingOptions
+{
+    /**
+     * 使用URL和文件名安全的Base64解码方案
+     */
+    URL
+}
+```
+### Base64EncodingOptions
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该枚举定义了Base64编码选项。
+ */
+public enum Base64EncodingOptions
+{
+    /**
+     * 使用URL和文件名安全的Base64编码方案
+     */
+    URL,
+
+    /**
+     * 编码时不添加任何填充字符
+     */
+    NO_PADDING
+}
+```
+### Base64Utils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.core.ByteArray;
+
+import java.util.Base64;
+
+/**
+ * 该接口提供了Base64编码和解码相关的功能方法。
+ */
+public interface Base64Utils
+{
+    /**
+     * 使用{@link Base64}编码方案将指定字节数组中的所有字节编码到新分配的字节数组中。
+     * 返回的字节数组长度等于编码结果的长度。
+     *
+     * @param data    要编码的字节数组
+     * @param options 编码选项
+     *
+     * @return 包含编码结果的新分配字节数组
+     */
+    ByteArray encode(ByteArray data, Base64EncodingOptions... options);
+
+    /**
+     * 使用{@link Base64}编码方案将指定字符串中的所有字节编码到新分配的字节数组中。
+     * 返回的字节数组长度等于编码结果的长度。
+     *
+     * @param data    要编码的字符串
+     * @param options 编码选项
+     *
+     * @return 包含编码结果的新分配字节数组
+     */
+    ByteArray encode(String data, Base64EncodingOptions... options);
+
+    /**
+     * 使用{@link Base64}编码方案将指定字节数组中的所有字节编码为字符串。
+     *
+     * @param data    要编码的字节数组
+     * @param options 编码选项
+     *
+     * @return 包含编码结果的字符串
+     */
+    String encodeToString(ByteArray data, Base64EncodingOptions... options);
+
+    /**
+     * 使用{@link Base64}编码方案将指定字符串中的所有字节编码为字符串。
+     *
+     * @param data    要编码的字符串
+     * @param options 编码选项
+     *
+     * @return 包含编码结果的字符串
+     */
+    String encodeToString(String data, Base64EncodingOptions... options);
+
+    /**
+     * 使用{@link Base64}解码方案将指定字节数组中的所有字节解码到新分配的字节数组中。
+     * 返回的字节数组长度等于解码结果的长度。
+     *
+     * @param data    要解码的字节数组
+     * @param options 解码选项
+     *
+     * @return 包含解码结果的新分配字节数组
+     */
+    ByteArray decode(ByteArray data, Base64DecodingOptions... options);
+
+    /**
+     * 使用{@link Base64}解码方案将指定字符串中的所有字节解码到新分配的字节数组中。
+     * 返回的字节数组长度等于解码结果的长度。
+     *
+     * @param data    要解码的字符串
+     * @param options 解码选项
+     *
+     * @return 包含解码结果的新分配字节数组
+     */
+    ByteArray decode(String data, Base64DecodingOptions... options);
+}
+```
+### ByteUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import java.util.regex.Pattern;
+
+/**
+ * 该接口提供了多种查询和操作字节数组的方法。
+ */
+public interface ByteUtils
+{
+    /**
+     * 在数据中搜索指定模式的第一个出现位置。
+     * 该方法对字节数据的操作方式类似于Java原生方法{@link String#indexOf(String)}对字符串数据的操作。
+     *
+     * @param data       待搜索的数据
+     * @param searchTerm 要搜索的值
+     *
+     * @return 模式第一次出现的偏移量，如果未找到则返回-1
+     */
+    int indexOf(byte[] data, byte[] searchTerm);
+
+    /**
+     * 在数据中搜索指定模式的第一个出现位置。
+     * 该方法对字节数据的操作方式类似于Java原生方法{@link String#indexOf(String)}对字符串数据的操作。
+     *
+     * @param data          待搜索的数据
+     * @param searchTerm    要搜索的值
+     * @param caseSensitive 是否区分大小写
+     *
+     * @return 模式第一次出现的偏移量，如果未找到则返回-1
+     */
+    int indexOf(byte[] data, byte[] searchTerm, boolean caseSensitive);
+
+    /**
+     * 在数据中搜索指定模式的第一个出现位置。
+     * 该方法对字节数据的操作方式类似于Java原生方法{@link String#indexOf(String)}对字符串数据的操作。
+     *
+     * @param data          待搜索的数据
+     * @param searchTerm    要搜索的值
+     * @param caseSensitive 是否区分大小写
+     * @param from          搜索起始偏移量
+     * @param to            搜索结束偏移量
+     *
+     * @return 模式第一次出现的偏移量，如果未找到则返回-1
+     */
+    int indexOf(byte[] data, byte[] searchTerm, boolean caseSensitive, int from, int to);
+
+    /**
+     * 在数据中搜索指定正则模式的第一个出现位置。
+     *
+     * @param data    待搜索的数据
+     * @param pattern 要匹配的正则模式
+     *
+     * @return 模式第一次出现的偏移量，如果未找到则返回-1
+     */
+    int indexOf(byte[] data, Pattern pattern);
+
+    /**
+     * 在数据中搜索指定正则模式的第一个出现位置。
+     *
+     * @param data    待搜索的数据
+     * @param pattern 要匹配的正则模式
+     * @param from    搜索起始偏移量
+     * @param to      搜索结束偏移量
+     *
+     * @return 模式第一次出现的偏移量，如果未找到则返回-1
+     */
+    int indexOf(byte[] data, Pattern pattern, int from, int to);
+
+    /**
+     * 统计数据中指定模式的所有匹配次数。
+     *
+     * @param data       待搜索的数据
+     * @param searchTerm 要搜索的值
+     *
+     * @return 模式匹配的总次数
+     */
+    int countMatches(byte[] data, byte[] searchTerm);
+
+    /**
+     * 统计数据中指定模式的所有匹配次数。
+     *
+     * @param data          待搜索的数据
+     * @param searchTerm    要搜索的值
+     * @param caseSensitive 是否区分大小写
+     *
+     * @return 模式匹配的总次数
+     */
+    int countMatches(byte[] data, byte[] searchTerm, boolean caseSensitive);
+
+    /**
+     * 统计数据中指定模式的所有匹配次数。
+     *
+     * @param data          待搜索的数据
+     * @param searchTerm    要搜索的值
+     * @param caseSensitive 是否区分大小写
+     * @param from          搜索起始偏移量
+     * @param to            搜索结束偏移量
+     *
+     * @return 指定范围内模式匹配的总次数
+     */
+    int countMatches(byte[] data, byte[] searchTerm, boolean caseSensitive, int from, int to);
+
+    /**
+     * 统计数据中指定正则模式的所有匹配次数。
+     *
+     * @param data    待搜索的数据
+     * @param pattern 要匹配的正则模式
+     *
+     * @return 模式匹配的总次数
+     */
+    int countMatches(byte[] data, Pattern pattern);
+
+    /**
+     * 统计数据中指定正则模式的所有匹配次数。
+     *
+     * @param data    待搜索的数据
+     * @param pattern 要匹配的正则模式
+     * @param from    搜索起始偏移量
+     * @param to      搜索结束偏移量
+     *
+     * @return 指定范围内模式匹配的总次数
+     */
+    int countMatches(byte[] data, Pattern pattern, int from, int to);
+
+    /**
+     * 将字节数组转换为字符串形式。
+     * 该转换不反映任何特定字符集，字节0xYZ将始终转换为十六进制表示0x00YZ的字符。
+     * 该方法与{@link ByteUtils#convertFromString(String)}执行相反的转换，
+     * 使用这两个方法在字节数据和字符串之间转换可以保证数据的完整性（而使用特定字符集的转换可能无法保证）。
+     *
+     * @param bytes 要转换的数据
+     *
+     * @return 转换后的字符串
+     */
+    String convertToString(byte[] bytes);
+
+    /**
+     * 将字符串形式的数据转换为字节数组。
+     * 该转换不反映任何特定字符集，十六进制表示0xWXYZ的字符将始终转换为字节0xYZ。
+     * 该方法与{@link ByteUtils#convertToString(byte[])}执行相反的转换，
+     * 使用这两个方法在字节数据和字符串之间转换可以保证数据的完整性（而使用特定字符集的转换可能无法保证）。
+     *
+     * @param string 要转换的字符串
+     *
+     * @return 转换后的字节数组
+     */
+    byte[] convertFromString(String string);
+}
+```
+### CompressionType
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该枚举定义了可用的压缩类型。
+ */
+public enum CompressionType
+{
+    /**
+     * GZIP压缩格式
+     */
+    GZIP,
+    
+    /**
+     * DEFLATE压缩格式
+     */
+    DEFLATE,
+    
+    /**
+     * Google开发的Brotli压缩格式
+     */
+    BROTLI
+}
+```
+### CompressionUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 该接口提供了数据压缩相关的功能操作。
+ */
+public interface CompressionUtils
+{
+    /**
+     * 使用指定的压缩类型压缩数据。
+     *
+     * @param data 待压缩的数据
+     * @param type 要使用的{@link CompressionType}压缩类型。目前仅支持GZIP
+     *
+     * @return 压缩后的数据
+     */
+    ByteArray compress(ByteArray data, CompressionType type);
+
+    /**
+     * 解压缩使用指定压缩类型压缩的数据。
+     *
+     * @param compressedData 待解压的压缩数据
+     * @param type           压缩数据使用的{@link CompressionType}压缩类型
+     *
+     * @return 解压后的原始数据
+     */
+    ByteArray decompress(ByteArray compressedData, CompressionType type);
+}
+```
+### CryptoUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 该接口提供了加密功能相关的操作方法。
+ */
+public interface CryptoUtils
+{
+    /**
+     * 使用指定算法为输入数据生成消息摘要
+     *
+     * @param data      用于生成摘要的输入数据
+     * @param algorithm 要使用的消息{@link DigestAlgorithm}摘要算法
+     *
+     * @return 生成的消息摘要
+     */
+    ByteArray generateDigest(ByteArray data, DigestAlgorithm algorithm);
+}
+```
+### DigestAlgorithm
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 可用的消息摘要算法枚举。
+ */
+public enum DigestAlgorithm
+{
+    BLAKE2B_160("BLAKE2B-160"),
+    BLAKE2B_256("BLAKE2B-256"),
+    BLAKE2B_384("BLAKE2B-384"),
+    BLAKE2B_512("BLAKE2B-512"),
+    BLAKE2S_128("BLAKE2S-128"),
+    BLAKE2S_160("BLAKE2S-160"),
+    BLAKE2S_224("BLAKE2S-224"),
+    BLAKE2S_256("BLAKE2S-256"),
+    BLAKE3_256("BLAKE3-256"),
+    DSTU7564_256("DSTU7564-256"),
+    DSTU7564_384("DSTU7564-384"),
+    DSTU7564_512("DSTU7564-512"),
+    GOST3411("GOST3411"),
+    GOST3411_2012_256("GOST3411-2012-256"),
+    GOST3411_2012_512("GOST3411-2012-512"),
+    HARAKA_256("HARAKA-256"),
+    HARAKA_512("HARAKA-512"),
+    KECCAK_224("KECCAK-224"),
+    KECCAK_256("KECCAK-256"),
+    KECCAK_288("KECCAK-288"),
+    KECCAK_384("KECCAK-384"),
+    KECCAK_512("KECCAK-512"),
+    MD2("MD2"),
+    MD4("MD4"),
+    MD5("MD5"),
+    PARALLEL_HASH_128_256("PARALLELHASH128-256"),
+    PARALLEL_HASH_256_512("PARALLELHASH256-512"),
+    RIPEMD_128("RIPEMD128"),
+    RIPEMD_160("RIPEMD160"),
+    RIPEMD_256("RIPEMD256"),
+    RIPEMD_320("RIPEMD320"),
+    SHA_1("SHA-1"),
+    SHA_224("SHA-224"),
+    SHA_256("SHA-256"),
+    SHA_384("SHA-384"),
+    SHA_512("SHA-512"),
+    SHA_512_224("SHA-512/224"),
+    SHA_512_256("SHA-512/256"),
+    SHA3_224("SHA3-224"),
+    SHA3_256("SHA3-256"),
+    SHA3_384("SHA3-384"),
+    SHA3_512("SHA3-512"),
+    SHAKE_128_256("SHAKE128-256"),
+    SHAKE_256_512("SHAKE256-512"),
+    SKEIN_1024_1024("SKEIN-1024-1024"),
+    SKEIN_1024_384("SKEIN-1024-384"),
+    SKEIN_1024_512("SKEIN-1024-512"),
+    SKEIN_256_128("SKEIN-256-128"),
+    SKEIN_256_160("SKEIN-256-160"),
+    SKEIN_256_224("SKEIN-256-224"),
+    SKEIN_256_256("SKEIN-256-256"),
+    SKEIN_512_128("SKEIN-512-128"),
+    SKEIN_512_160("SKEIN-512-160"),
+    SKEIN_512_224("SKEIN-512-224"),
+    SKEIN_512_256("SKEIN-512-256"),
+    SKEIN_512_384("SKEIN-512-384"),
+    SKEIN_512_512("SKEIN-512-512"),
+    SM3("SM3"),
+    TIGER("TIGER"),
+    TUPLEHASH_128_256("TUPLEHASH128-256"),
+    TUPLEHASH_256_512("TUPLEHASH256-512"),
+    WHIRLPOOL("WHIRLPOOL");
+
+    public final String displayName;
+
+    DigestAlgorithm(String displayName)
+    {
+        this.displayName = displayName;
+    }
+}
+```
+### HtmlEncoding
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该枚举定义了HTML编码方式。
+ */
+public enum HtmlEncoding
+{
+    /**
+     * 仅编码HTML特殊字符。
+     */
+    STANDARD,
+
+    /**
+     * 按照STANDARD方式编码HTML特殊字符，
+     * 并将所有其他字符编码为十进制实体。
+     */
+    ALL_CHARACTERS,
+
+    /**
+     * 将所有字符编码为十进制实体。
+     */
+    ALL_CHARACTERS_DECIMAL,
+
+    /**
+     * 将所有字符编码为十六进制实体。
+     */
+    ALL_CHARACTERS_HEX
+}
+```
+### HtmlUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 本代码可用于扩展 Burp Suite 社区版和 Burp Suite 专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该接口提供 HTML 编码和解码功能。
+ */
+public interface HtmlUtils
+{
+    /**
+     * 使用 {@link HtmlEncoding#STANDARD} 编码对 HTML 文本进行编码
+     *
+     * @param html 要编码的 HTML 字符串
+     * @return 编码后的字符串
+     */
+    String encode(String html);
+
+    /**
+     * 使用指定的编码方式对 HTML 文本进行编码
+     *
+     * @param html 要编码的 HTML 字符串
+     * @param encoding 使用的 HTML 编码方式
+     * @return 编码后的字符串
+     */
+    String encode(String html, HtmlEncoding encoding);
+
+    /**
+     * 解码已编码的 HTML 文本
+     *
+     * @param encodedHtml 要解码的已编码 HTML 字符串
+     * @return 解码后的字符串
+     */
+    String decode(String encodedHtml);
+}
+```
+### NumberUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 本代码可用于扩展 Burp Suite 社区版和 Burp Suite 专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 该接口提供数字字符串转换功能。
+ */
+public interface NumberUtils
+{
+    /**
+     * 将二进制字符串转换为八进制表示
+     *
+     * @param binaryString 要转换的二进制字符串
+     * @return 包含八进制表示的字符串
+     */
+    String convertBinaryToOctal(String binaryString);
+
+    /**
+     * 将字节数组转换为八进制表示
+     *
+     * @param byteArray 要转换的字节数组
+     * @return 包含八进制表示的字符串
+     */
+    String convertBinaryToOctal(ByteArray byteArray);
+
+    /**
+     * 将二进制字符串转换为十进制表示
+     *
+     * @param binaryString 要转换的二进制字符串
+     * @return 包含十进制表示的字符串
+     */
+    String convertBinaryToDecimal(String binaryString);
+
+    /**
+     * 将字节数组转换为十进制表示
+     *
+     * @param byteArray 要转换的字节数组
+     * @return 包含十进制表示的字符串
+     */
+    String convertBinaryToDecimal(ByteArray byteArray);
+
+    /**
+     * 将二进制字符串转换为十六进制表示
+     *
+     * @param binaryString 要转换的二进制字符串
+     * @return 包含十六进制表示的字符串
+     */
+    String convertBinaryToHex(String binaryString);
+
+    /**
+     * 将字节数组转换为十六进制表示
+     *
+     * @param byteArray 要转换的字节数组
+     * @return 包含十六进制表示的字符串
+     */
+    String convertBinaryToHex(ByteArray byteArray);
+
+    /**
+     * 将八进制字符串转换为二进制表示
+     *
+     * @param octalString 要转换的八进制字符串
+     * @return 包含二进制表示的字符串
+     */
+    String convertOctalToBinary(String octalString);
+
+    /**
+     * 将八进制字符串转换为十进制表示
+     *
+     * @param octalString 要转换的八进制字符串
+     * @return 包含十进制表示的字符串
+     */
+    String convertOctalToDecimal(String octalString);
+
+    /**
+     * 将八进制字符串转换为十六进制表示
+     *
+     * @param octalString 要转换的八进制字符串
+     * @return 包含十六进制表示的字符串
+     */
+    String convertOctalToHex(String octalString);
+
+    /**
+     * 将十进制字符串转换为二进制表示
+     *
+     * @param decimalString 要转换的十进制字符串
+     * @return 包含二进制表示的字符串
+     */
+    String convertDecimalToBinary(String decimalString);
+
+    /**
+     * 将十进制字符串转换为八进制表示
+     *
+     * @param decimalString 要转换的十进制字符串
+     * @return 包含八进制表示的字符串
+     */
+    String convertDecimalToOctal(String decimalString);
+
+    /**
+     * 将十进制字符串转换为十六进制表示
+     *
+     * @param decimalString 要转换的十进制字符串
+     * @return 包含十六进制表示的字符串
+     */
+    String convertDecimalToHex(String decimalString);
+
+    /**
+     * 将十六进制字符串转换为二进制表示
+     *
+     * @param hexString 要转换的十六进制字符串
+     * @return 包含二进制表示的字符串
+     */
+    String convertHexToBinary(String hexString);
+
+    /**
+     * 将十六进制字符串转换为八进制表示
+     *
+     * @param hexString 要转换的十六进制字符串
+     * @return 包含八进制表示的字符串
+     */
+    String convertHexToOctal(String hexString);
+
+    /**
+     * 将十六进制字符串转换为十进制表示
+     *
+     * @param hexString 要转换的十六进制字符串
+     * @return 包含十进制表示的字符串
+     */
+    String convertHexToDecimal(String hexString);
+
+    /**
+     * 将二进制字符串转换为指定基数的表示
+     *
+     * @param binaryString 要转换的二进制字符串
+     * @param radix 要转换到的基数
+     * @return 包含指定基数表示的字符串
+     */
+    String convertBinary(String binaryString, int radix);
+
+    /**
+     * 将八进制字符串转换为指定基数的表示
+     *
+     * @param octalString 要转换的八进制字符串
+     * @param radix 要转换到的基数
+     * @return 包含指定基数表示的字符串
+     */
+    String convertOctal(String octalString, int radix);
+
+    /**
+     * 将十进制字符串转换为指定基数的表示
+     *
+     * @param decimalString 要转换的十进制字符串
+     * @param radix 要转换到的基数
+     * @return 包含指定基数表示的字符串
+     */
+    String convertDecimal(String decimalString, int radix);
+
+    /**
+     * 将十六进制字符串转换为指定基数的表示
+     *
+     * @param hexString 要转换的十六进制字符串
+     * @param radix 要转换到的基数
+     * @return 包含指定基数表示的字符串
+     */
+    String convertHex(String hexString, int radix);
+}
+```
+### RandomUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 本代码可用于扩展 Burp Suite 社区版和 Burp Suite 专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+/**
+ * 随机字符串生成工具接口
+ */
+public interface RandomUtils
+{
+    /**
+     * 使用字母数字字符生成随机字符串
+     *
+     * @param length 生成的随机字符串长度
+     * @return 随机生成的字符串
+     */
+    String randomString(int length);
+
+    /**
+     * 使用指定字符集生成随机字符串
+     *
+     * @param length 生成的随机字符串长度
+     * @param chars 用于生成字符串的字符集
+     * @return 随机生成的字符串
+     */
+    String randomString(int length, String chars);
+
+    /**
+     * 使用指定的字符集枚举生成随机字符串
+     *
+     * @param length 生成的随机字符串长度
+     * @param characterSets 用于生成字符串的字符集枚举数组
+     * @return 随机生成的字符串
+     */
+    String randomString(int length, CharacterSet... characterSets);
+
+    /**
+     * 使用指定字符集生成指定长度范围的随机字符串
+     *
+     * @param minLength 生成字符串的最小长度(包含)
+     * @param maxLength 生成字符串的最大长度(包含)
+     * @param chars 用于生成字符串的字符集
+     * @return 随机生成的字符串
+     */
+    String randomString(int minLength, int maxLength, String chars);
+
+    /**
+     * 使用指定的字符集枚举生成指定长度范围的随机字符串
+     *
+     * @param minLength 生成字符串的最小长度(包含)
+     * @param maxLength 生成字符串的最大长度(包含)
+     * @param characterSets 用于生成字符串的字符集枚举数组
+     * @return 随机生成的字符串
+     */
+    String randomString(int minLength, int maxLength, CharacterSet... characterSets);
+
+    /**
+     * 预定义的字符集枚举
+     */
+    enum CharacterSet
+    {
+        ASCII_LOWERCASE("abcdefghijklmnopqrstvwxyz"),  // 小写字母字符集
+        ASCII_UPPERCASE("ABCDEFGHIJKLMNOPQRSTVWXYZ"),  // 大写字母字符集
+        ASCII_LETTERS(ASCII_LOWERCASE, ASCII_UPPERCASE),  // 所有字母字符集(大小写)
+        DIGITS("0123456789"),  // 数字字符集
+        PUNCTUATION("!\"#$%&'()*+,-./:;=<>?@[\\]^_`{|}~."),  // 标点符号字符集
+        WHITESPACE(" \t\n\u000b\r\f"),  // 空白字符集
+        PRINTABLE(DIGITS, ASCII_LETTERS, PUNCTUATION, WHITESPACE);  // 可打印字符集
+
+        public final String characters;  // 字符集包含的实际字符
+
+        CharacterSet(String characters)  // 通过字符串构造字符集
+        {
+            this.characters = characters;
+        }
+
+        CharacterSet(CharacterSet... charsList)  // 通过组合其他字符集构造新字符集
+        {
+            characters = Arrays.stream(charsList).map(charSet -> charSet.characters).collect(Collectors.joining());
+        }
+    }
+}
+```
+### StringUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 本代码可用于扩展 Burp Suite 社区版和 Burp Suite 专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * 该接口提供字符串操作功能。
+ */
+public interface StringUtils
+{
+    /**
+     * 将字符串转换为其ASCII字符的十六进制表示。
+     * 每个字符将被转换为两位十六进制值。
+     *
+     * @param data 要转换的ASCII数据
+     * @return 十六进制值组成的字符串
+     */
+    String convertAsciiToHexString(String data);
+
+    /**
+     * 将十六进制字符串转换为ASCII字符字符串。
+     * 每对十六进制数字将被转换为单个ASCII字符。
+     *
+     * @param data 要转换的十六进制字符串
+     * @return ASCII字符组成的字符串
+     */
+    String convertHexStringToAscii(String data);
+}
+```
+### URLEncoding
+```java
+/*
+ * 版权所有 (c) 2022-2025。PortSwigger Ltd. 保留所有权利。
+ *
+ * 本代码可用于扩展 Burp Suite 社区版和 Burp Suite 专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+/**
+ * URL 编码方式枚举类型。
+ */
+public enum URLEncoding
+{
+    /**
+     * 使用 {@link java.net.URLEncoder} 进行编码（Java 默认方式）
+     */
+    JAVA_DEFAULT,
+
+    /**
+     * 仅对关键字符进行编码
+     */
+    KEY_CHARACTERS,
+
+    /**
+     * 对所有字符进行编码
+     */
+    ALL_CHARACTERS,
+
+    /**
+     * 将所有字符编码为 Unicode 格式
+     */
+    ALL_CHARACTERS_UNICODE
+}
+```
+### URLUtils
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 该接口提供URL编码和解码功能。
+ */
+public interface URLUtils
+{
+    /**
+     * 此方法等效于使用 {@link URLEncoding#JAVA_DEFAULT} 调用 {@link #encode(String, URLEncoding)}。
+     *
+     * @param string 要进行URL编码的{@code String}
+     *
+     * @return URL编码后的{@code String}
+     *
+     * @see java.net.URLEncoder#encode(String, String)
+     */
+    String encode(String string);
+
+    /**
+     * @param string 要进行URL编码的{@code String}
+     * @param encoding 使用的{@link URLEncoding}编码方式
+     *
+     * @return URL编码后的{@code String}
+     */
+    String encode(String string, URLEncoding encoding);
+
+    /**
+     * @param string 要进行URL解码的{@code String}
+     *
+     * @return URL解码后的{@code String}
+     *
+     * @see java.net.URLDecoder#decode(String, String)
+     */
+    String decode(String string);
+
+    /**
+     * @param byteArray 要进行URL编码的{@link ByteArray}
+     *
+     * @return URL编码后的{@link ByteArray}
+     *
+     * @see java.net.URLEncoder#encode(String, String)
+     */
+    ByteArray encode(ByteArray byteArray);
+
+    /**
+     * @param byteArray 要进行URL解码的{@link ByteArray}
+     *
+     * @return URL解码后的{@link ByteArray}
+     *
+     * @see java.net.URLDecoder#decode(String, String)
+     */
+    ByteArray decode(ByteArray byteArray);
+}
+```
+### Utilities
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities;
+
+import burp.api.montoya.utilities.json.JsonUtils;
+import burp.api.montoya.utilities.shell.ShellUtils;
+
+/**
+ * 该接口提供访问其他具有各种数据转换、查询和杂项功能的接口。
+ */
+public interface Utilities
+{
+    /**
+     * @return {@link burp.api.montoya.utilities.Base64Utils} 的实例
+     */
+    Base64Utils base64Utils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.ByteUtils} 的实例
+     */
+    ByteUtils byteUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.CompressionUtils} 的实例
+     */
+    CompressionUtils compressionUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.CryptoUtils} 的实例
+     */
+    CryptoUtils cryptoUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.HtmlUtils} 的实例
+     */
+    HtmlUtils htmlUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.NumberUtils} 的实例
+     */
+    NumberUtils numberUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.RandomUtils} 的实例
+     */
+    RandomUtils randomUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.StringUtils} 的实例
+     */
+    StringUtils stringUtils();
+
+    /**
+     * @return {@link burp.api.montoya.utilities.URLUtils} 的实例
+     */
+    URLUtils urlUtils();
+
+    /**
+     * @return {@link JsonUtils} 的实例
+     */
+    JsonUtils jsonUtils();
+
+    /**
+     * @return {@link ShellUtils} 的实例
+     */
+    ShellUtils shellUtils();
+}
+```
+### json
+#### JsonArrayNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 此接口用于定义JSON数组节点。
+ *
+ * <p><em>注意：底层列表可直接访问。对该列表的修改会直接反映在节点上。如需避免此行为，可操作列表的副本。</em></p>
+ */
+public interface JsonArrayNode extends JsonNode
+{
+    @Override
+    List<JsonNode> getValue();
+
+    /**
+     * 获取此{@link JsonNode}的值列表。
+     *
+     * @return 此JsonNode的值列表
+     */
+    List<JsonNode> asList();
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个{@link JsonNode}。
+     *
+     * @param value 要添加的节点
+     */
+    void add(JsonNode value);
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个字符串。
+     *
+     * @param value 要添加的字符串
+     * @throws NullPointerException 如果值为null
+     */
+    void addString(String value);
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个布尔值。
+     *
+     * @param value 要添加的布尔值
+     */
+    void addBoolean(boolean value);
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个long数值。
+     *
+     * @param value 要添加的long值
+     */
+    void addNumber(long value);
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个double数值。
+     *
+     * @param value 要添加的double值
+     */
+    void addNumber(double value);
+
+    /**
+     * 向此{@link JsonArrayNode}添加一个Number数值。
+     *
+     * @param value 要添加的Number值
+     */
+    void addNumber(Number value);
+
+    /**
+     * 尝试获取指定索引处的JsonNode。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的{@link JsonNode}
+     */
+    JsonNode get(int index);
+
+    /**
+     * 尝试获取指定索引处的字符串。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的字符串，如果不是字符串类型则返回null
+     */
+    String getString(int index);
+
+    /**
+     * 尝试获取指定索引处的布尔值。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的布尔值，如果不是布尔类型则返回null
+     */
+    Boolean getBoolean(int index);
+
+    /**
+     * 尝试获取指定索引处的数值并作为long返回。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的long值，如果不是数值类型则返回null
+     */
+    Long getLong(int index);
+
+    /**
+     * 尝试获取指定索引处的数值并作为double返回。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的double值，如果不是数值类型则返回null
+     */
+    Double getDouble(int index);
+
+    /**
+     * 尝试获取指定索引处的数值。
+     *
+     * @param index 要获取的索引位置
+     * @return 指定索引处的Number值，如果不是数值类型则返回null
+     */
+    Number getNumber(int index);
+
+    /**
+     * 移除指定索引处的JsonNode。
+     *
+     * @param index 要移除的节点索引位置
+     */
+    void remove(int index);
+
+    /**
+     * 创建一个新的空{@link JsonArrayNode}实例。
+     *
+     * @return 新的{@link JsonArrayNode}实例
+     */
+    static JsonArrayNode jsonArrayNode()
+    {
+        return FACTORY.jsonArrayNode();
+    }
+
+    /**
+     * 从提供的{@link JsonNode}列表创建新的{@link JsonArrayNode}实例。
+     *
+     * @param value {@link JsonNode}列表
+     * @return 新的{@link JsonNode}实例
+     */
+    static JsonArrayNode jsonArrayNode(List<? extends JsonNode> value)
+    {
+        return FACTORY.jsonArrayNode(value);
+    }
+
+    /**
+     * 从提供的{@link JsonNode}实例数组创建新的{@link JsonArrayNode}实例。
+     *
+     * @param values {@link JsonNode}实例数组
+     * @return 新的{@link JsonNode}实例
+     */
+    static JsonArrayNode jsonArrayNode(JsonNode... values)
+    {
+        return FACTORY.jsonArrayNode(values);
+    }
+}
+```
+#### JsonBooleanNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 此接口用于定义JSON布尔值节点。
+ */
+public interface JsonBooleanNode extends JsonNode
+{
+    @Override
+    Boolean getValue();
+
+    /**
+     * 从提供的布尔值创建新的{@link JsonBooleanNode}实例。
+     *
+     * @param value 布尔类型的值
+     * @return 新的{@link JsonBooleanNode}实例
+     */
+    static JsonBooleanNode jsonBooleanNode(boolean value)
+    {
+        return FACTORY.jsonBooleanNode(value);
+    }
+}
+```
+#### JsonException
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+/**
+ * 此类表示在尝试执行不成功操作时抛出的异常。
+ */
+public class JsonException extends RuntimeException
+{
+    /**
+     * 使用指定的错误消息构造JsonException
+     *
+     * @param message 异常的错误描述信息
+     */
+    public JsonException(String message)
+    {
+        super(message);
+    }
+}
+```
+#### JsonNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * <p>此接口用于表示JSON节点，作为所有其他JsonNode类型的基础接口（参见子接口）。</p>
+ * <p>您可以使用{@link JsonNode#jsonNode(String)}从原始JSON字符串创建JsonNode，该方法会尝试将JSON解析为特定的JsonNode类型。</p>
+ * <p>要将创建的JsonNode作为JsonArray或JsonObject获取，可分别调用{@link #asArray()}或{@link #asObject()}。这为特定的JSON类型提供了额外的实用功能。</p>
+ *
+ * <p><em>注意：如果要解析JsonObject，可以使用{@link JsonObjectNode}及其实用方法。在JsonNode上调用{@link #asObject}。</em></p>
+ * <p><em>注意：尝试将JsonNode作为错误类型获取会抛出{@link IllegalStateException}。</em></p>
+ *
+ * <pre>
+ *     JsonNode jsonNode = JsonNode.create("[]");       // 解析字符串，底层类型将是{@link JsonArrayNode}
+ *     JsonObjectNode objectNode = jsonNode.asObject(); // 抛出IllegalStateException，因为JSON字符串被解析为{@link JsonArrayNode}
+ *     JsonArrayNode arrayNode = jsonNode.asArray();    // 成功
+ * </pre>
+ *
+ * <p>
+ *     每种特定的JsonNode类型都有对应的工厂方法：
+ * </p>
+ *
+ * <pre>
+ *     // 创建值为"foo"的JsonStringNode
+ *     JsonStringNode stringNode = JsonStringNode.jsonStringNode("foo");
+ *
+ *     // 创建值为2.5的JsonNumberNode
+ *     JsonNumberNode numberNode = JsonNumberNode.jsonNumberNode(2.5);
+ *
+ *     // 创建包含上述两个节点的JsonArrayNode
+ *     JsonArrayNode arrayNode = JsonArrayNode.jsonArrayNode(
+ *         stringNode,
+ *         numberNode
+ *     );
+ * </pre>
+ *
+ * <p>
+ *     任何JsonNode都可以返回其JSON字符串表示：
+ * </p>
+ *
+ * <pre>
+ *     JsonArrayNode arrayNode = JsonArrayNode.jsonArrayNode(
+ *            stringNode,
+ *            numberNode
+ *     );
+ *
+ *     String arrayNodeAsJson = arrayNode.toJsonString();
+ *
+ *     System.out.println(arrayNodeAsJson);
+ * </pre>
+ *
+ * <p>输出：</p>
+ *
+ * <pre>
+ *     [
+ *       "foo",
+ *       2.5
+ *     ]
+ * </pre>
+ */
+public interface JsonNode
+{
+    /**
+     * 获取此{@link JsonNode}的值。
+     *
+     * @return 此JsonNode的值。
+     */
+    Object getValue();
+
+    /**
+     * 将此{@link JsonNode}作为字符串表示返回。
+     *
+     * @return JsonNode的JSON字符串格式。
+     */
+    String toJsonString();
+
+    /**
+     * 检查此{@link JsonNode}是否为数组。
+     *
+     * @return 如果此JsonNode表示JSON数组则返回true。
+     */
+    boolean isArray();
+
+    /**
+     * 检查此{@link JsonNode}是否为对象。
+     *
+     * @return 如果此JsonNode表示JSON对象则返回true。
+     */
+    boolean isObject();
+
+    /**
+     * 检查此{@link JsonNode}是否为字符串。
+     *
+     * @return 如果此JsonNode表示JSON字符串则返回true。
+     */
+    boolean isString();
+
+    /**
+     * 检查此{@link JsonNode}是否为数字。
+     *
+     * @return 如果此JsonNode表示JSON数字则返回true。
+     */
+    boolean isNumber();
+
+    /**
+     * 检查此{@link JsonNode}是否为布尔值。
+     *
+     * @return 如果此JsonNode表示JSON布尔值则返回true。
+     */
+    boolean isBoolean();
+
+    /**
+     * 检查此{@link JsonNode}是否为null。
+     *
+     * @return 如果此JsonNode表示null值则返回true。
+     */
+    boolean isNull();
+
+    /**
+     * 尝试将此{@link JsonNode}作为布尔值返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是布尔类型。
+     */
+    Boolean asBoolean();
+
+    /**
+     * 尝试将此{@link JsonNode}作为字符串返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是字符串类型。
+     */
+    String asString();
+
+    /**
+     * 尝试将此{@link JsonNode}作为数字返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是数字类型。
+     */
+    Number asNumber();
+
+    /**
+     * 尝试将此{@link JsonNode}作为long返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是数字类型。
+     */
+    Long asLong();
+
+    /**
+     * 尝试将此{@link JsonNode}作为double返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是数字类型。
+     */
+    Double asDouble();
+
+    /**
+     * 尝试将此{@link JsonNode}作为节点列表返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是数组类型。
+     */
+    JsonArrayNode asArray();
+
+    /**
+     * 尝试将此{@link JsonNode}作为对象返回。
+     *
+     * @throws IllegalStateException 如果此JsonNode不是对象类型。
+     */
+    JsonObjectNode asObject();
+
+    /**
+     * 从提供的json字符串创建新的{@link JsonNode}实例。
+     *
+     * @param json JSON字符串，可以使用单引号代替双引号。
+     *
+     * @return 新的{@link JsonNode}实例。
+     * @throws JsonParseException 如果字符串不是有效的JSON。
+     */
+    static JsonNode jsonNode(String json)
+    {
+        return FACTORY.jsonNode(json);
+    }
+}
+```
+#### JsonNullNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 此接口用于定义JSON空值(null)节点。
+ */
+public interface JsonNullNode extends JsonNode
+{
+    @Override
+    Object getValue();
+
+    /**
+     * 创建新的{@link JsonNullNode}实例。
+     *
+     * @return 新的{@link JsonNullNode}实例。
+     */
+    static JsonNullNode jsonNullNode()
+    {
+        return FACTORY.jsonNullNode();
+    }
+}
+```
+#### JsonNumberNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 此接口用于定义JSON数字节点。
+ */
+public interface JsonNumberNode extends JsonNode
+{
+    @Override
+    Number getValue();
+
+    /**
+     * 从提供的long值创建新的{@link JsonNumberNode}实例。
+     *
+     * @param value long类型的值。
+     *
+     * @return 新的{@link JsonNumberNode}实例。
+     */
+    static JsonNumberNode jsonNumberNode(long value)
+    {
+        return FACTORY.jsonNumberNode(value);
+    }
+
+    /**
+     * 从提供的double值创建新的{@link JsonNumberNode}实例。
+     *
+     * @param value double类型的值。
+     *
+     * @return 新的{@link JsonNumberNode}实例。
+     */
+    static JsonNumberNode jsonNumberNode(double value)
+    {
+        return FACTORY.jsonNumberNode(value);
+    }
+
+    /**
+     * 从提供的Number对象创建新的{@link JsonNumberNode}实例。
+     *
+     * @param value Number类型的值。
+     *
+     * @return 新的{@link JsonNumberNode}实例。
+     */
+    static JsonNumberNode jsonNumberNode(Number value)
+    {
+        return FACTORY.jsonNumberNode(value);
+    }
+}
+```
+#### JsonObjectNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import java.util.Map;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口用于定义JSON对象节点
+ *
+ * <p><em>注意：可以访问底层Map，对此Map的修改会直接反映在节点上。如需避免此行为，可操作Map的副本。</em></p>
+ */
+public interface JsonObjectNode extends JsonNode
+{
+    @Override
+    Map<String, JsonNode> getValue();
+
+    /**
+     * 获取此JSON节点的值
+     *
+     * @return 包含键值对的Map
+     */
+    Map<String, JsonNode> asMap();
+
+    /**
+     * 向此JSON对象节点中添加一个JSON节点
+     *
+     * @param key 键名
+     * @param value 对应的JSON节点值
+     */
+    void put(String key, JsonNode value);
+
+    /**
+     * 向此JSON对象节点中添加字符串值
+     *
+     * @param key 键名
+     * @param value 字符串值
+     * @throws NullPointerException 当值为null时抛出
+     */
+    void putString(String key, String value);
+
+    /**
+     * 向此JSON对象节点中添加布尔值
+     *
+     * @param key 键名
+     * @param value 布尔值
+     */
+    void putBoolean(String key, boolean value);
+
+    /**
+     * 向此JSON对象节点中添加长整型数值
+     *
+     * @param key 键名
+     * @param value 长整型数值
+     */
+    void putNumber(String key, long value);
+
+    /**
+     * 向此JSON对象节点中添加双精度浮点数值
+     *
+     * @param key 键名
+     * @param value 双精度浮点数值
+     */
+    void putNumber(String key, double value);
+
+    /**
+     * 向此JSON对象节点中添加数值
+     *
+     * @param key 键名
+     * @param value 数值
+     */
+    void putNumber(String key, Number value);
+
+    /**
+     * 尝试获取指定键对应的JSON节点
+     *
+     * @param key 键名
+     * @return 对应的JSON节点，若不存在或类型不匹配则返回null
+     */
+    JsonNode get(String key);
+
+    /**
+     * 尝试获取指定键对应的字符串值
+     *
+     * @param key 键名
+     * @return 字符串值，若不存在或类型不匹配则返回null
+     */
+    String getString(String key);
+
+    /**
+     * 尝试获取指定键对应的布尔值
+     *
+     * @param key 键名
+     * @return 布尔值，若不存在或类型不匹配则返回null
+     */
+    Boolean getBoolean(String key);
+
+    /**
+     * 尝试获取指定键对应的长整型数值
+     *
+     * @param key 键名
+     * @return 长整型数值，若不存在或类型不匹配则返回null
+     */
+    Long getLong(String key);
+
+    /**
+     * 尝试获取指定键对应的双精度浮点数值
+     *
+     * @param key 键名
+     * @return 双精度浮点数值，若不存在或类型不匹配则返回null
+     */
+    Double getDouble(String key);
+
+    /**
+     * 尝试获取指定键对应的数值
+     *
+     * @param key 键名
+     * @return 数值，若不存在或类型不匹配则返回null
+     */
+    Number getNumber(String key);
+
+    /**
+     * 从对象中移除指定键及其对应的JSON节点
+     *
+     * @param key 要移除的键名
+     */
+    void remove(String key);
+
+    /**
+     * 检查对象是否包含指定键
+     *
+     * @param key 要检查的键名
+     * @return 如果包含则返回true
+     */
+    boolean has(String key);
+
+    /**
+     * 检查对象是否包含指定键且对应值为字符串
+     *
+     * @param key 要检查的键名
+     * @return 如果包含且值为字符串则返回true
+     */
+    boolean hasString(String key);
+
+    /**
+     * 检查对象是否包含指定键且对应值为布尔值
+     *
+     * @param key 要检查的键名
+     * @return 如果包含且值为布尔值则返回true
+     */
+    boolean hasBoolean(String key);
+
+    /**
+     * 检查对象是否包含指定键且对应值为数值
+     *
+     * @param key 要检查的键名
+     * @return 如果包含且值为数值则返回true
+     */
+    boolean hasNumber(String key);
+
+    /**
+     * 检查对象是否包含指定键且对应值为数组
+     *
+     * @param key 要检查的键名
+     * @return 如果包含且值为数组则返回true
+     */
+    boolean hasArray(String key);
+
+    /**
+     * 检查对象是否包含指定键且对应值为对象
+     *
+     * @param key 要检查的键名
+     * @return 如果包含且值为对象则返回true
+     */
+    boolean hasObject(String key);
+
+    /**
+     * 创建新的空JSON对象节点实例
+     *
+     * @return 新的JSON对象节点实例
+     */
+    static JsonObjectNode jsonObjectNode()
+    {
+        return FACTORY.jsonObjectNode();
+    }
+
+    /**
+     * 从指定的键值对Map创建新的JSON对象节点实例
+     *
+     * @param value 包含键值对的Map
+     * @return 新的JSON节点实例
+     */
+    static JsonObjectNode jsonObjectNode(Map<String, ? extends JsonNode> value)
+    {
+        return FACTORY.jsonObjectNode(value);
+    }
+}
+```
+#### JsonParseException
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+/**
+ * 表示在尝试解析无效JSON结构时抛出的异常
+ */
+public class JsonParseException extends JsonException
+{
+    /**
+     * 使用指定的错误消息构造JSON解析异常
+     * 
+     * @param message 错误详情消息
+     */
+    public JsonParseException(String message)
+    {
+        super(message);
+    }
+}
+```
+#### JsonStringNode
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口用于定义JSON字符串节点
+ */
+public interface JsonStringNode extends JsonNode
+{
+    @Override
+    String getValue();
+
+    /**
+     * 从指定字符串创建新的 {@link JsonStringNode} 实例
+     *
+     * @param value 字符串值
+     * @return 新的 {@link JsonStringNode} 实例
+     */
+    static JsonStringNode jsonStringNode(String value)
+    {
+        return FACTORY.jsonStringNode(value);
+    }
+}
+```
+#### JsonUtils
+```java
+/*
+ * 版权所有 (c) 2022-2024。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.utilities.json;
+
+/**
+ * <p>
+ * 该接口提供便捷方法来读取和操作JSON数据。
+ * 所有方法都接受一个JSON字符串和位置参数，部分方法还接受额外的JSON参数用于修改原始JSON字符串。
+ * </p>
+ * 
+ * <h2>位置语法说明：</h2>
+ * <ul style="list-style-type: none">
+ *     <li style="display: table-row"><div style="display: table-cell; padding-right: 10px"><b>.</b></div><div>使用点号分隔位置元素</div></li>
+ *     <li style="display: table-row"><div style="display: table-cell; padding-right: 10px"><b>[n]</b></div><div>指定JSON数组中的第n个元素</div></li>
+ *     <li style="display: table-row"><div style="display: table-cell; padding-right: 10px"><b>[]</b></div><div>指定JSON数组中的最后一个元素</div></li>
+ *     <li style="display: table-row"><div style="display: table-cell; padding-right: 10px"><b>key</b></div><div>标识JSON对象中的键值对</div></li>
+ * </ul>
+ * <p><em>注意：索引从0开始计数。</em></p>
+ * 
+ * <p>示例（应用于下方JSON）：</p>
+ * <p><em>account.[0].user.name</em> 将选中 "Peter Wiener"</p>
+ * <p><em>account.[].user.name</em> 将选中 "Carlos Montoya"</p>
+ * <p><em>account.[1].user.addresses.[]</em> 将选中 "Address 6"</p>
+ * <pre>
+ *     {
+ *         "account": [
+ *              {
+ *                  "user": {
+ *                      "name": "Peter Wiener",
+ *                      "addresses": [
+ *                          "Address 1",
+ *                          "Address 2",
+ *                          "Address 3"
+ *                      ]
+ *                  }
+ *              },
+ *              {
+ *                  "user": {
+ *                      "name": "Carlos Montoya",
+ *                      "addresses": [
+ *                          "Address 4",
+ *                          "Address 5",
+ *                          "Address 6"
+ *                      ]
+ *                  }
+ *              }
+ *         ]
+ *     }
+ * </pre>
+ * 
+ * <h2>注意事项</h2>
+ * <p>
+ * 接受JSON输入的方法允许使用单引号替代双引号。
+ * </p>
+ * <p>
+ * 如需处理更复杂的场景，请参考 {@link JsonNode} 及其子类。
+ * </p>
+ */
+public interface JsonUtils
+{
+    /**
+     * 在源JSON的指定位置添加新JSON数据，返回修改后的新JSON字符串。
+     *
+     * @param sourceJson 待修改的源JSON字符串
+     * @param location 标识新JSON数据的插入位置
+     * @param newJson 要添加的新JSON数据
+     * @return 修改后的新JSON字符串
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON或新JSON格式无效时抛出
+     */
+    String add(String sourceJson, String location, String newJson);
+
+    /**
+     * 更新源JSON中指定位置的数据，返回修改后的新JSON字符串。
+     *
+     * @param sourceJson 待更新的源JSON字符串
+     * @param location 标识需要更新的位置
+     * @param newJson 用于替换的新JSON数据
+     * @return 修改后的新JSON字符串
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON或新JSON格式无效时抛出
+     */
+    String update(String sourceJson, String location, String newJson);
+
+    /**
+     * 移除源JSON中指定位置的数据，返回修改后的新JSON字符串。
+     *
+     * @param sourceJson 待修改的源JSON字符串
+     * @param location 标识需要移除的数据位置
+     * @return 修改后的新JSON字符串
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    String remove(String sourceJson, String location);
+
+    /**
+     * 从源JSON的指定位置读取数据，返回该位置的JSON字符串。
+     *
+     * @param sourceJson 待读取的源JSON字符串
+     * @param location 标识需要读取的位置
+     * @return 指定位置的JSON字符串
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    String read(String sourceJson, String location);
+
+    /**
+     * 从源JSON的指定位置读取布尔值。
+     *
+     * @param sourceJson 待读取的源JSON字符串
+     * @param location 标识需要读取的位置
+     * @return 指定位置的布尔值，若非布尔类型或不存在则返回null
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    Boolean readBoolean(String sourceJson, String location);
+
+    /**
+     * <p>从源JSON的指定位置读取数值并转为双精度浮点数。</p>
+     *
+     * <p><em>注意：Java中的double类型表示浮点数。</em></p>
+     *
+     * @param sourceJson 待读取的源JSON字符串
+     * @param location 标识需要读取的位置
+     * @return 指定位置的双精度数值，若非数值类型或不存在则返回null
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    Double readDouble(String sourceJson, String location);
+
+    /**
+     * <p>从源JSON的指定位置读取数值并转为长整型。</p>
+     *
+     * <p><em>注意：Java中的long类型表示整数 - 读取浮点数时会向下取整。</em></p>
+     *
+     * @param sourceJson 待读取的源JSON字符串
+     * @param location 标识需要读取的位置
+     * @return 指定位置的长整型数值，若非数值类型或不存在则返回null
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    Long readLong(String sourceJson, String location);
+
+    /**
+     * 从源JSON的指定位置读取字符串值。
+     *
+     * @param sourceJson 待读取的源JSON字符串
+     * @param location 标识需要读取的位置
+     * @return 指定位置的字符串值，若非字符串类型或不存在则返回null
+     * @throws JsonException 当位置参数无效时抛出
+     * @throws JsonParseException 当源JSON格式无效时抛出
+     */
+    String readString(String sourceJson, String location);
+
+    /**
+     * 检查输入的字符串是否能被解析为基本JSON类型（字符串、数字、布尔值、数组、对象或null）。
+     *
+     * <p><em>注意：传入null返回false，而"null"返回true。</em></p>
+     * <p><em>注意：要传入JSON字符串，需使用单引号或双引号包裹（如"'foo'"或"\"foo\""）。</em></p>
+     *
+     * @param sourceJson 待检查的JSON字符串
+     * @return 如果可解析为基本JSON类型则返回true，否则返回false（sourceJson为null时也返回false）
+     */
+    boolean isValidJson(String sourceJson);
+}
+```
+### shell
+#### ExecuteOptions
+```java
+package burp.api.montoya.utilities.shell;
+
+import java.time.Duration;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 定义进程执行的配置选项
+ */
+public interface ExecuteOptions
+{
+    /**
+     * 设置进程允许运行的最大时长（秒）。默认为10秒。设为0表示无超时限制。
+     * <p>
+     * 使用 {@link ExecuteOptions#withTimeoutBehavior} 定义超时行为（抛出异常或静默忽略）。
+     *
+     * @param seconds 超时时长（秒），0表示无限制
+     * @return 更新了超时设置的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withTimeout(int seconds);
+
+    /**
+     * 设置进程允许运行的最大时长。默认为10秒。使用 {@link Duration#ZERO} 表示无超时限制。
+     * <p>
+     * 使用 {@link ExecuteOptions#withTimeoutBehavior} 定义超时行为（抛出异常或静默忽略）。
+     *
+     * @param duration 超时时长，{@code Duration.ZERO} 表示无限制
+     * @return 更新了超时设置的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withTimeout(Duration duration);
+
+    /**
+     * 设置超时处理行为。默认为 {@link TimeoutBehavior#FAIL_ON_TIMEOUT}（超时抛出异常）。
+     *
+     * @param behavior 超时处理行为
+     * @return 更新了超时行为的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withTimeoutBehavior(TimeoutBehavior behavior);
+
+    /**
+     * 设置标准错误(stderr)输出处理方式。默认为 {@link StderrBehavior#DISCARD}（丢弃错误输出）。
+     *
+     * @param behavior 标准错误处理行为
+     * @return 更新了错误输出行为的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withStderrBehavior(StderrBehavior behavior);
+
+    /**
+     * 设置非零退出码处理行为。默认为 {@link ExitCodeBehavior#FAIL_ON_NON_ZERO}（非零退出码抛出异常）。
+     *
+     * @param behavior 非零退出码处理行为
+     * @return 更新了退出码行为的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withExitCodeBehavior(ExitCodeBehavior behavior);
+
+    /**
+     * 定义进程使用的环境变量。
+     *
+     * @param name  变量名
+     * @param value 变量值
+     * @return 添加了环境变量的 {@link ExecuteOptions} 实例
+     */
+    ExecuteOptions withEnvironmentVariable(String name, String value);
+
+    /**
+     * 创建新的 {@link ExecuteOptions} 实例。
+     *
+     * @return 使用默认配置的 {@link ExecuteOptions} 实例
+     */
+    static ExecuteOptions executeOptions()
+    {
+        return FACTORY.executeOptions();
+    }
+}
+```
+#### ExitCodeBehavior
+```java
+package burp.api.montoya.utilities.shell;
+
+/**
+ * 定义如何处理非零退出码
+ */
+public enum ExitCodeBehavior
+{
+    /**
+     * 如果进程返回非零退出码则抛出异常
+     */
+    FAIL_ON_NON_ZERO,
+
+    /**
+     * 静默忽略非零退出码
+     */
+    ALLOW_NON_ZERO
+}
+```
+#### ProcessExecutionException
+```java
+package burp.api.montoya.utilities.shell;
+
+/**
+ * 表示在使用 {@link ShellUtils} 执行进程时发生错误的异常
+ */
+public class ProcessExecutionException extends RuntimeException
+{
+    /**
+     * 使用指定的错误消息构造异常
+     * @param message 错误详情消息
+     */
+    public ProcessExecutionException(String message)
+    {
+        super(message);
+    }
+
+    /**
+     * 使用指定的错误消息和原因构造异常
+     * @param message 错误详情消息
+     * @param cause 导致此异常的根本原因
+     */
+    public ProcessExecutionException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+}
+```
+#### ShellUtils
+```java
+package burp.api.montoya.utilities.shell;
+
+/**
+ * 提供从操作系统shell启动进程的实用工具
+ */
+public interface ShellUtils
+{
+    /**
+     * 使用默认执行选项执行指定命令。按空白字符分割每个参数。如果需要保留空白字符，请考虑使用 {@link ShellUtils#execute(String...)}。
+     * <p>
+     * <b>警告：</b>避免将此方法用于任意输入。如果接受任意输入，请考虑使用 {@link ShellUtils#execute(String...)} 以最小化OS命令注入风险。
+     * </p>
+     *
+     * @param command 命令及其参数，以空白字符分隔
+     * @return 命令产生的输出
+     */
+    String dangerouslyExecute(String command);
+
+    /**
+     * 使用指定执行选项执行指定命令。按空白字符分割每个参数。如果需要保留空白字符，请考虑使用 {@link ShellUtils#execute(ExecuteOptions, String...)}。
+     * <p>
+     * <b>警告：</b>避免将此方法用于任意输入。如果接受任意输入，请考虑使用 {@link ShellUtils#execute(String...)} 以最小化OS命令注入风险。
+     * </p>
+     *
+     * @param options 控制命令执行方式的选项
+     * @param command 命令及其参数，以空白字符分隔
+     * @return 命令产生的输出
+     */
+    String dangerouslyExecute(ExecuteOptions options, String command);
+
+    /**
+     * 使用默认执行选项执行指定命令
+     *
+     * @param command 命令及其参数，以单独字符串形式指定
+     * @return 命令产生的输出
+     */
+    String execute(String... command);
+
+    /**
+     * 使用指定执行选项执行指定命令
+     *
+     * @param options 控制命令执行方式的选项
+     * @param command 命令及其参数，以单独字符串形式指定
+     * @return 命令产生的输出
+     */
+    String execute(ExecuteOptions options, String... command);
+}
+```
+#### StderrBehavior
+```java
+package burp.api.montoya.utilities.shell;
+
+/**
+ * 定义标准错误输出(stderr)的处理方式
+ */
+public enum StderrBehavior
+{
+    /**
+     * 将stderr输出合并到stdout流中
+     */
+    MERGE,
+
+    /**
+     * 丢弃所有stderr输出
+     */
+    DISCARD
+}
+```
+#### TimeoutBehavior
+```java
+package burp.api.montoya.utilities.shell;
+
+/**
+ * 定义进程超时时的处理方式
+ */
+public enum TimeoutBehavior
+{
+    /**
+     * 如果进程超时则抛出异常
+     */
+    FAIL_ON_TIMEOUT,
+
+    /**
+     * 静默忽略进程执行超时
+     */
+    ALLOW_TIMEOUT
+}
+```
+## websocket
+### BinaryMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * WebSocket二进制消息接口
+ */
+public interface BinaryMessage
+{
+    /**
+     * @return 二进制格式的WebSocket消息内容
+     */
+    ByteArray payload();
+
+    /**
+     * @return 消息的传输方向
+     */
+    Direction direction();
+}
+```
+### BinaryMessageAction
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import burp.api.montoya.core.ByteArray;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * WebSocket二进制消息操作接口
+ */
+public interface BinaryMessageAction
+{
+    /**
+     * @return 当前消息关联的操作类型
+     */
+    MessageAction action();
+
+    /**
+     * @return 消息的二进制有效载荷
+     */
+    ByteArray payload();
+
+    /**
+     * 构建待处理的WebSocket二进制消息
+     *
+     * @param payload 二进制消息内容
+     * @return 包含待处理消息的 {@link BinaryMessageAction}
+     */
+    static BinaryMessageAction continueWith(ByteArray payload)
+    {
+        return FACTORY.continueWithBinaryMessage(payload);
+    }
+
+    /**
+     * 构建待处理的WebSocket二进制消息
+     *
+     * @param binaryMessage 二进制消息对象
+     * @return 包含待处理消息的 {@link BinaryMessageAction}
+     */
+    static BinaryMessageAction continueWith(BinaryMessage binaryMessage)
+    {
+        return FACTORY.continueWithBinaryMessage(binaryMessage.payload());
+    }
+
+    /**
+     * 构建将被丢弃的WebSocket二进制消息
+     *
+     * @return 丢弃消息的 {@link BinaryMessageAction}
+     */
+    static BinaryMessageAction drop()
+    {
+        return FACTORY.dropBinaryMessage();
+    }
+
+    /**
+     * 构建WebSocket二进制消息操作
+     *
+     * @param payload 二进制消息内容
+     * @param action 要对消息执行的操作
+     * @return 包含消息和操作的 {@link BinaryMessageAction}
+     */
+    static BinaryMessageAction binaryMessageAction(ByteArray payload, MessageAction action)
+    {
+        return FACTORY.binaryMessageAction(payload, action);
+    }
+}
+```
+### Direction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+/**
+ * 该枚举用于表示WebSocket消息的传输方向
+ */
+public enum Direction
+{
+    /**
+     * 从客户端发往服务端的消息
+     */
+    CLIENT_TO_SERVER,
+    
+    /**
+     * 从服务端发往客户端的消息
+     */
+    SERVER_TO_CLIENT
+}
+```
+### MessageAction
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+/**
+ * 表示应用于 {@link TextMessageAction} 或 {@link BinaryMessageAction} 的操作枚举
+ */
+public enum MessageAction
+{
+    /**
+     * 指示Burp继续转发该消息
+     */
+    CONTINUE,
+
+    /**
+     * 指示Burp丢弃该消息
+     */
+    DROP
+}
+```
+### MessageHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+/**
+ * 此接口允许扩展在接收到WebSocket消息或连接关闭时收到通知。
+ */
+public interface MessageHandler
+{
+    /**
+     * 当从应用程序收发文本消息时调用。
+     * 扩展可在此修改消息内容，然后才发送给应用程序或由Burp处理。
+     *
+     * @param textMessage 被拦截的文本格式WebSocket消息
+     * @return 处理后的消息
+     */
+    TextMessageAction handleTextMessage(TextMessage textMessage);
+
+    /**
+     * 当从应用程序收发二进制消息时调用。
+     * 扩展可在此修改消息内容，然后才发送给应用程序或由Burp处理。
+     *
+     * @param binaryMessage 被拦截的二进制格式WebSocket消息
+     * @return 处理后的消息
+     */
+    BinaryMessageAction handleBinaryMessage(BinaryMessage binaryMessage);
+
+    /**
+     * 当WebSocket连接关闭时调用。
+     */
+    default void onClose()
+    {
+    }
+}
+```
+### TextMessage
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+/**
+ * WebSocket文本消息接口
+ */
+public interface TextMessage
+{
+    /**
+     * @return 文本格式的WebSocket消息内容
+     */
+    String payload();
+
+    /**
+     * @return 消息的传输方向
+     */
+    Direction direction();
+}
+```
+### TextMessageAction
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * WebSocket文本消息操作接口
+ */
+public interface TextMessageAction
+{
+    /**
+     * @return 当前消息关联的操作类型
+     */
+    MessageAction action();
+
+    /**
+     * @return 消息的有效载荷内容
+     */
+    String payload();
+
+    /**
+     * 构建待处理的WebSocket文本消息
+     *
+     * @param payload 文本消息内容
+     * @return 包含待处理消息的 {@link TextMessageAction}
+     */
+    static TextMessageAction continueWith(String payload)
+    {
+        return FACTORY.continueWithTextMessage(payload);
+    }
+
+    /**
+     * 构建待处理的WebSocket文本消息
+     *
+     * @param textMessage 文本消息对象
+     * @return 包含待处理消息的 {@link TextMessageAction}
+     */
+    static TextMessageAction continueWith(TextMessage textMessage)
+    {
+        return FACTORY.continueWithTextMessage(textMessage.payload());
+    }
+
+    /**
+     * 构建将被丢弃的WebSocket文本消息
+     *
+     * @return 丢弃消息的 {@link TextMessageAction}
+     */
+    static TextMessageAction drop()
+    {
+        return FACTORY.dropTextMessage();
+    }
+
+    /**
+     * 构建WebSocket文本消息操作
+     *
+     * @param payload 消息内容
+     * @param action 要对消息执行的操作
+     * @return 包含消息和操作的 {@link TextMessageAction}
+     */
+    static TextMessageAction textMessageAction(String payload, MessageAction action)
+    {
+        return FACTORY.textMessageAction(payload, action);
+    }
+}
+```
+### WebSocket
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Registration;
+
+/**
+ * Burp中的WebSocket连接接口
+ */
+public interface WebSocket
+{
+    /**
+     * 发送文本消息到WebSocket连接
+     *
+     * @param message 要发送的文本消息
+     */
+    void sendTextMessage(String message);
+
+    /**
+     * 发送二进制消息到WebSocket连接
+     *
+     * @param message 要发送的二进制消息
+     */
+    void sendBinaryMessage(ByteArray message);
+
+    /**
+     * 关闭WebSocket连接
+     */
+    void close();
+
+    /**
+     * 注册消息处理器，用于处理WebSocket消息收发
+     *
+     * @param handler 扩展实现的 {@link MessageHandler} 接口实例
+     * @return 处理器的 {@link Registration} 注册对象
+     */
+    Registration registerMessageHandler(MessageHandler handler);
+}
+```
+### WebSocketCreated
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+/**
+ * WebSocket连接创建信息接口
+ */
+public interface WebSocketCreated
+{
+    /**
+     * @return 已创建的WebSocket连接实例
+     */
+    WebSocket webSocket();
+
+    /**
+     * @return 触发WebSocket创建的HTTP升级请求
+     */
+    HttpRequest upgradeRequest();
+
+    /**
+     * @return 创建该WebSocket连接的Burp工具来源
+     */
+    ToolSource toolSource();
+}
+```
+### WebSocketCreatedHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+/**
+ * 扩展可实现此接口并通过调用 {@link WebSockets#registerWebSocketCreatedHandler} 注册WebSocket处理器。<br>
+ * 当任何Burp工具创建新WebSocket连接时，该处理器将收到通知。
+ */
+public interface WebSocketCreatedHandler
+{
+    /**
+     * 当应用程序WebSocket连接创建完成时由Burp调用。
+     *
+     * @param webSocketCreated 包含正在创建的应用程序WebSocket相关信息的 {@link WebSocketCreated} 对象
+     */
+    void handleWebSocketCreated(WebSocketCreated webSocketCreated);
+}
+```
+### WebSockets
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket;
+
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.websocket.extension.ExtensionWebSocketCreation;
+
+/**
+ * 提供对Burp中WebSocket相关功能的访问
+ */
+public interface WebSockets
+{
+    /**
+     * 注册处理器，当任何Burp工具创建WebSocket时将被调用
+     *
+     * @param handler 扩展实现的 {@link WebSocketCreatedHandler} 接口实例
+     * @return 处理器的 {@link Registration} 注册对象
+     */
+    Registration registerWebSocketCreatedHandler(WebSocketCreatedHandler handler);
+
+    /**
+     * 使用指定的服务和路径创建新的WebSocket连接
+     *
+     * @param service 指定目标主机的 {@link HttpService}
+     * @param path 升级HTTP请求的路径
+     * @return {@link ExtensionWebSocketCreation} 创建结果
+     */
+    ExtensionWebSocketCreation createWebSocket(HttpService service, String path);
+
+    /**
+     * 使用指定的升级请求创建新的WebSocket连接
+     *
+     * @param upgradeRequest 升级用的 {@link HttpRequest} 请求
+     * @return {@link ExtensionWebSocketCreation} 创建结果
+     */
+    ExtensionWebSocketCreation createWebSocket(HttpRequest upgradeRequest);
+}
+```
+### extension
+#### ExtensionWebSocket
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket.extension;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Registration;
+
+/**
+ * 通过扩展API创建的WebSocket连接
+ */
+public interface ExtensionWebSocket
+{
+    /**
+     * 允许扩展通过WebSocket发送文本消息
+     *
+     * @param message 要发送的文本消息
+     */
+    void sendTextMessage(String message);
+
+    /**
+     * 允许扩展通过WebSocket发送二进制消息
+     *
+     * @param message 要发送的二进制消息
+     */
+    void sendBinaryMessage(ByteArray message);
+
+    /**
+     * 关闭WebSocket连接
+     */
+    void close();
+
+    /**
+     * 注册消息处理器，用于接收来自服务端的消息通知
+     *
+     * @param handler 扩展实现的 {@link ExtensionWebSocketMessageHandler} 接口实例
+     * @return 处理器的 {@link Registration} 注册对象
+     */
+    Registration registerMessageHandler(ExtensionWebSocketMessageHandler handler);
+}
+```
+#### ExtensionWebSocketCreation
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket.extension;
+
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.util.Optional;
+
+/**
+ * WebSocket连接创建尝试的结果
+ */
+public interface ExtensionWebSocketCreation
+{
+    /**
+     * 获取WebSocket连接创建尝试的状态。
+     *
+     * @return {@link ExtensionWebSocketCreationStatus} 创建状态
+     */
+    ExtensionWebSocketCreationStatus status();
+
+    /**
+     * 获取已创建的WebSocket连接。
+     *
+     * @return 已创建的 {@link ExtensionWebSocket}，可能为空
+     */
+    Optional<ExtensionWebSocket> webSocket();
+
+    /**
+     * 获取WebSocket创建尝试的HTTP响应。
+     *
+     * @return {@link HttpResponse} 升级响应，可能为空
+     */
+    Optional<HttpResponse> upgradeResponse();
+}
+```
+#### ExtensionWebSocketCreationStatus
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket.extension;
+
+/**
+ * WebSocket连接创建尝试的状态枚举
+ */
+public enum ExtensionWebSocketCreationStatus
+{
+    /**
+     * WebSocket连接创建成功
+     */
+    SUCCESS,
+
+    /**
+     * 指定的主机无效
+     */
+    INVALID_HOST,
+
+    /**
+     * 无法解析指定主机的地址
+     */
+    UNKNOWN_HOST,
+
+    /**
+     * 指定的端口无效
+     */
+    INVALID_PORT,
+
+    /**
+     * 无法连接到指定主机
+     */
+    CONNECTION_FAILED,
+
+    /**
+     * 指定的升级请求无效
+     */
+    INVALID_REQUEST,
+
+    /**
+     * 服务器返回了非升级响应
+     */
+    NON_UPGRADE_RESPONSE,
+
+    /**
+     * 指定的端点配置为流式响应
+     */
+    STREAMING_RESPONSE
+}
+```
+#### ExtensionWebSocketMessageHandler
+```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.websocket.extension;
+
+import burp.api.montoya.websocket.BinaryMessage;
+import burp.api.montoya.websocket.TextMessage;
+
+/**
+ * 此接口允许扩展在接收到WebSocket消息或连接关闭时收到通知。
+ */
+public interface ExtensionWebSocketMessageHandler
+{
+    /**
+     * 当从应用程序接收到文本消息时调用。
+     *
+     * @param textMessage 文本格式的WebSocket消息
+     */
+    void textMessageReceived(TextMessage textMessage);
+
+    /**
+     * 当从应用程序接收到二进制消息时调用。
+     *
+     * @param binaryMessage 二进制格式的WebSocket消息
+     */
+    void binaryMessageReceived(BinaryMessage binaryMessage);
+
+    /**
+     * 当WebSocket连接关闭时调用。
+     */
+    default void onClose()
+    {
+    }
+}
 ```
