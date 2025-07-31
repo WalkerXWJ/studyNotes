@@ -11,10 +11,14 @@
             "id": "49d5a75437cf184d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "dev/burp插件开发.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "burp插件开发"
             }
           }
         ]
@@ -74,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5
+    "width": 283.5,
+    "collapsed": true
   },
   "right": {
     "id": "ae450dbe397b2f32",
@@ -138,12 +143,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "dev/burp插件开发.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "burp插件开发 的大纲"
             }
           },
           {
@@ -177,14 +183,9 @@
       "command-palette:打开命令面板": false
     }
   },
-<<<<<<< Updated upstream
-  "active": "3e86271a9a88ee0f",
-  "lastOpenFiles": [
-    "dev/burp插件开发.md",
-=======
   "active": "49d5a75437cf184d",
   "lastOpenFiles": [
->>>>>>> Stashed changes
+    "dev/burp插件开发.md",
     "tools/burp插件开发.md",
     "tools/burpsuite.md",
     "dev/burp.md",

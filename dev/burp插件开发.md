@@ -10689,73 +10689,2536 @@ public interface TextMessageReceivedAction
 ```
 #### TextMessageToBeSentAction
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.proxy.websocket;
+
+import burp.api.montoya.proxy.MessageToBeSentAction;
+import burp.api.montoya.websocket.TextMessage;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 扩展可以在从{@link ProxyMessageHandler#handleTextMessageToBeSent(InterceptedTextMessage)}
+ * 返回文本消息时实现此接口。
+ */
+public interface TextMessageToBeSentAction
+{
+    /**
+     * 获取与此消息关联的操作类型
+     *
+     * @return 消息发送动作类型
+     */
+    MessageToBeSentAction action();
+
+    /**
+     * 获取消息的有效载荷内容
+     *
+     * @return 消息的文本内容
+     */
+    String payload();
+
+    /**
+     * 构建一个继续通过Burp Proxy的WebSocket文本消息
+     *
+     * @param payload 要发送的文本消息内容
+     * @return 构造的消息动作对象
+     */
+    static TextMessageToBeSentAction continueWith(String payload)
+    {
+        return FACTORY.continueWithFinalProxyTextMessage(payload);
+    }
+
+    /**
+     * 构建一个继续通过Burp Proxy的WebSocket文本消息
+     *
+     * @param message 要发送的文本消息对象
+     * @return 构造的消息动作对象
+     */
+    static TextMessageToBeSentAction continueWith(TextMessage message)
+    {
+        return FACTORY.continueWithFinalProxyTextMessage(message.payload());
+    }
+
+    /**
+     * 构建一个将被丢弃的WebSocket文本消息
+     *
+     * @return 构造的丢弃消息动作对象
+     */
+    static TextMessageToBeSentAction drop()
+    {
+        return FACTORY.dropFinalProxyTextMessage();
+    }
+}
 ```
 ## repeater
-### 
+### EditorPane
 ```java
+package burp.api.montoya.repeater;
 
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 表示Repeater工具中可编辑的内容面板接口。
+ * 该接口提供了修改编辑器内容的多种方法。
+ */
+public interface EditorPane
+{
+    /**
+     * 使用指定文本替换编辑器内容
+     *
+     * @param contents 作为纯字符串的新内容
+     */
+    void set(String contents);
+
+    /**
+     * 使用指定的Burp ByteArray替换编辑器内容
+     *
+     * @param contents 作为{@link ByteArray}的新内容
+     */
+    void set(ByteArray contents);
+
+    /**
+     * 使用任意对象设置编辑器内容
+     * 将调用对象的{@code toString()}方法获取内容
+     *
+     * @param contents 其{@code toString()}结果将作为编辑器内容的任意对象
+     */
+    void set(Object contents);
+
+    /**
+     * 查找并替换编辑器中的所有匹配文本
+     *
+     * @param search      要在编辑器中查找的文本
+     * @param replacement 用于替换每个匹配项的文本
+     */
+    void replace(String search, String replacement);
+}
 ```
-### 
+### HttpEditor
 ```java
+package burp.api.montoya.repeater;
 
+/**
+ * 提供对Repeater工具中可编辑HTTP消息组件的访问接口。
+ * 该接口允许获取请求和响应编辑面板，用于修改HTTP消息内容。
+ */
+public interface HttpEditor
+{
+    /**
+     * 获取用于修改HTTP请求的编辑器面板
+     *
+     * @return 用于编辑请求的{@link EditorPane}实例
+     */
+    EditorPane requestPane();
+
+    /**
+     * 获取用于修改HTTP响应的编辑器面板
+     *
+     * @return 用于编辑响应的{@link EditorPane}实例
+     */
+    EditorPane responsePane();
+}
 ```
-### 
+### Repeater
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.repeater;
+
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+/**
+ * 提供对Repeater工具功能的访问接口。
+ */
+public interface Repeater
+{
+    /**
+     * 将HTTP请求发送到Burp Repeater工具。
+     * 请求将在用户界面中显示（使用默认标签页索引），
+     * 但不会自动发送，需要用户手动触发发送动作。
+     *
+     * @param request 完整的HTTP请求
+     */
+    void sendToRepeater(HttpRequest request);
+
+    /**
+     * 将HTTP请求发送到Burp Repeater工具。
+     * 请求将在用户界面中显示（可指定标签页名称），
+     * 但不会自动发送，需要用户手动触发发送动作。
+     *
+     * @param request 完整的HTTP请求
+     * @param name    可选标题，将显示在包含该请求的Repeater标签页上。
+     *                如果为{@code null}，则显示默认标签页索引。
+     */
+    void sendToRepeater(HttpRequest request, String name);
+}
 ```
 ## scanner
+### AuditConfiguration
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口表示Burp Scanner工具中审计扫描所需的配置。
+ */
+public interface AuditConfiguration
+{
+    /**
+     * 使用内置审计配置创建审计配置
+     *
+     * @param configuration 要使用的{@link BuiltInAuditConfiguration}内置配置
+     * @return 基于内置配置的{@code AuditConfiguration}实例
+     */
+    static AuditConfiguration auditConfiguration(BuiltInAuditConfiguration configuration)
+    {
+        return FACTORY.auditConfiguration(configuration);
+    }
+}
+```
+### AuditResult
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口表示扫描检查的审计结果，包含扫描过程中发现的安全问题。
+ */
+public interface AuditResult
+{
+    /**
+     * 获取审计发现的安全问题列表
+     *
+     * @return 审计发现的{@link AuditIssue}问题列表
+     */
+    List<AuditIssue> auditIssues();
+
+    /**
+     * 创建包含多个审计问题的审计结果
+     *
+     * @param auditIssues 审计问题列表
+     * @return 包含指定问题的{@link AuditResult}实例
+     */
+    static AuditResult auditResult(List<AuditIssue> auditIssues)
+    {
+        return FACTORY.auditResult(auditIssues);
+    }
+
+    /**
+     * 创建包含多个审计问题的审计结果
+     *
+     * @param auditIssues 审计问题数组
+     * @return 包含指定问题的{@link AuditResult}实例
+     */
+    static AuditResult auditResult(AuditIssue... auditIssues)
+    {
+        return FACTORY.auditResult(auditIssues);
+    }
+}
+```
+### BuiltInAuditConfiguration
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * 该枚举表示Burp Scanner工具内置的审计配置选项。
+ */
+public enum BuiltInAuditConfiguration
+{
+    /**
+     * 传统被动审计检查配置
+     * 包含Burp Suite传统版本的被动扫描检查规则
+     */
+    LEGACY_PASSIVE_AUDIT_CHECKS,
+
+    /**
+     * 传统主动审计检查配置
+     * 包含Burp Suite传统版本的主动扫描检查规则
+     */
+    LEGACY_ACTIVE_AUDIT_CHECKS
+}
+```
+### ConsolidationAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * 该枚举表示当发现重复审计问题时应采取的操作。
+ */
+public enum ConsolidationAction
+{
+    /**
+     * 保留现有问题，丢弃新发现的问题
+     */
+    KEEP_EXISTING,
+
+    /**
+     * 同时保留现有问题和新发现的问题
+     */
+    KEEP_BOTH,
+
+    /**
+     * 保留新发现的问题，丢弃现有问题
+     */
+    KEEP_NEW
+}
+```
+### Crawl
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * Burp Scanner工具中的爬网扫描任务接口。
+ * 该接口提供了对爬网扫描任务的管理和监控功能。
+ */
+public interface Crawl extends ScanTask
+{
+    /**
+     * 获取扫描任务已发出的请求数量
+     *
+     * @return 扫描任务已发出的HTTP请求总数
+     */
+    @Override
+    int requestCount();
+
+    /**
+     * 获取扫描任务发生的网络错误数量
+     *
+     * @return 扫描过程中发生的网络错误总数
+     */
+    @Override
+    int errorCount();
+
+    /**
+     * 删除当前爬网扫描任务
+     * 该方法会终止正在进行的扫描并清除相关资源
+     */
+    @Override
+    void delete();
+
+    /**
+     * 获取任务的当前状态消息
+     * 注意：此功能当前尚未实现
+     *
+     * @return 描述任务当前状态的字符串消息
+     */
+    @Override
+    String statusMessage();
+}
+```
+### CrawlAndAudit
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * Burp Scanner工具中的爬网和审计功能接口。
+ * 该接口扩展了基础扫描任务功能，提供了爬网和审计扫描任务的管理能力。
+ */
+public interface CrawlAndAudit extends ScanTask
+{
+    /**
+     * 获取扫描任务已发出的请求数量
+     *
+     * @return 扫描任务已发出的请求数量
+     */
+    @Override
+    int requestCount();
+
+    /**
+     * 获取扫描任务发生的网络错误数量
+     *
+     * @return 扫描任务发生的网络错误数量
+     */
+    @Override
+    int errorCount();
+
+    /**
+     * 删除当前扫描任务
+     */
+    @Override
+    void delete();
+
+    /**
+     * 获取任务的当前状态消息
+     *
+     * @return 描述任务当前状态的字符串消息
+     */
+    @Override
+    String statusMessage();
+}
+```
+### CrawlConfiguration
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口表示Burp Scanner工具中爬网扫描所需的配置。
+ */
+public interface CrawlConfiguration
+{
+    /**
+     * 获取爬网扫描的种子URL列表
+     *
+     * @return 爬网扫描使用的种子URL列表
+     */
+    List<String> seedUrls();
+
+    /**
+     * 使用种子URL构建爬网配置
+     *
+     * @param seedUrls 爬网器使用的种子URL数组
+     * @return 爬网器所需的爬网配置
+     */
+    static CrawlConfiguration crawlConfiguration(String... seedUrls)
+    {
+        return FACTORY.crawlConfiguration(seedUrls);
+    }
+}
+```
+### ReportFormat
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * 该枚举表示扫描报告的格式类型。
+ */
+public enum ReportFormat
+{
+    /**
+     * HTML格式的报告
+     */
+    HTML,
+
+    /**
+     * XML格式的报告
+     */
+    XML
+}
+```
+### ScanCheck
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.audit.insertionpoint.AuditInsertionPoint;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scanner#registerScanCheck(ScanCheck)} 来注册自定义扫描检查。
+ * 在执行审计时，Burp会要求检查对基础请求执行主动或被动审计，
+ * 并报告发现的任何审计问题。
+ * @deprecated
+ * 新的扫描检查应改为实现 {@link burp.api.montoya.scanner.scancheck.ActiveScanCheck} 
+ * 或 {@link burp.api.montoya.scanner.scancheck.PassiveScanCheck}。
+ */
+@Deprecated
+public interface ScanCheck
+{
+    /**
+     * Scanner为每个被主动审计的插入点调用此方法。
+     * 扩展可以根据需要发出HTTP请求来执行主动审计，
+     * 并使用提供的{@link AuditInsertionPoint}对象构建特定payload的请求。
+     * <b>注意：</b>
+     * 扫描检查应该向插入点提交原始未编码的payload，
+     * 插入点有责任根据其性质和位置执行必要的编码。
+     *
+     * @param baseRequestResponse 应该被主动审计的基础{@link HttpRequestResponse}
+     * @param auditInsertionPoint 可用于获取被测试插入点详细信息，
+     *                            并构建特定payload请求的{@link AuditInsertionPoint}对象
+     *
+     * @return 包含{@link AuditIssue}列表的{@link AuditResult}对象，
+     *         如果没有发现问题则返回空的{@link AuditResult}对象
+     */
+    AuditResult activeAudit(HttpRequestResponse baseRequestResponse, AuditInsertionPoint auditInsertionPoint);
+
+    /**
+     * Scanner为每个被被动审计的基础请求/响应调用此方法。
+     * <b>注意：</b> 扩展在被动审计期间应仅分析提供的HTTP消息，
+     * 不应自行发出任何新的HTTP请求。
+     *
+     * @param baseRequestResponse 应该被被动审计的基础{@link HttpRequestResponse}
+     *
+     * @return 包含{@link AuditIssue}列表的{@link AuditResult}对象，
+     *         如果没有发现问题则返回空的{@link AuditResult}对象
+     */
+    AuditResult passiveAudit(HttpRequestResponse baseRequestResponse);
+
+    /**
+     * 当自定义扫描检查对同一URL路径报告多个问题时，Scanner调用此方法。
+     * 这可能是因为存在多个不同的漏洞，或者因为相同（或类似）的请求被多次扫描。
+     * 自定义检查应确定这些问题是否是重复的。
+     * 在大多数情况下，当检查对不同问题使用不同的问题名称或描述时，
+     * 合并过程将只是比较这两个问题的这些特征。
+     *
+     * @param existingIssue 此扫描检查之前报告的{@link AuditIssue}
+     * @param newIssue 此扫描检查新报告的同一URL路径上的{@link AuditIssue}
+     *
+     * @return {@link ConsolidationAction} 决定在主Scanner结果中应报告哪个(哪些)问题
+     */
+    ConsolidationAction consolidateIssues(AuditIssue existingIssue, AuditIssue newIssue);
+}
+```
+### ScanConfiguration
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+/**
+ * Burp Scanner工具的配置接口。
+ * 该接口用于定义和获取扫描相关的配置参数。
+ */
+public interface ScanConfiguration
+{
+    // 配置接口预留，用于未来扩展扫描配置功能
+}
+```
+### ScanTask
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import burp.api.montoya.core.Task;
+
+/**
+ * 该接口用于获取Burp Scanner中扫描任务的详细信息。
+ */
+public interface ScanTask extends Task
+{
+    /**
+     * 获取扫描任务已发出的请求数量
+     *
+     * @return 扫描任务已发出的请求数量
+     */
+    int requestCount();
+
+    /**
+     * 获取扫描任务发生的网络错误数量
+     *
+     * @return 扫描任务发生的网络错误数量
+     */
+    int errorCount();
+
+    /**
+     * 删除任务
+     */
+    @Override
+    void delete();
+
+    /**
+     * 获取任务的当前状态消息
+     *
+     * @return 任务的当前状态消息
+     */
+    @Override
+    String statusMessage();
+}
+```
+### Scanner
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner;
+
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.scanner.audit.Audit;
+import burp.api.montoya.scanner.audit.AuditIssueHandler;
+import burp.api.montoya.scanner.audit.insertionpoint.AuditInsertionPointProvider;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+import burp.api.montoya.scanner.bchecks.BChecks;
+import burp.api.montoya.scanner.scancheck.ActiveScanCheck;
+import burp.api.montoya.scanner.scancheck.PassiveScanCheck;
+import burp.api.montoya.scanner.scancheck.ScanCheck;
+import burp.api.montoya.scanner.scancheck.ScanCheckType;
+
+import java.nio.file.Path;
+import java.util.List;
+
+/**
+ * [仅限专业版] 提供Scanner工具的功能访问接口
+ */
+public interface Scanner
+{
+    /**
+     * 注册自定义主动扫描检查
+     * 在扫描过程中，Burp会调用此检查对基础请求进行扫描，并报告发现的任何问题
+     *
+     * @param activeScanCheck 扩展实现的{@link ActiveScanCheck}接口对象
+     * @param scanCheckType {@link ScanCheckType}对象，指定扫描检查被调用的时机
+     * @return 检查的{@link Registration}注册对象
+     */
+    Registration registerActiveScanCheck(ActiveScanCheck activeScanCheck, ScanCheckType scanCheckType);
+
+    /**
+     * 注册自定义被动扫描检查
+     * 在扫描过程中，Burp会调用此检查对基础请求进行扫描，并报告发现的任何问题
+     *
+     * @param passiveScanCheck 扩展实现的{@link PassiveScanCheck}接口对象
+     * @param scanCheckType {@link ScanCheckType}对象，指定扫描检查被调用的时机
+     * @return 检查的{@link Registration}注册对象
+     * @throws IllegalArgumentException 如果指定的{@link ScanCheckType}不适用于被动扫描检查
+     */
+    Registration registerPassiveScanCheck(PassiveScanCheck passiveScanCheck, ScanCheckType scanCheckType);
+
+    /**
+     * 注册审计问题处理器
+     * 当Scanner工具报告新问题时，处理器会收到通知。
+     * 扩展可以通过注册审计问题处理器来执行自定义的问题分析或日志记录
+     *
+     * @param auditIssueHandler 扩展实现的{@link AuditIssueHandler}接口对象
+     * @return 处理器的{@link Registration}注册对象
+     */
+    Registration registerAuditIssueHandler(AuditIssueHandler auditIssueHandler);
+
+    /**
+     * 注册自定义扫描检查（已弃用）
+     * 在扫描过程中，Burp会要求检查对基础请求执行主动或被动扫描，并报告发现的任何问题
+     * @deprecated
+     * 此方法已被{@link #registerActiveScanCheck(ActiveScanCheck, ScanCheckType)}和
+     * {@link #registerPassiveScanCheck(PassiveScanCheck, ScanCheckType)}取代
+     *
+     * @param scanCheck 扩展实现的{@link ScanCheck}接口对象
+     * @return 检查的{@link Registration}注册对象
+     */
+    @Deprecated
+    Registration registerScanCheck(ScanCheck scanCheck);
+
+    /**
+     * 注册扫描插入点提供者
+     * 对于每个被主动扫描的基础请求，Burp会要求提供者提供适用于该请求的任何自定义扫描插入点
+     *
+     * @param insertionPointProvider 扩展实现的{@link AuditInsertionPointProvider}接口对象
+     * @return 提供者的{@link Registration}注册对象
+     */
+    Registration registerInsertionPointProvider(AuditInsertionPointProvider insertionPointProvider);
+
+    /**
+     * 在Burp Scanner工具中启动爬网扫描
+     *
+     * @param crawlConfiguration 爬网配置
+     * @return 启动的{@link Crawl}爬网扫描对象
+     */
+    Crawl startCrawl(CrawlConfiguration crawlConfiguration);
+
+    /**
+     * 在Burp Scanner工具中启动审计扫描
+     *
+     * @param auditConfiguration 审计配置
+     * @return 启动的{@link Audit}审计扫描对象
+     */
+    Audit startAudit(AuditConfiguration auditConfiguration);
+
+    /**
+     * 为指定的Scanner问题生成报告
+     * 可以指定报告格式，其他所有报告选项使用报告UI向导中的默认设置
+     *
+     * @param issues 要报告的{@link AuditIssue}问题列表
+     * @param format 使用的{@link ReportFormat}报告格式
+     * @param path 要保存的报告文件路径
+     */
+    void generateReport(List<AuditIssue> issues, ReportFormat format, Path path);
+
+    /**
+     * 访问BChecks相关功能
+     *
+     * @return 暴露BChecks功能的{@link BChecks}接口实现
+     */
+    BChecks bChecks();
+}
+```
+### audit
+#### Audit
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit;
+
+import burp.api.montoya.core.Range;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.scanner.ScanTask;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+
+/**
+ * Burp Scanner工具中的审计功能接口。
+ */
+public interface Audit extends ScanTask
+{
+    /**
+     * 获取插入点数量
+     *
+     * @return 插入点的数量
+     */
+    int insertionPointCount();
+
+    /**
+     * 获取本次审计发现的问题
+     *
+     * @return 本次审计发现的{@link AuditIssue}列表
+     */
+    List<AuditIssue> issues();
+
+    /**
+     * 向本次审计添加HTTP请求
+     *
+     * @param request 要添加到审计的{@link HttpRequest}请求
+     */
+    void addRequest(HttpRequest request);
+
+    /**
+     * 向本次审计添加HTTP请求及其插入点偏移量
+     *
+     * @param request 要添加到审计的{@link HttpRequest}请求
+     * @param insertionPointOffsets 表示插入点偏移量的{@link Range}列表
+     */
+    void addRequest(HttpRequest request, List<Range> insertionPointOffsets);
+
+    /**
+     * 向本次审计添加HTTP请求和响应
+     *
+     * @param requestResponse 要添加到审计的{@link HttpRequestResponse}对象
+     */
+    void addRequestResponse(HttpRequestResponse requestResponse);
+
+    /**
+     * 获取扫描任务已发出的请求数量
+     *
+     * @return 扫描任务已发出的请求数量
+     */
+    @Override
+    int requestCount();
+
+    /**
+     * 获取扫描任务发生的网络错误数量
+     *
+     * @return 扫描任务发生的网络错误数量
+     */
+    @Override
+    int errorCount();
+
+    /**
+     * 删除任务
+     */
+    @Override
+    void delete();
+
+    /**
+     * 获取任务的当前状态消息
+     *
+     * @return 任务的当前状态消息
+     */
+    @Override
+    String statusMessage();
+}
+```
+#### AuditIssueHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit;
+
+import burp.api.montoya.scanner.Scanner;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scanner#registerAuditIssueHandler(AuditIssueHandler)} 来注册
+ * 审计问题处理器。当Scanner工具报告新问题时，处理器将会收到通知。
+ * 扩展可以通过注册审计问题处理器来执行自定义的问题分析或日志记录。
+ */
+public interface AuditIssueHandler
+{
+    /**
+     * 当新问题被添加到Burp Scanner结果时调用此方法
+     *
+     * @param auditIssue 一个{@link AuditIssue}对象，扩展可以通过它
+     *                   查询获取新问题的详细信息
+     */
+    void handleNewAuditIssue(AuditIssue auditIssue);
+}
+```
+#### insertionpoint
+##### AuditInsertionPoint
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.insertionpoint;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Range;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.scanner.ScanCheck;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口用于定义主动扫描检查使用的插入点。
+ * 扩展可以通过注册{@link ScanCheck}获取此接口的实例，
+ * 或者通过注册{@link AuditInsertionPointProvider}创建实例供Burp自身的扫描检查使用。
+ */
+public interface AuditInsertionPoint
+{
+    /**
+     * 获取插入点名称
+     *
+     * @return 插入点名称（例如描述特定请求参数的名称）
+     */
+    String name();
+
+    /**
+     * 获取插入点的基础值
+     *
+     * @return 被审计的基础请求中该插入点对应的基础值，
+     *         如果基础请求中没有对应值则返回{@code null}
+     */
+    String baseValue();
+
+    /**
+     * 构建包含指定payload的请求
+     * <p>
+     * 扩展提供的插入点不要求调整请求中的Content-Length头部（当请求体长度变化时），
+     * 但Burp提供的插入点总是会这样做，并返回带有有效Content-Length头部的请求。
+     * <b>注意：</b>
+     * 扫描检查应该向插入点提交原始未编码的payload，
+     * 插入点有责任根据插入点的性质和位置执行必要的编码。
+     *
+     * @param payload 要插入到插入点的payload
+     * @return 构建后的请求
+     */
+    HttpRequest buildHttpRequestWithPayload(ByteArray payload);
+
+    /**
+     * 确定payload在请求中的偏移量
+     * <p>
+     * 扫描检查可以在报告问题时调用此方法，以便在UI中高亮显示请求的相关部分。
+     *
+     * @param payload 要插入到插入点的payload
+     * @return 包含payload在请求中起始和结束偏移量的{@link Range}对象列表，
+     *         如果不适用则返回空列表（例如当插入点将payload放入序列化数据结构时，
+     *         原始payload可能不会字面出现在最终请求中）
+     */
+    List<Range> issueHighlights(ByteArray payload);
+
+    /**
+     * 获取插入点类型
+     *
+     * @return 该插入点的{@link AuditInsertionPointType}
+     */
+    default AuditInsertionPointType type()
+    {
+        return AuditInsertionPointType.EXTENSION_PROVIDED;
+    }
+
+    /**
+     * 基于偏移量创建审计插入点
+     *
+     * @param name                插入点名称
+     * @param baseRequest        基础{@link HttpRequest}请求
+     * @param startIndexInclusive 起始索引（包含）
+     * @param endIndexExclusive   结束索引（不包含）
+     * @return 基于偏移量的{@link AuditInsertionPoint}实例
+     */
+    static AuditInsertionPoint auditInsertionPoint(String name, HttpRequest baseRequest, int startIndexInclusive, int endIndexExclusive)
+    {
+        return FACTORY.auditInsertionPoint(name, baseRequest, startIndexInclusive, endIndexExclusive);
+    }
+}
+```
+##### AuditInsertionPointProvider
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.insertionpoint;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.Scanner;
+
+import java.util.List;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scanner#registerInsertionPointProvider(AuditInsertionPointProvider)}
+ * 来注册自定义审计插入点的提供者。
+ */
+public interface AuditInsertionPointProvider
+{
+    /**
+     * 当请求被主动审计时，Scanner会调用此方法。
+     * 提供者应提供一个自定义插入点列表，这些插入点将用于审计。
+     * <b>注意：</b>这些插入点会与Burp Scanner配置生成的插入点
+     * 以及其他Burp扩展提供的插入点一起使用。
+     *
+     * @param baseHttpRequestResponse 将被主动审计的基础
+     *                                {@link HttpRequestResponse}对象
+     *
+     * @return 应被用于审计的{@link AuditInsertionPoint}对象列表，
+     *         如果此请求没有适用的自定义插入点，则返回{@code null}。
+     */
+    List<AuditInsertionPoint> provideInsertionPoints(HttpRequestResponse baseHttpRequestResponse);
+}
+```
+##### AuditInsertionPointType
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.insertionpoint;
+
+/**
+ * 该枚举表示审计插入点的类型。
+ */
+public enum AuditInsertionPointType
+{
+    PARAM_URL,            // URL参数
+    PARAM_BODY,           // 请求体参数
+    PARAM_COOKIE,         // Cookie参数
+    PARAM_XML,            // XML参数
+    PARAM_XML_ATTR,       // XML属性参数
+    PARAM_MULTIPART_ATTR, // 多部分表单属性参数
+    PARAM_JSON,           // JSON参数
+    PARAM_AMF,            // AMF参数
+    HEADER,               // HTTP头部
+    PARAM_NAME_URL,       // URL参数名
+    PARAM_NAME_BODY,      // 请求体参数名
+    ENTIRE_BODY,          // 整个请求体
+    URL_PATH_FILENAME,    // URL路径中的文件名
+    URL_PATH_FOLDER,      // URL路径中的文件夹名
+    USER_PROVIDED,        // 用户提供的插入点
+    EXTENSION_PROVIDED,   // 扩展提供的插入点
+    UNKNOWN               // 未知类型
+}
+```
+#### issues
+##### AuditIssue
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.issues;
+
+import burp.api.montoya.collaborator.Interaction;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.ScanCheck;
+import burp.api.montoya.scanner.audit.AuditIssueHandler;
+import burp.api.montoya.sitemap.SiteMap;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口用于获取审计问题的详细信息。扩展可以通过注册{@link AuditIssueHandler}
+ * 来获取问题的详细信息。扩展也可以通过注册{@link ScanCheck}或调用
+ * {@link SiteMap#add(AuditIssue)}并提供此接口的自定义实现来添加自定义审计问题。
+ * 注意：扩展生成的问题描述和其他文本受HTML白名单限制，仅允许格式化标签和简单超链接。
+ */
+public interface AuditIssue
+{
+    /**
+     * 获取问题类型的名称
+     *
+     * @return 问题类型的名称（例如："SQL注入"）
+     */
+    String name();
+
+    /**
+     * 获取该问题实例的详细信息
+     *
+     * @return 该问题实例的详细信息，如果不适用则返回{@code null}。
+     *         可使用有限的HTML标签。
+     */
+    String detail();
+
+    /**
+     * 获取该问题实例的修复建议详情
+     *
+     * @return 该问题实例的修复建议详情，如果不适用则返回{@code null}。
+     *         可使用有限的HTML标签。
+     */
+    String remediation();
+
+    /**
+     * 获取生成该问题的HTTP服务
+     *
+     * @return 生成该问题的HTTP服务
+     */
+    HttpService httpService();
+
+    /**
+     * 获取生成该问题的基准URL
+     *
+     * @return 生成该问题的基准URL
+     */
+    String baseUrl();
+
+    /**
+     * 获取问题的严重级别
+     *
+     * @return {@link AuditIssueSeverity}严重级别
+     */
+    AuditIssueSeverity severity();
+
+    /**
+     * 获取问题的置信度级别
+     *
+     * @return {@link AuditIssueConfidence}置信度级别
+     */
+    AuditIssueConfidence confidence();
+
+    /**
+     * 获取导致问题生成的HTTP请求/响应消息
+     *
+     * @return 基于其生成问题的{@link HttpRequestResponse}对象列表
+     */
+    List<HttpRequestResponse> requestResponses();
+
+    /**
+     * 获取导致问题生成的Collaborator交互
+     *
+     * @return 导致问题生成的Burp Collaborator {@link Interaction}对象列表。
+     *         如果没有交互，则返回空列表。
+     */
+    List<Interaction> collaboratorInteractions();
+
+    /**
+     * 获取该问题的定义
+     *
+     * @return 该问题的{@link AuditIssueDefinition}
+     */
+    AuditIssueDefinition definition();
+
+    /**
+     * 创建URL审计问题的默认实现
+     *
+     * @param name                  问题类型的名称
+     * @param detail                问题的详细信息
+     * @param remediation           问题的修复建议详情
+     * @param baseUrl               生成问题的基准URL
+     * @param severity              {@link AuditIssueSeverity}严重级别
+     * @param confidence            {@link AuditIssueConfidence}置信度级别
+     * @param background            问题类型的背景描述
+     * @param remediationBackground 问题类型的修复建议背景描述
+     * @param typicalSeverity       典型的{@link AuditIssueSeverity}严重级别
+     * @param requestResponses      基于其生成问题的{@link HttpRequestResponse}对象数组
+     *
+     * @return URL的审计问题实例
+     */
+    static AuditIssue auditIssue(
+            String name,
+            String detail,
+            String remediation,
+            String baseUrl,
+            AuditIssueSeverity severity,
+            AuditIssueConfidence confidence,
+            String background,
+            String remediationBackground,
+            AuditIssueSeverity typicalSeverity,
+            HttpRequestResponse... requestResponses)
+    {
+        return FACTORY.auditIssue(name, detail, remediation, baseUrl, severity, confidence, background, remediationBackground, typicalSeverity, requestResponses);
+    }
+
+    /**
+     * 创建URL审计问题的默认实现
+     *
+     * @param name                  问题类型的名称
+     * @param detail                问题的详细信息
+     * @param remediation           问题的修复建议详情
+     * @param baseUrl               生成问题的基准URL
+     * @param severity              {@link AuditIssueSeverity}严重级别
+     * @param confidence            {@link AuditIssueConfidence}置信度级别
+     * @param background            问题类型的背景描述
+     * @param remediationBackground 问题类型的修复建议背景描述
+     * @param typicalSeverity       典型的{@link AuditIssueSeverity}严重级别
+     * @param requestResponses      基于其生成问题的{@link HttpRequestResponse}对象列表
+     *
+     * @return URL的审计问题实例
+     */
+    static AuditIssue auditIssue(
+            String name,
+            String detail,
+            String remediation,
+            String baseUrl,
+            AuditIssueSeverity severity,
+            AuditIssueConfidence confidence,
+            String background,
+            String remediationBackground,
+            AuditIssueSeverity typicalSeverity,
+            List<HttpRequestResponse> requestResponses)
+    {
+        return FACTORY.auditIssue(name, detail, remediation, baseUrl, severity, confidence, background, remediationBackground, typicalSeverity, requestResponses);
+    }
+}
+```
+##### AuditIssueConfidence
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.issues;
+
+/**
+ * 该枚举表示审计问题的置信度级别。
+ */
+public enum AuditIssueConfidence
+{
+    CERTAIN,    // 确定 - 问题存在的高度确信
+    FIRM,       // 确信 - 有较强证据表明问题存在
+    TENTATIVE   // 暂定 - 有迹象表明可能存在该问题
+}
+```
+##### AuditIssueDefinition
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.issues;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 该接口用于获取审计问题的背景信息。
+ * 注意：扩展生成的文本受HTML白名单限制，仅允许格式化标签和简单超链接。
+ */
+public interface AuditIssueDefinition
+{
+    /**
+     * 获取问题类型的名称
+     *
+     * @return 问题类型的名称（例如："SQL注入"）
+     */
+    String name();
+
+    /**
+     * 获取该问题类型的背景描述
+     *
+     * @return 该问题类型的背景描述，如果不适用则返回{@code null}。
+     *         可使用有限的HTML标签。
+     */
+    String background();
+
+    /**
+     * 获取该问题类型的修复建议描述
+     *
+     * @return 该问题类型的修复建议描述，如果不适用则返回{@code null}。
+     *         可使用有限的HTML标签。
+     */
+    String remediation();
+
+    /**
+     * 获取该问题的典型严重级别
+     *
+     * @return 典型的{@link AuditIssueSeverity}严重级别
+     */
+    AuditIssueSeverity typicalSeverity();
+
+    /**
+     * 获取问题类型的索引值
+     * 请参阅Burp Scanner文档获取所有问题类型的列表
+     *
+     * @return 问题类型的索引值
+     */
+    int typeIndex();
+
+    /**
+     * 创建审计问题定义的默认实现
+     *
+     * @param name            问题类型的名称
+     * @param background      问题类型的背景描述
+     * @param remediation     问题类型的修复建议描述
+     * @param typicalSeverity 典型的{@link AuditIssueSeverity}严重级别
+     *
+     * @return 审计问题定义实例
+     */
+    static AuditIssueDefinition auditIssueDefinition(String name, String background, String remediation, AuditIssueSeverity typicalSeverity)
+    {
+        return FACTORY.auditIssueDefinition(name, background, remediation, typicalSeverity);
+    }
+}
+```
+##### AuditIssueSeverity
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scanner.audit.issues;
+
+/**
+ * 该枚举表示审计问题的严重级别。
+ */
+public enum AuditIssueSeverity
+{
+    HIGH,            // 高
+    MEDIUM,          // 中
+    LOW,             // 低
+    INFORMATION,     // 信息
+    FALSE_POSITIVE   // 误报
+}
+```
+### bchecks
+#### BCheckImportResult
+```java
+package burp.api.montoya.scanner.bchecks;
+
+import java.util.List;
+
+/**
+ * BCheck导入结果
+ */
+public interface BCheckImportResult
+{
+    /**
+     * 导入BCheck的状态枚举
+     */
+    enum Status
+    {
+        LOADED_WITHOUT_ERRORS,  // 无错误加载
+        LOADED_WITH_ERRORS      // 有错误加载
+    }
+
+    /**
+     * 获取BCheck导入后的状态
+     *
+     * @return 导入状态
+     */
+    Status status();
+
+    /**
+     * 获取导入错误列表
+     *
+     * @return 如果脚本无效则返回错误列表，如果脚本有效则返回空列表
+     */
+    List<String> importErrors();
+}
+```
+#### BChecks
+```java
+package burp.api.montoya.scanner.bchecks;
+
+/**
+ * 提供与BChecks相关的功能访问。
+ */
+public interface BChecks
+{
+    /**
+     * 此方法可用于导入BCheck脚本。默认情况下，如果脚本导入没有错误，
+     * 这些脚本将被启用。
+     *
+     * @param script 要导入的BCheck脚本
+     *
+     * @return 包含BCheck导入结果的{@link BCheckImportResult}对象。
+     */
+    BCheckImportResult importBCheck(String script);
+
+    /**
+     * 此方法可用于导入BCheck脚本。
+     *
+     * @param script 要导入的BCheck脚本
+     * @param enabled 脚本在成功导入后是否应启用
+     *
+     * @return 包含BCheck导入结果的{@link BCheckImportResult}对象。
+     */
+    BCheckImportResult importBCheck(String script, boolean enabled);
+}
+```
+
+### scancheck
+#### ActiveScanCheck
+```java
+package burp.api.montoya.scanner.scancheck;
+
+import burp.api.montoya.http.Http;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.AuditResult;
+import burp.api.montoya.scanner.ConsolidationAction;
+import burp.api.montoya.scanner.Scanner;
+import burp.api.montoya.scanner.audit.insertionpoint.AuditInsertionPoint;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import static burp.api.montoya.scanner.ConsolidationAction.KEEP_BOTH;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scanner#registerActiveScanCheck(ActiveScanCheck, ScanCheckType)} 来注册自定义的主动扫描检查。
+ * 在审计过程中，Burp会根据指定的{@link ScanCheckType}调用该检查对基础请求执行主动审计。
+ * Burp会报告所有识别到的审计问题。
+ */
+public interface ActiveScanCheck
+{
+    /**
+     * Burp用来标识此扫描检查的名称。
+     *
+     * @return 扫描检查的名称。
+     */
+    String checkName();
+
+    /**
+     * Scanner根据注册的{@link ScanCheckType}调用此方法。
+     *
+     * 使用{@link Http}对象在主动审计期间发出HTTP请求。
+     * 使用{@link AuditInsertionPoint}对象构建包含特定payload的请求。
+     *
+     * <b>注意：</b>
+     * 扫描检查应该向插入点提交未编码的payload。
+     * 插入点应根据其类型和位置处理任何必要的编码。
+     *
+     * @param baseRequestResponse 应该被主动审计的基础{@link HttpRequestResponse}。
+     *
+     * @param insertionPoint 一个{@link AuditInsertionPoint}对象。
+     *                       可以查询该对象以获取被测试插入点的详细信息。
+     *                       也可以用它来构建特定payload的请求。
+     *                       <b>注意：</b> 只有当扫描检查以{@link ScanCheckType#PER_INSERTION_POINT}类型注册时，此对象才可用。
+     *                       对于其他类型，虽然会返回{@link AuditInsertionPoint}对象，但它只包含占位数据。
+     *
+     * @param http 一个{@link Http}对象。可用于在自定义扫描检查中发送和检索HTTP请求。
+     *             你发送的任何请求都会自动关联到当前扫描任务。
+     *
+     * @return 包含{@link AuditIssue}列表的{@link AuditResult}对象，
+     * 如果没有识别到问题，则返回空的{@link AuditResult}对象。
+     */
+    AuditResult doCheck(HttpRequestResponse baseRequestResponse, AuditInsertionPoint insertionPoint, Http http);
+
+    /**
+     * 当自定义扫描检查对同一URL路径报告了多个问题时，Scanner会调用此方法。
+     * 这可能是因为存在多个不同的漏洞，或者因为相同（或类似）的请求被多次扫描。
+     * 自定义检查应该确定这些问题是否是重复的。
+     * 在大多数情况下，当检查对不同的漏洞使用不同的问题名称或描述时，
+     * 合并过程将只是比较这两个问题的这些特征。
+     *
+     * @param existingIssue 此扫描检查之前报告的{@link AuditIssue}。
+     * @param newIssue      此扫描检查新报告的同一URL路径上的{@link AuditIssue}。
+     *
+     * @return 一个{@link ConsolidationAction}，用于决定在主Scanner结果中应该报告哪个（或哪些）问题。
+     */
+    default ConsolidationAction consolidateIssues(AuditIssue existingIssue, AuditIssue newIssue)
+    {
+        return KEEP_BOTH;
+    }
+}
+```
+#### PassiveScanCheck
+```java
+package burp.api.montoya.scanner.scancheck;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.AuditResult;
+import burp.api.montoya.scanner.ConsolidationAction;
+import burp.api.montoya.scanner.Scanner;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import static burp.api.montoya.scanner.ConsolidationAction.KEEP_BOTH;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scanner#registerPassiveScanCheck(PassiveScanCheck, ScanCheckType)} 来注册自定义被动扫描检查。
+ * 在审计过程中，Burp会根据指定的{@link ScanCheckType}调用该检查对基础请求执行被动审计。
+ * Burp会报告发现的任何审计问题。
+ */
+public interface PassiveScanCheck
+{
+    /**
+     * Burp用于标识此扫描检查的名称。
+     *
+     * @return 扫描检查的名称
+     */
+    String checkName();
+
+    /**
+     * 扫描器在注册的{@link ScanCheckType}时机调用此方法。
+     * <b>注意：</b>
+     * 扩展应该只分析被动审计期间提供的HTTP消息，
+     * 而不应该自行发起任何新的HTTP请求。
+     *
+     * @param baseRequestResponse 应该进行被动审计的基础{@link HttpRequestResponse}
+     *
+     * @return 包含{@link AuditIssue}列表的{@link AuditResult}对象，
+     *         如果未发现问题则返回空的{@link AuditResult}对象
+     */
+    AuditResult doCheck(HttpRequestResponse baseRequestResponse);
+
+    /**
+     * 当自定义扫描检查对同一URL路径报告了多个问题时，扫描器会调用此方法。
+     * 这可能是因为存在多个不同的漏洞，或者因为相同（或类似）的请求被多次扫描。
+     * 自定义检查应该确定这些问题是否是重复的。
+     * 在大多数情况下，当检查使用不同的问题名称或描述来区分不同问题时，
+     * 合并过程只需比较这两个问题的这些特征即可。
+     *
+     * @param existingIssue 此扫描检查之前报告的{@link AuditIssue}
+     * @param newIssue      此扫描检查新报告的同一URL路径的{@link AuditIssue}
+     *
+     * @return 决定应在主扫描结果中报告哪个/哪些问题的{@link ConsolidationAction}
+     */
+    default ConsolidationAction consolidateIssues(AuditIssue existingIssue, AuditIssue newIssue)
+    {
+        return KEEP_BOTH;
+    }
+}
+```
+#### ScanCheckType
+```java
+package burp.api.montoya.scanner.scancheck;
+
+import burp.api.montoya.scanner.Scanner;
+
+/**
+ * 扫描检查的类型（{@link ActiveScanCheck} 或 {@link PassiveScanCheck}），决定扫描检查的运行方式。
+ *
+ * 扫描检查类型定义了扫描器调用扫描检查的时机。
+ *
+ * 可用的扫描检查类型包括：
+ *   {@link #PER_HOST},
+ *   {@link #PER_REQUEST},
+ *   {@link #PER_INSERTION_POINT}
+ */
+public enum ScanCheckType
+{
+    /**
+     * 扫描器为每个<b>主机</b>调用一次扫描检查。
+     */
+    PER_HOST,
+
+    /**
+     * 扫描器为每个<b>请求</b>调用一次扫描检查。
+     */
+    PER_REQUEST,
+
+    /**
+     * 扫描器为每个<b>插入点</b>调用一次扫描检查。
+     *
+     * <b>注意：</b>仅适用于{@link ActiveScanCheck}。如果使用此类型注册{@link PassiveScanCheck}，
+     * 调用{@link Scanner#registerPassiveScanCheck(PassiveScanCheck, ScanCheckType)}方法时
+     * 将抛出{@link IllegalArgumentException}异常。
+     */
+    PER_INSERTION_POINT
+}
+```
 ## scope
+### Scope
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scope;
+
+import burp.api.montoya.core.Registration;
+
+/**
+ * 提供与Burp Suite全局目标范围相关的功能访问。
+ */
+public interface Scope
+{
+    /**
+     * 用于查询指定URL是否在当前Suite全局目标范围内。
+     *
+     * @param url 要查询的URL
+     *
+     * @return 如果URL在当前Suite全局目标范围内则返回{@code true}
+     */
+    boolean isInScope(String url);
+
+    /**
+     * 将指定URL包含到Suite全局目标范围中。
+     *
+     * @param url 要包含到Suite全局目标范围的URL
+     */
+    void includeInScope(String url);
+
+    /**
+     * 将指定URL从Suite全局目标范围中排除。
+     *
+     * @param url 要从Suite全局目标范围中排除的URL
+     */
+    void excludeFromScope(String url);
+
+    /**
+     * 注册一个处理器，当Burp Suite全局目标范围发生变更时将收到通知。
+     *
+     * @param handler 扩展创建的实现了{@link ScopeChangeHandler}接口的对象
+     *
+     * @return 处理器的{@link Registration}注册对象
+     */
+    Registration registerScopeChangeHandler(ScopeChangeHandler handler);
+}
+```
+### ScopeChange
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scope;
+
+/**
+ * Burp Suite全局目标范围的变更。
+ */
+public interface ScopeChange
+{
+}
+```
+### ScopeChangeHandler
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.scope;
+
+/**
+ * 扩展可以实现此接口，然后调用
+ * {@link Scope#registerScopeChangeHandler(ScopeChangeHandler)} 来注册一个范围变更处理器。
+ * 当Burp Suite全局目标范围发生变更时，处理器将会收到通知。
+ */
+public interface ScopeChangeHandler
+{
+    /**
+     * 当Burp Suite全局目标范围发生变更时调用此方法。
+     *
+     * @param scopeChange 表示Burp Suite全局目标范围变更的对象。
+     */
+    void scopeChanged(ScopeChange scopeChange);
+}
+```
 ## sitemap
+### SiteMap
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.sitemap;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.ScanCheck;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+
+/**
+ * 提供查询和修改Burp站点地图的方法。
+ */
+public interface SiteMap
+{
+    /**
+     * 根据传入的{@link SiteMapFilter}对象过滤站点地图，
+     * 并返回匹配的{@link HttpRequestResponse}项列表。
+     *
+     * @param filter 此参数可用于指定过滤器，以提取站点地图的特定子集。
+     *
+     * @return 站点地图中过滤后的项列表。
+     */
+    List<HttpRequestResponse> requestResponses(SiteMapFilter filter);
+
+    /**
+     * 返回站点地图中所有项的详细信息。
+     *
+     * @return 站点地图中所有项的列表。
+     */
+    List<HttpRequestResponse> requestResponses();
+
+    /**
+     * 返回站点地图中与{@link SiteMapFilter}对象匹配的URL的当前审计问题。
+     *
+     * @param filter 此参数可用于指定过滤器，以提取站点地图特定子集的问题。
+     *
+     * @return 过滤后的审计问题列表。
+     */
+    List<AuditIssue> issues(SiteMapFilter filter);
+
+    /**
+     * 返回站点地图中所有URL的当前审计问题。
+     *
+     * @return 审计问题列表。
+     */
+    List<AuditIssue> issues();
+
+    /**
+     * 将具有指定请求/响应详情的{@link HttpRequestResponse}项添加到Burp站点地图。
+     * 这将覆盖站点地图中任何现有匹配项的详细信息。
+     *
+     * @param requestResponse 要添加到站点地图的项
+     */
+    void add(HttpRequestResponse requestResponse);
+
+    /**
+     * 注册新的审计问题。注意：在可能的情况下，
+     * 扩展应使用{@link ScanCheck}实现自定义扫描检查，
+     * 并通过这些检查报告问题，以与Burp的用户驱动工作流集成，
+     * 并确保正确合并重复报告的问题。此方法仅设计用于
+     * 正常测试工作流之外的任务，例如从其他扫描工具移植结果。
+     *
+     * @param auditIssue 扩展创建的实现{@link AuditIssue}接口的对象。
+     */
+    void add(AuditIssue auditIssue);
+}
+```
+### SiteMapFilter
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.sitemap;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 此接口用于在查询Burp站点地图时过滤项目。
+ */
+public interface SiteMapFilter
+{
+    /**
+     * 由Burp调用以检查给定的站点地图节点是否匹配过滤器。
+     *
+     * @param node 要匹配的站点地图节点。
+     *
+     * @return 如果站点地图节点匹配过滤器则返回true。
+     */
+    boolean matches(SiteMapNode node);
+
+    /**
+     * 此方法返回一个站点地图过滤器对象，该对象匹配URL以指定前缀开头的站点地图节点。
+     * 注意前缀区分大小写。
+     *
+     * @param prefix 用于匹配站点树节点的区分大小写的URL前缀。如果传入{@code null}，
+     *               结果过滤器将匹配所有站点地图节点。
+     *
+     * @return 通过URL前缀匹配节点的站点地图过滤器对象
+     */
+    static SiteMapFilter prefixFilter(String prefix)
+    {
+        return FACTORY.prefixFilter(prefix);
+    }
+}
+```
+### SiteMapNode
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.sitemap;
+
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+
+/**
+ * 此接口用于表示Burp站点地图中的项目。
+ */
+public interface SiteMapNode
+{
+    /**
+     * 获取与站点地图节点关联的URL。
+     *
+     * @return 节点的URL。
+     */
+    String url();
+
+    /**
+     * 获取与站点地图节点关联的 {@link HttpRequestResponse}。
+     *
+     * @return 节点的 {@link HttpRequestResponse}。
+     */
+    HttpRequestResponse requestResponse();
+
+    /**
+     * 获取与站点地图节点关联的 {@link AuditIssue} 列表。
+     *
+     * @return 包含节点所有审计问题的列表。
+     */
+    List<AuditIssue> issues();
+}
+```
 ## ui
-### 
+### Selection
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Range;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 提供与用户界面中用户选择相关的有用信息和功能。
+ */
+public interface Selection
+{
+    /**
+     * @return 从用户选择范围内派生的内容。
+     */
+    ByteArray contents();
+
+    /**
+     * @return 用户选择的位置数据。
+     */
+    Range offsets();
+
+    /**
+     * @param selectionContents 选择的内容。
+     *
+     * @return 一个新的 {@link Selection} 实例
+     */
+    static Selection selection(ByteArray selectionContents)
+    {
+        return FACTORY.selection(selectionContents);
+    }
+
+    /**
+     * 创建一个没有内容数据的 {@link Selection} 实例。
+     *
+     * @param startIndexInclusive 选择范围的起始位置（包含）。
+     * @param endIndexExclusive   选择范围的结束位置（不包含）。
+     *
+     * @return 一个新的 {@link Selection} 实例
+     */
+    static Selection selection(int startIndexInclusive, int endIndexExclusive)
+    {
+        return FACTORY.selection(startIndexInclusive, endIndexExclusive);
+    }
+
+    /**
+     * 创建一个 {@link Selection} 实例。
+     *
+     * @param selectionContents   选择的内容。
+     * @param startIndexInclusive 选择范围的起始位置（包含）。
+     * @param endIndexExclusive   选择范围的结束位置（不包含）。
+     *
+     * @return 一个新的 {@link Selection} 实例
+     */
+    static Selection selection(ByteArray selectionContents, int startIndexInclusive, int endIndexExclusive)
+    {
+        return FACTORY.selection(selectionContents, startIndexInclusive, endIndexExclusive);
+    }
+}
 ```
-### 
+### Theme
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui;
+
+/**
+ * 该枚举定义了Burp Suite用户界面可用的不同主题模式。
+ */
+public enum Theme
+{
+    /**
+     * 深色主题模式
+     */
+    DARK,
+    
+    /**
+     * 浅色主题模式
+     */
+    LIGHT
+}
 ```
-### 
+### UserInterface
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui;
+
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider;
+import burp.api.montoya.ui.editor.EditorOptions;
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+import burp.api.montoya.ui.editor.HttpResponseEditor;
+import burp.api.montoya.ui.editor.RawEditor;
+import burp.api.montoya.ui.editor.WebSocketMessageEditor;
+import burp.api.montoya.ui.editor.extension.HttpRequestEditorProvider;
+import burp.api.montoya.ui.editor.extension.HttpResponseEditorProvider;
+import burp.api.montoya.ui.editor.extension.WebSocketMessageEditorProvider;
+import burp.api.montoya.ui.hotkey.HotKeyContext;
+import burp.api.montoya.ui.hotkey.HotKeyHandler;
+import burp.api.montoya.ui.menu.MenuBar;
+import burp.api.montoya.ui.settings.SettingsPanel;
+import burp.api.montoya.ui.swing.SwingUtils;
+
+import java.awt.Component;
+import java.awt.Font;
+
+/**
+ * 该接口提供对Burp Suite各种用户界面功能的访问，
+ * 包括注册自定义UI组件、创建编辑器实例以及应用主题样式等。
+ */
+public interface UserInterface
+{
+    /**
+     * @return Burp Suite的主菜单栏{@link MenuBar}
+     */
+    MenuBar menuBar();
+
+    /**
+     * 在主窗口添加自定义标签页。
+     *
+     * @param title     标签页标题文本
+     * @param component 标签页内呈现的组件
+     * @return 自定义标签页的注册对象{@link Registration}
+     */
+    Registration registerSuiteTab(String title, Component component);
+
+    /**
+     * 注册自定义上下文菜单项提供者。
+     *
+     * @param provider 菜单项提供者
+     * @return 菜单项提供者的注册对象{@link Registration}
+     */
+    Registration registerContextMenuItemsProvider(ContextMenuItemsProvider provider);
+
+    /**
+     * 注册自定义HTTP请求编辑器提供者。
+     *
+     * @param provider 编辑器提供者
+     * @return 编辑器提供者的注册对象{@link Registration}
+     */
+    Registration registerHttpRequestEditorProvider(HttpRequestEditorProvider provider);
+
+    /**
+     * 注册自定义HTTP响应编辑器提供者。
+     *
+     * @param provider 编辑器提供者
+     * @return 编辑器提供者的注册对象{@link Registration}
+     */
+    Registration registerHttpResponseEditorProvider(HttpResponseEditorProvider provider);
+
+    /**
+     * 注册自定义WebSocket消息编辑器提供者。
+     *
+     * @param provider 编辑器提供者
+     * @return 编辑器提供者的注册对象{@link Registration}
+     */
+    Registration registerWebSocketMessageEditorProvider(WebSocketMessageEditorProvider provider);
+
+    /**
+     * 注册快捷键处理程序。
+     * 快捷键格式与Burp设置中的格式相同。
+     *
+     * @param context 快捷键上下文
+     * @param hotKey 快捷键组合
+     * @param handler 快捷键处理程序
+     * @return 快捷键处理程序的注册对象{@link Registration}
+     */
+    Registration registerHotKeyHandler(HotKeyContext context, String hotKey, HotKeyHandler handler);
+
+    /**
+     * 在Burp设置对话框中注册设置面板。
+     *
+     * @param settingsPanel 要注册的设置面板
+     * @return 设置面板的注册对象{@link Registration}
+     */
+    Registration registerSettingsPanel(SettingsPanel settingsPanel);
+
+    /**
+     * 创建原始文本编辑器实例供扩展使用。
+     *
+     * @param options 可选的编辑器配置项
+     * @return {@link RawEditor}接口实例
+     */
+    RawEditor createRawEditor(EditorOptions... options);
+
+    /**
+     * 创建WebSocket消息编辑器实例供扩展使用。
+     *
+     * @param options 可选的编辑器配置项
+     * @return {@link WebSocketMessageEditor}接口实例
+     */
+    WebSocketMessageEditor createWebSocketMessageEditor(EditorOptions... options);
+
+    /**
+     * 创建HTTP请求编辑器实例供扩展使用。
+     *
+     * @param options 可选的编辑器配置项
+     * @return {@link HttpRequestEditor}接口实例
+     */
+    HttpRequestEditor createHttpRequestEditor(EditorOptions... options);
+
+    /**
+     * 创建HTTP响应编辑器实例供扩展使用。
+     *
+     * @param options 可选的编辑器配置项
+     * @return {@link HttpResponseEditor}接口实例
+     */
+    HttpResponseEditor createHttpResponseEditor(EditorOptions... options);
+
+    /**
+     * 根据Burp UI主题样式自定义组件外观，
+     * 包括字体大小、颜色、表格行距等。
+     * 该操作会递归应用于传入组件的所有子组件。
+     *
+     * @param component 要应用主题的组件
+     */
+    void applyThemeToComponent(Component component);
+
+    /**
+     * 获取当前使用的主题。
+     *
+     * @return 当前{@link Theme}主题
+     */
+    Theme currentTheme();
+
+    /**
+     * 获取消息编辑器当前使用的字体设置。
+     *
+     * @return 当前字体{@link Font}，对应<strong>设置</strong>对话框中<strong>HTTP消息显示</strong>的配置
+     */
+    Font currentEditorFont();
+
+    /**
+     * 获取Burp界面当前使用的字体大小。
+     *
+     * @return 当前字体{@link Font}，对应<strong>设置</strong>对话框中<strong>外观</strong>的配置
+     */
+    Font currentDisplayFont();
+
+    /**
+     * @return {@link SwingUtils}工具类实例
+     */
+    SwingUtils swingUtils();
+}
 ```
 ### contextmenu
-#### 
+#### AuditIssueContextMenuEvent
 ```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+
+/**
+ * 提供审计问题上下文菜单事件的相关信息，用于处理扫描器发现的审计问题。
+ */
+public interface AuditIssueContextMenuEvent extends ComponentEvent, ToolSource, InvocationSource
+{
+    /**
+     * 获取用户调用上下文菜单时选中的扫描器审计问题详情。
+     * 如果没有适用的审计问题，则返回空列表。
+     *
+     * @return 表示用户调用上下文菜单时显示或选中的审计问题的{@link AuditIssue}对象列表
+     */
+    List<AuditIssue> selectedIssues();
+}
 ```
-#### 
+#### ComponentEvent
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import java.awt.event.InputEvent;
+
+/**
+ * 该接口描述了与用户界面组件发生的操作或事件。
+ */
+public interface ComponentEvent
+{
+    /**
+     * 获取触发上下文菜单调用的原生Java输入事件。
+     *
+     * @return 触发上下文菜单调用的{@link InputEvent}事件对象
+     */
+    InputEvent inputEvent();
+}
 ```
-#### 
+#### ContextMenuEvent
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.ToolSource;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * 提供从{@link ContextMenuItemsProvider}生成上下文菜单项时的有用信息。
+ */
+public interface ContextMenuEvent extends ComponentEvent, ToolSource, InvocationSource
+{
+    /**
+     * 获取调用上下文菜单时当前选中的HTTP请求/响应详情。
+     *
+     * @return 包含当前选中请求响应及其选择元数据的{@link Optional}对象
+     */
+    Optional<MessageEditorHttpRequestResponse> messageEditorRequestResponse();
+
+    /**
+     * 获取用户调用上下文菜单时选中的所有HTTP请求/响应对。
+     * 如果用户没有选择任何项，则返回空列表。
+     *
+     * @return 用户选中的请求响应列表
+     */
+    List<HttpRequestResponse> selectedRequestResponses();
+
+    /**
+     * 获取用户调用上下文菜单时选中的扫描器问题详情。
+     * 如果没有适用的扫描问题，则返回空列表。
+     *
+     * @return 表示用户调用上下文菜单时显示或选中的扫描问题的{@link AuditIssue}对象列表
+     * @deprecated 请改用{@link ContextMenuItemsProvider#provideMenuItems(AuditIssueContextMenuEvent)}
+     */
+    @Deprecated
+    List<AuditIssue> selectedIssues();
+}
 ```
-#### 
+#### ContextMenuItemsProvider
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import java.awt.Component;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+
+/**
+ * 该接口允许扩展实现并注册自定义上下文菜单项的提供者。
+ */
+public interface ContextMenuItemsProvider
+{
+    /**
+     * 当用户在界面中请求包含HTTP请求/响应信息的上下文菜单时，由Burp Suite调用。
+     * 扩展应从此方法返回{@code null}或{@link java.util.Collections#emptyList()}，表示不需要菜单项。
+     *
+     * @param event 该对象可用于查询与上下文菜单调用相关的HTTP请求/响应信息
+     * @return 应显示的自定义菜单项列表（可包含子菜单、复选框菜单项等）
+     */
+    default List<Component> provideMenuItems(ContextMenuEvent event)
+    {
+        return emptyList();
+    }
+
+    /**
+     * 当用户在界面中请求包含WebSocket信息的上下文菜单时，由Burp Suite调用。
+     * 扩展应从此方法返回{@code null}或{@link java.util.Collections#emptyList()}，表示不需要菜单项。
+     *
+     * @param event 该对象可用于查询与上下文菜单调用相关的WebSocket消息信息
+     * @return 应显示的自定义菜单项列表（可包含子菜单、复选框菜单项等）
+     */
+    default List<Component> provideMenuItems(WebSocketContextMenuEvent event)
+    {
+        return emptyList();
+    }
+
+    /**
+     * 当用户在界面中请求包含审计问题信息的上下文菜单时，由Burp Suite调用。
+     * 扩展应从此方法返回{@code null}或{@link java.util.Collections#emptyList()}，表示不需要菜单项。
+     *
+     * @param event 该对象可用于查询与上下文菜单调用相关的审计问题信息
+     * @return 应显示的自定义菜单项列表（可包含子菜单、复选框菜单项等）
+     */
+    default List<Component> provideMenuItems(AuditIssueContextMenuEvent event)
+    {
+        return emptyList();
+    }
+}
 ```
-#### 
+#### InvocationSource
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+/**
+ * 提供上下文菜单调用来源的相关信息。
+ */
+public interface InvocationSource
+{
+    /**
+     * 获取当前上下文菜单调用位置的类型。
+     *
+     * @return 表示调用位置的{@link InvocationType}实例
+     */
+    InvocationType invocationType();
+
+    /**
+     * 辅助方法，用于检查上下文菜单是否从指定位置之一调用。
+     *
+     * @param invocationType 一个或多个要检查的{@link InvocationType}实例
+     * @return 如果上下文菜单是从被检查的类型之一调用的则返回true
+     */
+    boolean isFrom(InvocationType... invocationType);
+}
 ```
-#### 
+#### InvocationType
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+/**
+ * 包含不同上下文菜单调用类型的枚举。
+ */
+public enum InvocationType
+{
+    /** 消息编辑器中的请求 */
+    MESSAGE_EDITOR_REQUEST,
+    /** 消息编辑器中的响应 */
+    MESSAGE_EDITOR_RESPONSE,
+    /** 消息查看器中的请求 */
+    MESSAGE_VIEWER_REQUEST,
+    /** 消息查看器中的响应 */
+    MESSAGE_VIEWER_RESPONSE,
+    /** 站点地图树 */
+    SITE_MAP_TREE,
+    /** 站点地图表 */
+    SITE_MAP_TABLE,
+    /** 代理历史 */
+    PROXY_HISTORY,
+    /** 代理拦截 */
+    PROXY_INTERCEPT,
+    /** 扫描结果 */
+    SCANNER_RESULTS,
+    /** 入侵者载荷位置 */
+    INTRUDER_PAYLOAD_POSITIONS,
+    /** 入侵者攻击结果 */
+    INTRUDER_ATTACK_RESULTS,
+    /** 搜索结果 */
+    SEARCH_RESULTS;
+
+    /**
+     * 判断该类型是否包含HTTP消息。
+     *
+     * @return 如果包含HTTP消息则返回true
+     */
+    public boolean containsHttpMessage()
+    {
+        switch (this)
+        {
+            case MESSAGE_EDITOR_REQUEST:
+            case MESSAGE_EDITOR_RESPONSE:
+            case MESSAGE_VIEWER_REQUEST:
+            case MESSAGE_VIEWER_RESPONSE:
+            case INTRUDER_PAYLOAD_POSITIONS:
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断该类型是否包含HTTP请求/响应。
+     *
+     * @return 如果包含HTTP请求/响应则返回true
+     */
+    public boolean containsHttpRequestResponses()
+    {
+        switch (this)
+        {
+            case SITE_MAP_TREE:
+            case SITE_MAP_TABLE:
+            case PROXY_HISTORY:
+            case INTRUDER_ATTACK_RESULTS:
+            case SEARCH_RESULTS:
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断该类型是否包含扫描问题。
+     *
+     * @return 如果包含扫描问题则返回true
+     */
+    public boolean containsScanIssues()
+    {
+        return this == SCANNER_RESULTS;
+    }
+}
 ```
-#### 
+#### MessageEditorHttpRequestResponse
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.Range;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+
+import java.util.Optional;
+
+/**
+ * 包含用户在Burp Suite消息编辑器中选择请求或响应相关信息。
+ */
+public interface MessageEditorHttpRequestResponse
+{
+    /**
+     * @return 表示用户当前选中并聚焦的数据的{@link SelectionContext}对象
+     */
+    SelectionContext selectionContext();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 表示用户当前选择位置索引范围的{@link Optional}对象
+     */
+    Optional<Range> selectionOffsets();
+
+    /**
+     * @return 当前消息编辑器中光标位置的索引
+     */
+    int caretPosition();
+
+    /**
+     * @return 包含当前显示或选中的HTTP请求/响应信息的{@link HttpRequestResponse}实例
+     */
+    HttpRequestResponse requestResponse();
+
+    /**
+     * 使用HTTP请求更新消息编辑器
+     *
+     * @param request 用于更新编辑器的请求
+     */
+    void setRequest(HttpRequest request);
+
+    /**
+     * 使用HTTP响应更新消息编辑器
+     *
+     * @param response 用于更新编辑器的响应
+     */
+    void setResponse(HttpResponse response);
+
+    /**
+     * 表示用户选择上下文的枚举
+     */
+    enum SelectionContext
+    {
+        /**
+         * 当前选中请求部分
+         */
+        REQUEST,
+        
+        /**
+         * 当前选中响应部分
+         */
+        RESPONSE
+    }
+}
 ```
-#### 
+#### WebSocketContextMenuEvent
 ```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.ToolSource;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * 表示WebSocket上下文菜单事件的接口，提供对选中WebSocket消息的访问。
+ */
+public interface WebSocketContextMenuEvent extends ComponentEvent, ToolSource
+{
+    /**
+     * 获取从编辑器调用上下文菜单时当前选中的WebSocket消息详情。
+     *
+     * @return 包含当前选中WebSocket消息及其选择元数据的{@link Optional}对象
+     */
+    Optional<WebSocketEditorEvent> messageEditorWebSocket();
+
+    /**
+     * 获取用户调用上下文菜单时选中的所有WebSocket消息。
+     * 如果用户没有选择任何消息，则返回空列表。
+     *
+     * @return 用户选中的WebSocket消息列表
+     */
+    List<WebSocketMessage> selectedWebSocketMessages();
+}
 ```
-#### 
+#### WebSocketEditorEvent
 ```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Range;
+import burp.api.montoya.core.ToolSource;
+
+import java.util.Optional;
+
+/**
+ * 表示WebSocket编辑器事件的接口，提供对编辑器内容和状态的访问。
+ */
+public interface WebSocketEditorEvent extends ComponentEvent, ToolSource
+{
+    /**
+     * @return 消息编辑器的当前内容
+     */
+    ByteArray getContents();
+
+    /**
+     * 以编程方式设置消息编辑器中的内容。
+     * 如果编辑器是只读的，内容将不会被更新。
+     *
+     * @param contents 要设置到消息编辑器中的内容
+     */
+    void setContents(ByteArray contents);
+
+    /**
+     * @return 用于填充编辑器的WebSocket消息
+     */
+    WebSocketMessage webSocketMessage();
+
+    /**
+     * @return 如果编辑器是只读的则返回true
+     */
+    boolean isReadOnly();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户当前选择位置索引范围的{@link Optional}对象
+     */
+    Optional<Range> selectionOffsets();
+
+    /**
+     * @return 当前消息编辑器中光标位置的索引
+     */
+    int caretPosition();
+}
 ```
 #### WebSocketMessage
 ```java
