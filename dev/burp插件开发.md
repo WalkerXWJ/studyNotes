@@ -4824,15 +4824,1647 @@ public interface ParsedHttpParameter extends HttpParameter
 }
 ```
 ### requests
-#### 
+#### HttpRequest
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.message.requests;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Marker;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.message.ContentType;
+import burp.api.montoya.http.message.HttpHeader;
+import burp.api.montoya.http.message.HttpMessage;
+import burp.api.montoya.http.message.params.HttpParameter;
+import burp.api.montoya.http.message.params.HttpParameterType;
+import burp.api.montoya.http.message.params.ParsedHttpParameter;
+
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * HTTP 请求接口
+ * <p>
+ * 表示一个完整的 HTTP 请求消息，提供对请求各个部分的访问和修改方法，
+ * 继承自 {@link HttpMessage} 并扩展了请求特有的功能
+ */
+public interface HttpRequest extends HttpMessage
+{
+    /**
+     * 检查请求是否在目标范围内
+     * @return 如果在范围内返回 true
+     */
+    boolean isInScope();
+
+    /**
+     * 获取请求对应的 HTTP 服务信息
+     * @return HTTP 服务对象
+     */
+    HttpService httpService();
+
+    /**
+     * 获取请求的完整 URL
+     * @return URL 字符串
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String url() throws MalformedRequestException;
+
+    /**
+     * 获取请求的 HTTP 方法
+     * @return HTTP 方法（如 GET/POST 等）
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String method() throws MalformedRequestException;
+
+    /**
+     * 获取请求路径（包含查询参数）
+     * @return 路径字符串
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String path() throws MalformedRequestException;
+
+    /**
+     * 获取请求的查询字符串
+     * @return 查询字符串，如果没有则返回空字符串
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String query() throws MalformedRequestException;
+
+    /**
+     * 获取请求路径（不包含查询参数）
+     * @return 路径字符串
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String pathWithoutQuery() throws MalformedRequestException;
+
+    /**
+     * 获取请求的文件扩展名
+     * @return 文件扩展名，如果没有则返回空字符串
+     * @throws MalformedRequestException 如果请求格式错误
+     */
+    String fileExtension() throws MalformedRequestException;
+
+    /**
+     * 获取请求的内容类型
+     * @return 内容类型枚举
+     */
+    ContentType contentType();
+
+    /**
+     * 获取请求中的所有参数
+     * @return 解析后的参数列表
+     */
+    List<ParsedHttpParameter> parameters();
+
+    /**
+     * 获取指定类型的参数列表
+     * @param type 参数类型
+     * @return 过滤后的参数列表
+     */
+    List<ParsedHttpParameter> parameters(HttpParameterType type);
+
+    /**
+     * 检查请求是否包含参数
+     * @return 如果包含参数返回 true
+     */
+    boolean hasParameters();
+
+    /**
+     * 检查请求是否包含指定类型的参数
+     * @param type 参数类型
+     * @return 如果包含返回 true
+     */
+    boolean hasParameters(HttpParameterType type);
+
+    /**
+     * 获取指定名称和类型的参数
+     * @param name 参数名
+     * @param type 参数类型
+     * @return 参数对象，如果不存在返回 null
+     */
+    ParsedHttpParameter parameter(String name, HttpParameterType type);
+
+    /**
+     * 获取指定名称和类型参数的值
+     * @param name 参数名
+     * @param type 参数类型
+     * @return 参数值，如果不存在返回 null
+     */
+    String parameterValue(String name, HttpParameterType type);
+
+    /**
+     * 获取指定名称的参数（不限类型）
+     * @param name 参数名
+     * @return 参数对象，如果不存在返回 null
+     */
+    ParsedHttpParameter parameter(String name);
+
+    /**
+     * 获取指定名称参数的值（不限类型）
+     * @param name 参数名
+     * @return 参数值，如果不存在返回 null
+     */
+    String parameterValue(String name);
+
+    /**
+     * 检查是否存在指定名称和类型的参数
+     * @param name 参数名
+     * @param type 参数类型
+     * @return 如果存在返回 true
+     */
+    boolean hasParameter(String name, HttpParameterType type);
+
+    /**
+     * 检查是否存在与给定参数匹配的参数
+     * @param parameter 要匹配的参数
+     * @return 如果存在返回 true
+     */
+    boolean hasParameter(HttpParameter parameter);
+
+    /**
+     * 检查消息中是否包含指定头部
+     * @param header 要检查的头部对象
+     * @return 如果存在返回 true
+     */
+    @Override
+    boolean hasHeader(HttpHeader header);
+
+    /**
+     * 检查消息中是否包含指定名称的头部
+     * @param name 头部名称
+     * @return 如果存在返回 true
+     */
+    @Override
+    boolean hasHeader(String name);
+
+    /**
+     * 检查消息中是否包含指定名称和值的头部
+     * @param name 头部名称
+     * @param value 头部值
+     * @return 如果匹配返回 true
+     */
+    @Override
+    boolean hasHeader(String name, String value);
+
+    /**
+     * 获取指定名称的头部对象
+     * @param name 头部名称
+     * @return 头部对象，如果不存在返回 null
+     */
+    @Override
+    HttpHeader header(String name);
+
+    /**
+     * 获取指定名称头部的值
+     * @param name 头部名称
+     * @return 头部值字符串，如果不存在返回 null
+     */
+    @Override
+    String headerValue(String name);
+
+    /**
+     * 获取消息中的所有头部列表
+     * @return HTTP 头部列表
+     */
+    @Override
+    List<HttpHeader> headers();
+
+    /**
+     * 获取HTTP协议版本
+     * <p>对于HTTP/1.x消息返回"HTTP/1.0"或"HTTP/1.1"</p>
+     * <p>对于HTTP/2消息返回"HTTP/2"</p>
+     * @return 协议版本字符串
+     */
+    @Override
+    String httpVersion();
+
+    /**
+     * 获取消息正文起始偏移量
+     * @return 正文起始位置（字节偏移量）
+     */
+    @Override
+    int bodyOffset();
+
+    /**
+     * 获取消息正文字节数组
+     * @return 正文字节数组
+     */
+    @Override
+    ByteArray body();
+
+    /**
+     * 获取消息正文字符串表示
+     * @return 正文内容字符串
+     */
+    @Override
+    String bodyToString();
+
+    /**
+     * 获取消息标记列表
+     * <p>标记通常用于高亮显示消息中的特定部分</p>
+     * @return 标记对象列表
+     */
+    @Override
+    List<Marker> markers();
+
+    /**
+     * 在消息中搜索指定文本
+     * @param searchTerm 要搜索的文本
+     * @param caseSensitive 是否区分大小写
+     * @return 如果找到返回 true
+     */
+    @Override
+    boolean contains(String searchTerm, boolean caseSensitive);
+
+    /**
+     * 使用正则表达式搜索消息内容
+     * @param pattern 正则表达式对象
+     * @return 如果匹配返回 true
+     */
+    @Override
+    boolean contains(Pattern pattern);
+
+    /**
+     * 获取完整消息的字节数组表示
+     * @return 包含完整消息的字节数组
+     */
+    @Override
+    ByteArray toByteArray();
+
+    /**
+     * 获取完整消息的字符串表示
+     * @return 消息的字符串形式
+     */
+    @Override
+    String toString();
+
+    /**
+     * 创建请求的临时文件副本
+     * <p>用于将请求保存到临时文件以减少内存占用</p>
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest copyToTempFile();
+
+    /**
+     * 创建使用新服务的请求副本
+     * @param service HTTP 服务对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withService(HttpService service);
+
+    /**
+     * 创建使用新路径的请求副本
+     * @param path 新路径
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withPath(String path);
+
+    /**
+     * 创建使用新方法的请求副本
+     * @param method 新方法
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withMethod(String method);
+
+    /**
+     * 创建添加/更新头后的请求副本
+     * @param header HTTP 头对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withHeader(HttpHeader header);
+
+    /**
+     * 创建添加/更新头后的请求副本
+     * @param name 头名称
+     * @param value 头值
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withHeader(String name, String value);
+
+    /**
+     * 创建添加/更新参数后的请求副本
+     * @param parameters HTTP 参数
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withParameter(HttpParameter parameters);
+
+    /**
+     * 创建添加多个参数后的请求副本
+     * @param parameters HTTP 参数列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建添加多个参数后的请求副本
+     * @param parameters HTTP 参数数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建移除多个参数后的请求副本
+     * @param parameters 要移除的参数列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建移除多个参数后的请求副本
+     * @param parameters 要移除的参数数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建更新多个参数后的请求副本
+     * @param parameters 要更新的参数列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedParameters(List<? extends HttpParameter> parameters);
+
+    /**
+     * 创建更新多个参数后的请求副本
+     * @param parameters 要更新的参数数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedParameters(HttpParameter... parameters);
+
+    /**
+     * 创建应用转换后的请求副本
+     * @param transformation 转换对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withTransformationApplied(HttpTransformation transformation);
+
+    /**
+     * 创建更新消息体后的请求副本
+     * @param body 新消息体字符串
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withBody(String body);
+
+    /**
+     * 创建更新消息体后的请求副本
+     * @param body 新消息体字节数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withBody(ByteArray body);
+
+    /**
+     * 创建添加头后的请求副本
+     * @param name 头名称
+     * @param value 头值
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedHeader(String name, String value);
+
+    /**
+     * 创建添加头后的请求副本
+     * @param header HTTP 头对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedHeader(HttpHeader header);
+
+    /**
+     * 创建添加多个头后的请求副本
+     * @param headers HTTP 头列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedHeaders(List<? extends HttpHeader> headers);
+
+    /**
+     * 创建添加多个头后的请求副本
+     * @param headers HTTP 头数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withAddedHeaders(HttpHeader... headers);
+
+    /**
+     * 创建更新头后的请求副本
+     * @param name 要更新的头名称
+     * @param value 新头值
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedHeader(String name, String value);
+
+    /**
+     * 创建更新头后的请求副本
+     * @param header 包含新值的 HTTP 头对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedHeader(HttpHeader header);
+
+    /**
+     * 创建更新多个头后的请求副本
+     * @param headers HTTP 头列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedHeaders(List<? extends HttpHeader> headers);
+
+    /**
+     * 创建更新多个头后的请求副本
+     * @param headers HTTP 头数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withUpdatedHeaders(HttpHeader... headers);
+
+    /**
+     * 创建移除头后的请求副本
+     * @param name 要移除的头名称
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedHeader(String name);
+
+    /**
+     * 创建移除头后的请求副本
+     * @param header 要移除的 HTTP 头对象
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedHeader(HttpHeader header);
+
+    /**
+     * 创建移除多个头后的请求副本
+     * @param headers HTTP 头列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedHeaders(List<? extends HttpHeader> headers);
+
+    /**
+     * 创建移除多个头后的请求副本
+     * @param headers HTTP 头数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withRemovedHeaders(HttpHeader... headers);
+
+    /**
+     * 创建添加标记后的请求副本
+     * @param markers 标记列表
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withMarkers(List<Marker> markers);
+
+    /**
+     * 创建添加标记后的请求副本
+     * @param markers 标记数组
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withMarkers(Marker... markers);
+
+    /**
+     * 创建添加默认头后的请求副本
+     * @return 新的 HttpRequest 实例
+     */
+    HttpRequest withDefaultHeaders();
+
+    /**
+     * 创建新的空 HTTP 请求实例
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequest()
+    {
+        return FACTORY.httpRequest();
+    }
+
+    /**
+     * 从字节数组创建 HTTP 请求实例
+     * @param request 请求字节数组
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequest(ByteArray request)
+    {
+        return FACTORY.httpRequest(request);
+    }
+
+    /**
+     * 从字符串创建 HTTP 请求实例
+     * @param request 请求字符串
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequest(String request)
+    {
+        return FACTORY.httpRequest(request);
+    }
+
+    /**
+     * 从服务信息和字节数组创建 HTTP 请求实例
+     * @param service HTTP 服务信息
+     * @param request 请求字节数组
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequest(HttpService service, ByteArray request)
+    {
+        return FACTORY.httpRequest(service, request);
+    }
+
+    /**
+     * 从服务信息和字符串创建 HTTP 请求实例
+     * @param service HTTP 服务信息
+     * @param request 请求字符串
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequest(HttpService service, String request)
+    {
+        return FACTORY.httpRequest(service, request);
+    }
+
+    /**
+     * 从 URL 创建 HTTP 请求实例
+     * @param url 请求 URL
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest httpRequestFromUrl(String url)
+    {
+        return FACTORY.httpRequestFromUrl(url);
+    }
+
+    /**
+     * 创建 HTTP/2 请求实例
+     * @param service HTTP 服务信息
+     * @param headers HTTP/2 头部列表
+     * @param body 请求体字节数组
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest http2Request(HttpService service, List<HttpHeader> headers, ByteArray body)
+    {
+        return FACTORY.http2Request(service, headers, body);
+    }
+
+    /**
+     * 创建 HTTP/2 请求实例
+     * @param service HTTP 服务信息
+     * @param headers HTTP/2 头部列表
+     * @param body 请求体字符串
+     * @return 新的 HttpRequest 实例
+     */
+    static HttpRequest http2Request(HttpService service, List<HttpHeader> headers, String body)
+    {
+        return FACTORY.http2Request(service, headers, body);
+    }
+}
+```
+#### HttpTransformation
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.message.requests;
+
+/**
+ * HTTP 请求转换类型枚举
+ * <p>
+ * 定义 Burp 可以对 HTTP 请求应用的各种转换操作，
+ * 用于修改请求的基本结构和属性
+ */
+public enum HttpTransformation
+{
+    /**
+     * HTTP 方法切换转换
+     * <p>
+     * 将 GET 请求转换为 POST 请求<br>
+     * 或<br>
+     * 将 POST 请求转换为 GET 请求<br>
+     * 
+     * <p>转换时会自动处理以下内容：</p>
+     * <ul>
+     *   <li>GET 转 POST 时，原查询参数会移动到请求体中</li>
+     *   <li>POST 转 GET 时，请求体参数会移动到 URL 查询字符串中</li>
+     *   <li>自动更新 Content-Length 等必要头部</li>
+     * </ul>
+     */
+    TOGGLE_METHOD
+}
+```
+#### MalformedRequestException
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.message.requests;
+
+/**
+ * 畸形请求异常类
+ * <p>
+ * 当尝试从格式错误的 HTTP 请求中获取属性时抛出此异常，
+ * 表示请求格式不符合 HTTP 协议规范，无法正常解析
+ */
+public class MalformedRequestException extends RuntimeException
+{
+    /**
+     * 构造畸形请求异常实例
+     * @param message 异常详细信息，描述请求格式错误的具体原因
+     */
+    public MalformedRequestException(String message)
+    {
+        super(message);
+    }
+}
+```
+### sessions
+#### ActionResult
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.sessions;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 会话处理动作结果接口
+ * <p>
+ * 表示 {@link SessionHandlingAction#performAction(SessionHandlingActionData)} 方法的返回结果，
+ * 包含处理后的HTTP请求和可选的注解信息
+ */
+public interface ActionResult
+{
+    /**
+     * 获取处理后的HTTP请求
+     * @return 处理后的HTTP请求对象
+     */
+    HttpRequest request();
+
+    /**
+     * 获取关联的注解信息
+     * @return 注解对象，可能包含会话处理过程中的额外信息
+     */
+    Annotations annotations();
+
+    /**
+     * 创建新的动作结果实例（不修改注解）
+     *
+     * @param request 处理后的HTTP请求
+     * @return 新的ActionResult实例
+     */
+    static ActionResult actionResult(HttpRequest request)
+    {
+        return FACTORY.actionResult(request);
+    }
+
+    /**
+     * 创建新的动作结果实例（包含修改后的注解）
+     *
+     * @param request 处理后的HTTP请求
+     * @param annotations 修改后的注解对象
+     * @return 新的ActionResult实例
+     */
+    static ActionResult actionResult(HttpRequest request, Annotations annotations)
+    {
+        return FACTORY.actionResult(request, annotations);
+    }
+}
+```
+#### CookieJar
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.sessions;
+
+import burp.api.montoya.http.message.Cookie;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+
+/**
+ * Cookie 存储管理接口
+ * <p>
+ * 提供对 Burp Cookie Jar 功能的访问，允许添加和获取 HTTP Cookie
+ */
+public interface CookieJar
+{
+    /**
+     * 添加新的 HTTP Cookie 到 Cookie Jar
+     *
+     * @param name       Cookie 名称
+     * @param value      Cookie 值
+     * @param path       Cookie 的作用域路径，如果没有设置则为 {@code null}
+     * @param domain     Cookie 的作用域域名
+     * @param expiration Cookie 的过期时间，如果是会话 Cookie 则为 {@code null}
+     */
+    void setCookie(String name, String value, String path, String domain, ZonedDateTime expiration);
+
+    /**
+     * 获取 Cookie Jar 中存储的所有 Cookie
+     *
+     * @return Cookie 列表，包含所有存储的 Cookie 信息
+     */
+    List<Cookie> cookies();
+}
+```
+#### SessionHandlingAction
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.sessions;
+
+import burp.api.montoya.http.Http;
+
+/**
+ * 会话处理动作接口
+ * <p>
+ * 扩展程序实现此接口并通过 {@link Http#registerSessionHandlingAction} 注册自定义会话处理动作。
+ * 每个注册的动作将会出现在会话处理规则UI中供用户选择。
+ * 用户可以选择直接执行动作，或在宏执行后执行。
+ */
+public interface SessionHandlingAction
+{
+    /**
+     * 获取动作名称
+     * <p>该名称将显示在Burp的会话处理规则配置界面中</p>
+     * @return 动作名称字符串
+     */
+    String name();
+
+    /**
+     * 执行会话处理动作
+     * <p>
+     * 当会话处理动作需要执行时调用，可能是作为独立动作执行，
+     * 也可能是作为宏执行后的子动作执行。<br>
+     * 实现中可以发送额外的请求，并通过 {@link ActionResult} 返回修改后的基础请求。
+     *
+     * @param actionData 会话处理动作数据对象，可查询基础请求的详细信息
+     * @return 包含处理结果的 {@link ActionResult} 实例
+     */
+    ActionResult performAction(SessionHandlingActionData actionData);
+}
+```
+#### SessionHandlingActionData
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.http.sessions;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+import java.util.List;
+
+/**
+ * 会话处理动作数据接口
+ * <p>
+ * 提供会话处理过程中所需的上下文信息，
+ * 包括基础请求、宏执行结果和请求注解等
+ */
+public interface SessionHandlingActionData
+{
+    /**
+     * 获取当前正在处理的基础请求
+     * @return 基础HTTP请求对象
+     */
+    HttpRequest request();
+
+    /**
+     * 获取宏执行结果
+     * <p>
+     * 如果当前动作是在宏执行后被调用，
+     * 则返回宏执行过程中生成的请求/响应列表。<br>
+     * 如果动作是直接调用，则返回空列表。<br>
+     * 可用于分析宏执行结果，提取非标准会话令牌等。
+     *
+     * @return 宏执行生成的请求/响应列表，非宏调用时返回空列表
+     */
+    List<HttpRequestResponse> macroRequestResponses();
+
+    /**
+     * 获取请求的注解信息
+     * @return 包含请求注解的对象
+     */
+    Annotations annotations();
+}
+```
+## internal
+### MontoyaObjectFactory
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.internal;
+
+// 导入所有必要的接口（保持原样）
+import burp.api.montoya.ai.chat.Message;
+import burp.api.montoya.ai.chat.PromptOptions;
+import burp.api.montoya.collaborator.InteractionFilter;
+import burp.api.montoya.collaborator.SecretKey;
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.HighlightColor;
+import burp.api.montoya.core.Marker;
+import burp.api.montoya.core.Range;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.RequestOptions;
+import burp.api.montoya.http.handler.RequestToBeSentAction;
+import burp.api.montoya.http.handler.ResponseReceivedAction;
+import burp.api.montoya.http.message.HttpHeader;
+import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.params.HttpParameter;
+import burp.api.montoya.http.message.params.HttpParameterType;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.http.sessions.ActionResult;
+import burp.api.montoya.intruder.GeneratedPayload;
+import burp.api.montoya.intruder.HttpRequestTemplate;
+import burp.api.montoya.intruder.HttpRequestTemplateGenerationOptions;
+import burp.api.montoya.intruder.PayloadProcessingAction;
+import burp.api.montoya.intruder.PayloadProcessingResult;
+import burp.api.montoya.persistence.PersistedList;
+import burp.api.montoya.persistence.PersistedObject;
+import burp.api.montoya.proxy.MessageReceivedAction;
+import burp.api.montoya.proxy.MessageToBeSentAction;
+import burp.api.montoya.proxy.http.ProxyRequestReceivedAction;
+import burp.api.montoya.proxy.http.ProxyRequestToBeSentAction;
+import burp.api.montoya.proxy.http.ProxyResponseReceivedAction;
+import burp.api.montoya.proxy.http.ProxyResponseToBeSentAction;
+import burp.api.montoya.proxy.websocket.BinaryMessageReceivedAction;
+import burp.api.montoya.proxy.websocket.BinaryMessageToBeSentAction;
+import burp.api.montoya.proxy.websocket.TextMessageReceivedAction;
+import burp.api.montoya.proxy.websocket.TextMessageToBeSentAction;
+import burp.api.montoya.scanner.AuditConfiguration;
+import burp.api.montoya.scanner.AuditResult;
+import burp.api.montoya.scanner.BuiltInAuditConfiguration;
+import burp.api.montoya.scanner.CrawlConfiguration;
+import burp.api.montoya.scanner.audit.insertionpoint.AuditInsertionPoint;
+import burp.api.montoya.scanner.audit.issues.AuditIssue;
+import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence;
+import burp.api.montoya.scanner.audit.issues.AuditIssueDefinition;
+import burp.api.montoya.scanner.audit.issues.AuditIssueSeverity;
+import burp.api.montoya.sitemap.SiteMapFilter;
+import burp.api.montoya.ui.Selection;
+import burp.api.montoya.ui.menu.BasicMenuItem;
+import burp.api.montoya.ui.menu.Menu;
+import burp.api.montoya.ui.settings.SettingsPanelBuilder;
+import burp.api.montoya.ui.settings.SettingsPanelSetting;
+import burp.api.montoya.utilities.json.JsonArrayNode;
+import burp.api.montoya.utilities.json.JsonBooleanNode;
+import burp.api.montoya.utilities.json.JsonNode;
+import burp.api.montoya.utilities.json.JsonNullNode;
+import burp.api.montoya.utilities.json.JsonNumberNode;
+import burp.api.montoya.utilities.json.JsonObjectNode;
+import burp.api.montoya.utilities.json.JsonStringNode;
+import burp.api.montoya.utilities.shell.ExecuteOptions;
+import burp.api.montoya.websocket.BinaryMessageAction;
+import burp.api.montoya.websocket.MessageAction;
+import burp.api.montoya.websocket.TextMessageAction;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Burp Montoya 对象工厂接口
+ * <p>
+ * 提供创建 Burp API 中所有核心对象的工厂方法，
+ * 是扩展功能与 Burp 核心交互的主要入口点。
+ * 该接口包含创建 HTTP 消息、代理处理器、扫描器组件等各种对象的方法。
+ */
+public interface MontoyaObjectFactory {
+    /* HTTP 服务相关方法 */
+    /**
+     * 从基础URL创建HTTP服务对象
+     * @param baseUrl 基础URL（如"http://example.com"）
+     * @return 配置好的HttpService实例
+     */
+    HttpService httpService(String baseUrl);
+
+    /**
+     * 创建指定主机和安全设置的HTTP服务
+     * @param host 主机名或IP地址
+     * @param secure 是否使用HTTPS
+     * @return HttpService实例
+     */
+    HttpService httpService(String host, boolean secure);
+
+    /**
+     * 创建完整配置的HTTP服务
+     * @param host 主机名或IP地址
+     * @param port 端口号
+     * @param secure 是否使用HTTPS
+     * @return HttpService实例
+     */
+    HttpService httpService(String host, int port, boolean secure);
+
+    /* HTTP 头部相关方法 */
+    /**
+     * 从名称和值创建HTTP头部
+     * @param name 头部名称
+     * @param value 头部值
+     * @return HttpHeader实例
+     */
+    HttpHeader httpHeader(String name, String value);
+
+    /**
+     * 从完整头部字符串创建HTTP头部
+     * @param header 完整头部字符串（如"Name: Value"）
+     * @return 解析后的HttpHeader实例
+     */
+    HttpHeader httpHeader(String header);
+
+    /* HTTP 参数相关方法 */
+    /**
+     * 创建指定类型的HTTP参数
+     * @param name 参数名
+     * @param value 参数值
+     * @param type 参数类型（URL/BODY/COOKIE等）
+     * @return HttpParameter实例
+     */
+    HttpParameter parameter(String name, String value, HttpParameterType type);
+
+    /* HTTP 请求相关方法 - 完整保留所有重载 */
+    HttpRequest httpRequest();
+    HttpRequest httpRequest(ByteArray request);
+    HttpRequest httpRequest(String request);
+    HttpRequest httpRequest(HttpService service, ByteArray request);
+    HttpRequest httpRequest(HttpService service, String request);
+    HttpRequest http2Request(HttpService service, List<HttpHeader> headers, String body);
+    HttpRequest http2Request(HttpService service, List<HttpHeader> headers, ByteArray body);
+    HttpRequest httpRequestFromUrl(String url);
+
+    /* HTTP 响应相关方法 */
+    HttpResponse httpResponse();
+    HttpResponse httpResponse(String response);
+    HttpResponse httpResponse(ByteArray response);
+
+    /* 请求-响应组合相关方法 */
+    HttpRequestResponse httpRequestResponse(HttpRequest request, HttpResponse response, Annotations annotations);
+    HttpRequestResponse httpRequestResponse(HttpRequest request, HttpResponse response);
+
+    /* 范围标记相关方法 */
+    Range range(int startIndexInclusive, int endIndexExclusive);
+
+    /* 注解相关方法 - 完整保留所有重载 */
+    Annotations annotations();
+    Annotations annotations(String notes);
+    Annotations annotations(HighlightColor highlightColor);
+    Annotations annotations(String notes, HighlightColor highlightColor);
+
+    /* 安全扫描相关方法 - 保留完整参数列表 */
+    AuditInsertionPoint auditInsertionPoint(String name, HttpRequest baseRequest, int startIndexInclusive, int endIndexExclusive);
+    AuditIssueDefinition auditIssueDefinition(String name, String background, String remediation, AuditIssueSeverity typicalSeverity);
+    
+    // 完整保留所有auditIssue方法签名
+    AuditIssue auditIssue(
+            String name,
+            String detail,
+            String remediation,
+            String baseUrl,
+            AuditIssueSeverity severity,
+            AuditIssueConfidence confidence,
+            String background,
+            String remediationBackground,
+            AuditIssueSeverity typicalSeverity,
+            List<HttpRequestResponse> requestResponses);
+
+    AuditIssue auditIssue(
+            String name,
+            String detail,
+            String remediation,
+            String baseUrl,
+            AuditIssueSeverity severity,
+            AuditIssueConfidence confidence,
+            String background,
+            String remediationBackground,
+            AuditIssueSeverity typicalSeverity,
+            HttpRequestResponse... requestResponses);
+
+    /* 选择区域相关方法 */
+    Selection selection(ByteArray selectionContents);
+    Selection selection(int startIndexInclusive, int endIndexExclusive);
+    Selection selection(ByteArray selectionContents, int startIndexInclusive, int endIndexExclusive);
+
+    /* Collaborator相关方法 */
+    SecretKey secretKey(String encodedKey);
+
+    /* 代理相关方法 - 完整保留所有方法 */
+    ProxyRequestReceivedAction proxyRequestReceivedAction(HttpRequest request, Annotations annotations, MessageReceivedAction action);
+    ProxyRequestToBeSentAction proxyRequestToBeSentAction(HttpRequest request, Annotations annotations, MessageToBeSentAction action);
+    ProxyResponseToBeSentAction proxyResponseToReturnAction(HttpResponse response, Annotations annotations, MessageToBeSentAction action);
+    ProxyResponseReceivedAction proxyResponseReceivedAction(HttpResponse response, Annotations annotations, MessageReceivedAction action);
+
+    /* HTTP处理器相关方法 */
+    RequestToBeSentAction requestResult(HttpRequest request, Annotations annotations);
+    ResponseReceivedAction responseResult(HttpResponse response, Annotations annotations);
+
+    /* 入侵者相关方法 */
+    HttpRequestTemplate httpRequestTemplate(ByteArray content, List<Range> insertionPointOffsets);
+    HttpRequestTemplate httpRequestTemplate(HttpRequest request, List<Range> insertionPointOffsets);
+    HttpRequestTemplate httpRequestTemplate(ByteArray content, HttpRequestTemplateGenerationOptions options);
+    HttpRequestTemplate httpRequestTemplate(HttpRequest request, HttpRequestTemplateGenerationOptions options);
+    PayloadProcessingResult payloadProcessingResult(ByteArray processedPayload, PayloadProcessingAction action);
+
+    /* 交互过滤相关方法 */
+    InteractionFilter interactionIdFilter(String id);
+    InteractionFilter interactionPayloadFilter(String payload);
+
+    /* 站点地图过滤 */
+    SiteMapFilter prefixFilter(String prefix);
+
+    /* 标记相关方法 */
+    Marker marker(Range range);
+    Marker marker(int startIndexInclusive, int endIndexExclusive);
+
+    /* 字节数组相关方法 - 完整保留所有重载 */
+    ByteArray byteArrayOfLength(int length);
+    ByteArray byteArray(byte[] bytes);
+    ByteArray byteArray(int[] ints);
+    ByteArray byteArray(String text);
+
+    /* WebSocket相关方法 - 完整保留所有方法 */
+    TextMessageAction continueWithTextMessage(String payload);
+    TextMessageAction dropTextMessage();
+    TextMessageAction textMessageAction(String payload, MessageAction action);
+    BinaryMessageAction continueWithBinaryMessage(ByteArray payload);
+    BinaryMessageAction dropBinaryMessage();
+    BinaryMessageAction binaryMessageAction(ByteArray payload, MessageAction action);
+    BinaryMessageReceivedAction followUserRulesInitialProxyBinaryMessage(ByteArray payload);
+    TextMessageReceivedAction followUserRulesInitialProxyTextMessage(String payload);
+    BinaryMessageReceivedAction interceptInitialProxyBinaryMessage(ByteArray payload);
+    TextMessageReceivedAction interceptInitialProxyTextMessage(String payload);
+    BinaryMessageReceivedAction dropInitialProxyBinaryMessage();
+    TextMessageReceivedAction dropInitialProxyTextMessage();
+    BinaryMessageReceivedAction doNotInterceptInitialProxyBinaryMessage(ByteArray payload);
+    TextMessageReceivedAction doNotInterceptInitialProxyTextMessage(String payload);
+    BinaryMessageToBeSentAction continueWithFinalProxyBinaryMessage(ByteArray payload);
+    TextMessageToBeSentAction continueWithFinalProxyTextMessage(String payload);
+    BinaryMessageToBeSentAction dropFinalProxyBinaryMessage();
+    TextMessageToBeSentAction dropFinalProxyTextMessage();
+
+    /* 持久化相关方法 - 完整保留所有泛型方法 */
+    PersistedObject persistedObject();
+    PersistedList<Boolean> persistedBooleanList();
+    PersistedList<Short> persistedShortList();
+    PersistedList<Integer> persistedIntegerList();
+    PersistedList<Long> persistedLongList();
+    PersistedList<String> persistedStringList();
+    PersistedList<ByteArray> persistedByteArrayList();
+    PersistedList<HttpRequest> persistedHttpRequestList();
+    PersistedList<HttpResponse> persistedHttpResponseList();
+    PersistedList<HttpRequestResponse> persistedHttpRequestResponseList();
+
+    /* 扫描结果相关方法 */
+    AuditResult auditResult(List<AuditIssue> auditIssues);
+    AuditResult auditResult(AuditIssue... auditIssues);
+
+    /* 扫描配置相关方法 */
+    AuditConfiguration auditConfiguration(BuiltInAuditConfiguration builtInAuditConfiguration);
+    CrawlConfiguration crawlConfiguration(String... seedUrls);
+
+    /* 特定参数类型方法 */
+    HttpParameter urlParameter(String name, String value);
+    HttpParameter bodyParameter(String name, String value);
+    HttpParameter cookieParameter(String name, String value);
+
+    /* 负载生成相关方法 */
+    GeneratedPayload payload(String payload);
+    GeneratedPayload payload(ByteArray payload);
+    GeneratedPayload payloadEnd();
+    PayloadProcessingResult usePayload(ByteArray processedPayload);
+    PayloadProcessingResult skipPayload();
+
+    /* 代理动作结果方法 - 完整保留所有重载 */
+    ProxyRequestToBeSentAction requestFinalInterceptResultContinueWith(HttpRequest request);
+    ProxyRequestToBeSentAction requestFinalInterceptResultContinueWith(HttpRequest request, Annotations annotations);
+    ProxyRequestToBeSentAction requestFinalInterceptResultDrop();
+    ProxyResponseToBeSentAction responseFinalInterceptResultDrop();
+    ProxyResponseToBeSentAction responseFinalInterceptResultContinueWith(HttpResponse response, Annotations annotations);
+    ProxyResponseToBeSentAction responseFinalInterceptResultContinueWith(HttpResponse response);
+    ProxyResponseReceivedAction responseInitialInterceptResultIntercept(HttpResponse response);
+    ProxyResponseReceivedAction responseInitialInterceptResultIntercept(HttpResponse response, Annotations annotations);
+    ProxyResponseReceivedAction responseInitialInterceptResultDoNotIntercept(HttpResponse response);
+    ProxyResponseReceivedAction responseInitialInterceptResultDoNotIntercept(HttpResponse response, Annotations annotations);
+    ProxyResponseReceivedAction responseInitialInterceptResultFollowUserRules(HttpResponse response);
+    ProxyResponseReceivedAction responseInitialInterceptResultFollowUserRules(HttpResponse response, Annotations annotations);
+    ProxyResponseReceivedAction responseInitialInterceptResultDrop();
+    ProxyRequestReceivedAction requestInitialInterceptResultIntercept(HttpRequest request);
+    ProxyRequestReceivedAction requestInitialInterceptResultIntercept(HttpRequest request, Annotations annotations);
+    ProxyRequestReceivedAction requestInitialInterceptResultDoNotIntercept(HttpRequest request);
+    ProxyRequestReceivedAction requestInitialInterceptResultDoNotIntercept(HttpRequest request, Annotations annotations);
+    ProxyRequestReceivedAction requestInitialInterceptResultFollowUserRules(HttpRequest request);
+    ProxyRequestReceivedAction requestInitialInterceptResultFollowUserRules(HttpRequest request, Annotations annotations);
+    ProxyRequestReceivedAction requestInitialInterceptResultDrop();
+
+    /* 简化版处理器结果方法 */
+    ResponseReceivedAction responseResult(HttpResponse response);
+    RequestToBeSentAction requestResult(HttpRequest request);
+
+    /* 高亮颜色方法 */
+    HighlightColor highlightColor(String color);
+
+    /* 会话处理结果方法 */
+    ActionResult actionResult(HttpRequest request);
+    ActionResult actionResult(HttpRequest request, Annotations annotations);
+
+    /* 用户界面菜单方法 */
+    Menu menu(String caption);
+    BasicMenuItem basicMenuItem(String caption);
+
+    /* 请求选项方法 */
+    RequestOptions requestOptions();
+
+    /* JSON处理相关方法 - 完整保留所有方法 */
+    JsonNode jsonNode(String json);
+    JsonArrayNode jsonArrayNode();
+    JsonArrayNode jsonArrayNode(List<? extends JsonNode> value);
+    JsonArrayNode jsonArrayNode(JsonNode... values);
+    JsonBooleanNode jsonBooleanNode(boolean value);
+    JsonNullNode jsonNullNode();
+    JsonNumberNode jsonNumberNode(long value);
+    JsonNumberNode jsonNumberNode(double value);
+    JsonNumberNode jsonNumberNode(Number value);
+    JsonObjectNode jsonObjectNode();
+    JsonObjectNode jsonObjectNode(Map<String, ? extends JsonNode> value);
+    JsonStringNode jsonStringNode(String value);
+
+    /* AI聊天相关方法 */
+    PromptOptions promptOptions();
+    Message systemMessage(String content);
+    Message userMessage(String content);
+    Message assistantMessage(String content);
+
+    /* 设置面板相关方法 - 完整保留所有重载 */
+    SettingsPanelBuilder settingsPanel();
+    SettingsPanelSetting integerSetting(String name);
+    SettingsPanelSetting integerSetting(String name, int defaultValue);
+    SettingsPanelSetting booleanSetting(String name);
+    SettingsPanelSetting booleanSetting(String name, boolean defaultValue);
+    SettingsPanelSetting stringSetting(String name);
+    SettingsPanelSetting stringSetting(String name, String defaultValue);
+    SettingsPanelSetting listSetting(String name, String... values);
+    SettingsPanelSetting listSetting(String name, List<String> values, String defaultValue);
+
+    /* 执行选项方法 */
+    ExecuteOptions executeOptions();
+}
+```
+### ObjectFactoryLocator
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.internal;
+
+/**
+ * 对象工厂定位器
+ * <p>
+ * 提供对 Montoya 对象工厂的静态访问入口，
+ * 用于获取创建 Burp 各种核心对象的工厂实例。
+ * 该类的 FACTORY 字段在扩展加载时由 Burp 核心初始化。
+ */
+public class ObjectFactoryLocator
+{
+    /**
+     * Montoya 对象工厂实例
+     * <p>
+     * 该静态字段在扩展加载时由 Burp 核心自动初始化，
+     * 扩展可以通过此字段访问所有对象创建方法。
+     * 
+     * <p><b>注意：</b>在扩展初始化完成前访问此字段将返回 null</p>
+     */
+    public static MontoyaObjectFactory FACTORY = null;
+}
+```
+## intruder
+### AttackConfiguration
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.http.HttpService;
+
+import java.util.Optional;
+
+/**
+ * 入侵者攻击配置接口
+ * <p>
+ * 表示一个入侵者攻击的配置信息，包含目标服务和请求模板等关键参数，
+ * 用于定义攻击的基本行为和目标。
+ */
+public interface AttackConfiguration
+{
+    /**
+     * 获取攻击目标HTTP服务信息
+     * <p>
+     * 当请求模板包含有效载荷标记时可能返回空Optional，
+     * 表示需要从请求模板中解析目标服务。
+     *
+     * @return 包含HttpService的Optional对象，如果模板有载荷标记则为空
+     */
+    Optional<HttpService> httpService();
+
+    /**
+     * 获取HTTP请求模板
+     * <p>
+     * 包含原始请求内容和所有插入点偏移量信息，
+     * 用于生成实际的攻击请求。
+     *
+     * @return HttpRequestTemplate实例，包含请求模板和插入点位置
+     */
+    HttpRequestTemplate requestTemplate();
+}
+```
+### GeneratedPayload
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.ByteArray;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 入侵者生成的负载接口
+ * <p>
+ * 表示入侵者攻击中生成的一个有效负载，
+ * 可以是字符串或字节数组形式，也用于标记负载生成结束。
+ */
+public interface GeneratedPayload
+{
+    /**
+     * 获取负载的值
+     * @return 负载内容的字节数组表示
+     */
+    ByteArray value();
+
+    /**
+     * 从字符串创建新的负载实例
+     *
+     * @param payload 字符串形式的负载值
+     * @return 新的GeneratedPayload实例
+     */
+    static GeneratedPayload payload(String payload)
+    {
+        return FACTORY.payload(payload);
+    }
+
+    /**
+     * 从字节数组创建新的负载实例
+     *
+     * @param payload 字节数组形式的负载值
+     * @return 新的GeneratedPayload实例
+     */
+    static GeneratedPayload payload(ByteArray payload)
+    {
+        return FACTORY.payload(payload);
+    }
+
+    /**
+     * 创建表示负载生成结束的特殊标记实例
+     *
+     * @return 表示结束的GeneratedPayload实例
+     */
+    static GeneratedPayload end()
+    {
+        return FACTORY.payloadEnd();
+    }
+}
+```
+### HttpRequestTemplate
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展 Burp Suite Community Edition 和 Burp Suite Professional 的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Range;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+import java.util.List;
+
+import static burp.api.montoya.internal.ObjectFactoryLocator.FACTORY;
+
+/**
+ * 入侵者请求模板接口
+ * <p>
+ * 包含HTTP请求内容和插入点偏移量信息，
+ * 用于定义入侵者攻击的请求结构和参数位置。
+ */
+public interface HttpRequestTemplate
+{
+    /**
+     * 获取请求模板的原始内容
+     * @return 请求内容的字节数组表示
+     */
+    ByteArray content();
+
+    /**
+     * 获取所有插入点偏移量
+     * <p>
+     * 每个Range对象表示一个参数在请求中的位置范围，
+     * 入侵者将在这些位置插入生成的负载。
+     *
+     * @return 插入点偏移量Range对象列表
+     */
+    List<Range> insertionPointOffsets();
+
+    /**
+     * 从HttpRequest对象创建请求模板
+     *
+     * @param request               HTTP请求对象
+     * @param insertionPointOffsets 手动指定的插入点偏移量列表
+     * @return 新的请求模板实例
+     */
+    static HttpRequestTemplate httpRequestTemplate(HttpRequest request, List<Range> insertionPointOffsets)
+    {
+        return FACTORY.httpRequestTemplate(request, insertionPointOffsets);
+    }
+
+    /**
+     * 从字节数组创建请求模板
+     *
+     * @param content               HTTP请求字节数组
+     * @param insertionPointOffsets 手动指定的插入点偏移量列表
+     * @return 新的请求模板实例
+     */
+    static HttpRequestTemplate httpRequestTemplate(ByteArray content, List<Range> insertionPointOffsets)
+    {
+        return FACTORY.httpRequestTemplate(content, insertionPointOffsets);
+    }
+
+    /**
+     * 从HttpRequest对象自动创建请求模板
+     * <p>
+     * 自动在URL参数、Cookie和请求体参数位置生成插入点。
+     *
+     * @param request HTTP请求对象
+     * @param options 模板生成选项
+     * @return 新的请求模板实例
+     */
+    static HttpRequestTemplate httpRequestTemplate(HttpRequest request, HttpRequestTemplateGenerationOptions options)
+    {
+        return FACTORY.httpRequestTemplate(request, options);
+    }
+
+    /**
+     * 从字节数组自动创建请求模板
+     * <p>
+     * 自动在URL参数、Cookie和请求体参数位置生成插入点。
+     *
+     * @param content HTTP请求字节数组
+     * @param options 模板生成选项
+     * @return 新的请求模板实例
+     */
+    static HttpRequestTemplate httpRequestTemplate(ByteArray content, HttpRequestTemplateGenerationOptions options)
+    {
+        return FACTORY.httpRequestTemplate(content, options);
+    }
+}
+```
+### HttpRequestTemplateGenerationOptions
+```java
+/*
+ * Copyright (c) 2023. PortSwigger Ltd. All rights reserved.
+ *
+ * This code may be used to extend the functionality of Burp Suite Community Edition
+ * and Burp Suite Professional, provided that this usage does not violate the
+ * license terms for those products.
+ */
+
+package burp.api.montoya.intruder;
+
+/**
+ * 用于生成新HttpRequestTemplate的选项
+ * Options that can be used to generate a new HttpRequestTemplate.
+ */
+public enum HttpRequestTemplateGenerationOptions
+{
+    /**
+     * 用偏移量替换基础参数值
+     * Replace base parameter value with offsets.
+     */
+    REPLACE_BASE_PARAMETER_VALUE_WITH_OFFSETS,
+
+    /**
+     * 将偏移量附加到基础参数值
+     * Append offsets to base parameter value.
+     */
+    APPEND_OFFSETS_TO_BASE_PARAMETER_VALUE
+}
+```
+### Intruder
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.Registration;
+import burp.api.montoya.http.HttpService;
+import burp.api.montoya.http.message.requests.HttpRequest;
+
+/**
+ * 提供对Burp Intruder工具功能的访问接口
+ */
+public interface Intruder
+{
+    /**
+     * 注册自定义的Intruder载荷处理器
+     * <p>
+     * 每个注册的处理器将在Intruder UI中可用，
+     * 用户可以选择作为载荷处理规则的操作
+     *
+     * @param payloadProcessor 扩展程序实现的{@link PayloadProcessor}接口对象
+     * @return 载荷处理器的注册句柄
+     */
+    Registration registerPayloadProcessor(PayloadProcessor payloadProcessor);
+
+    /**
+     * 注册Intruder载荷生成器提供者
+     * <p>
+     * 每个注册的提供者将在Intruder UI中可用，
+     * 用户可以选择作为攻击的载荷来源
+     *
+     * @param payloadGeneratorProvider 扩展程序实现的PayloadGeneratorProvider接口对象
+     * @return 载荷生成器提供者的注册句柄
+     */
+    Registration registerPayloadGeneratorProvider(PayloadGeneratorProvider payloadGeneratorProvider);
+
+    /**
+     * 发送HTTP请求到Burp Intruder工具
+     * <p>
+     * 请求将显示在用户界面中，攻击载荷的标记将被放置在
+     * 提供的{@link HttpRequestTemplate}对象指定的位置
+     *
+     * @param service 指定远程服务器的主机名、端口和协议
+     * @param requestTemplate 包含插入点偏移量的HTTP请求模板
+     */
+    void sendToIntruder(HttpService service, HttpRequestTemplate requestTemplate);
+
+    /**
+     * 发送HTTP请求到Burp Intruder工具（带命名）
+     * <p>
+     * 请求将显示在用户界面中，攻击载荷的标记将被放置在
+     * 提供的{@link HttpRequestTemplate}对象指定的位置
+     *
+     * @param service 指定远程服务器的主机名、端口和协议
+     * @param requestTemplate 包含插入点偏移量的HTTP请求模板
+     * @param name 显示在Intruder标签页上的可选名称（为null则显示默认索引）
+     */
+    void sendToIntruder(HttpService service, HttpRequestTemplate requestTemplate, String name);
+
+    /**
+     * 发送HTTP请求到Burp Intruder工具
+     * <p>
+     * 请求将显示在用户界面中
+     *
+     * @param request 完整的HTTP请求
+     */
+    void sendToIntruder(HttpRequest request);
+
+    /**
+     * 发送HTTP请求到Burp Intruder工具（带命名）
+     * <p>
+     * 请求将显示在用户界面中
+     *
+     * @param request 完整的HTTP请求
+     * @param name 显示在Intruder标签页上的名称（为null则显示默认索引）
+     */
+    void sendToIntruder(HttpRequest request, String name);
+}
+```
+### IntruderInsertionPoint
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 但不得违反相关产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 用于攻击载荷的Intruder插入点接口
+ */
+public interface IntruderInsertionPoint
+{
+    /**
+     * 获取插入点的基准值
+     * 
+     * @return 表示插入点基准值的字节数组
+     */
+    ByteArray baseValue();
+}
+```
+### PayloadData
+```java
+/*
+ * Copyright (c) 2022-2023. PortSwigger Ltd. All rights reserved.
+ *
+ * 本代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反产品的许可条款。
+ */
+
+package burp.api.montoya.intruder;
+
+import burp.api.montoya.core.ByteArray;
+
+/**
+ * 包含载荷数据的相关信息
+ */
+public interface PayloadData
+{
+    /**
+     * 获取当前待处理的载荷值
+     * 
+     * @return 表示当前载荷的字节数组
+     */
+    ByteArray currentPayload();
+
+    /**
+     * 获取原始载荷值（在任何处理规则应用之前的值）
+     * 
+     * @return 表示原始载荷的字节数组 
+     */
+    ByteArray originalPayload();
+
+    /**
+     * 获取当前插入点数据
+     * 
+     * @return Intruder插入点对象
+     */
+    IntruderInsertionPoint insertionPoint();
+}
+```
+###
 ```java
 
 ```
-#### 
+###
 ```java
 
 ```
-#### 
+###
+```java
+
+```
+###
 ```java
 
 ```
