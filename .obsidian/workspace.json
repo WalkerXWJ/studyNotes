@@ -157,7 +157,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 324.5
+    "width": 397.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -169,7 +169,7 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "1fe744c58fe29305",
+  "active": "8368033758ea74e1",
   "lastOpenFiles": [
     "dev/burp插件开发.md",
     "tools/burpsuite.md",

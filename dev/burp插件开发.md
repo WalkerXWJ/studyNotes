@@ -10757,47 +10757,483 @@ public interface TextMessageReceivedAction
 ```java
 
 ```
-#### 
+#### WebSocketMessage
 ```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.contextmenu;
+
+import burp.api.montoya.core.Annotations;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.websocket.Direction;
+
+/**
+ * 表示WebSocket消息的接口，提供对消息内容和元数据的访问。
+ */
+public interface WebSocketMessage
+{
+    /**
+     * 获取消息的注释信息。
+     *
+     * @return 消息的{@link Annotations}注释对象
+     */
+    Annotations annotations();
+
+    /**
+     * @return 消息的传输方向
+     */
+    Direction direction();
+
+    /**
+     * @return WebSocket消息的有效载荷内容
+     */
+    ByteArray payload();
+
+    /**
+     * @return 用于创建WebSocket连接的原始{@link HttpRequest}请求
+     */
+    HttpRequest upgradeRequest();
+}
 ```
 ### editor
-#### 
+#### Editor
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+import java.util.Optional;
+
+/**
+ * 定义不同类型编辑器之间的共享行为。
+ */
+public interface Editor
+{
+    /**
+     * 更新编辑器下方搜索栏中显示的搜索表达式。
+     *
+     * @param expression 搜索表达式
+     */
+    void setSearchExpression(String expression);
+
+    /**
+     * @return 如果用户自上次编程设置内容后修改了编辑器内容，则返回true
+     */
+    boolean isModified();
+
+    /**
+     * @return 当前编辑器中光标位置的索引
+     */
+    int caretPosition();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户在编辑器中的当前选择的{@link Optional}对象
+     */
+    Optional<Selection> selection();
+
+    /**
+     * @return 编辑器的UI组件，供扩展程序添加到自己的用户界面中
+     */
+    Component uiComponent();
+}
 ```
-#### 
+#### EditorOptions
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+/**
+ * 这些选项允许您为{@link Editor}实现配置额外的行为。
+ */
+public enum EditorOptions
+{
+    /**
+     * 编辑器应为只读模式
+     */
+    READ_ONLY,
+    
+    /**
+     * 编辑器应自动换行 - 仅适用于原始编辑器(Raw Editors)
+     */
+    WRAP_LINES,
+    
+    /**
+     * 编辑器应显示不可打印字符 - 仅适用于原始编辑器(Raw Editors)
+     */
+    SHOW_NON_PRINTABLE_CHARACTERS
+}
 ```
-#### 
+#### HttpRequestEditor
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+import java.util.Optional;
+
+/**
+ * 为扩展程序提供Burp Suite的HTTP请求编辑器实例，用于扩展程序自身的用户界面。
+ */
+public interface HttpRequestEditor extends Editor
+{
+    /**
+     * @return 从编辑器内容派生的{@link HttpRequest}实例
+     */
+    HttpRequest getRequest();
+
+    /**
+     * 在编辑器中显示HTTP请求的内容
+     *
+     * @param request 要设置的HTTP请求
+     */
+    void setRequest(HttpRequest request);
+
+    /**
+     * 更新编辑器下方搜索栏中显示的搜索表达式
+     *
+     * @param expression 搜索表达式
+     */
+    @Override
+    void setSearchExpression(String expression);
+
+    /**
+     * @return 如果用户自上次编程设置内容后修改了编辑器内容，则返回true
+     */
+    @Override
+    boolean isModified();
+
+    /**
+     * @return 当前编辑器中光标位置的索引
+     */
+    @Override
+    int caretPosition();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户在编辑器中的当前选择的{@link Optional}对象
+     */
+    @Override
+    Optional<Selection> selection();
+
+    /**
+     * @return 编辑器的UI组件，供扩展程序添加到自己的用户界面中
+     */
+    @Override
+    Component uiComponent();
+}
 ```
-#### 
+#### HttpResponseEditor
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+import java.util.Optional;
+
+/**
+ * 为扩展程序提供Burp Suite的HTTP响应编辑器实例，用于扩展程序自身的用户界面。
+ */
+public interface HttpResponseEditor extends Editor
+{
+    /**
+     * @return 从编辑器内容派生的{@link HttpResponse}实例
+     */
+    HttpResponse getResponse();
+
+    /**
+     * 在编辑器中显示HTTP响应的内容
+     *
+     * @param response 要设置的HTTP响应
+     */
+    void setResponse(HttpResponse response);
+
+    /**
+     * 更新编辑器下方搜索栏中显示的搜索表达式
+     *
+     * @param expression 搜索表达式
+     */
+    @Override
+    void setSearchExpression(String expression);
+
+    /**
+     * @return 如果用户自上次编程设置内容后修改了编辑器内容，则返回true
+     */
+    @Override
+    boolean isModified();
+
+    /**
+     * @return 当前编辑器中光标位置的索引
+     */
+    @Override
+    int caretPosition();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户在编辑器中的当前选择的{@link Optional}对象
+     */
+    @Override
+    Optional<Selection> selection();
+
+    /**
+     * @return 编辑器的UI组件，供扩展程序添加到自己的用户界面中
+     */
+    @Override
+    Component uiComponent();
+}
 ```
-#### 
+#### RawEditor
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+import java.util.Optional;
+
+/**
+ * 为扩展程序提供Burp Suite的HTTP文本编辑器实例，用于扩展程序自身的用户界面。
+ */
+public interface RawEditor extends Editor
+{
+    /**
+     * 设置文本编辑器是否可编辑
+     *
+     * @param editable 布尔标志，控制文本编辑器是否可编辑
+     */
+    void setEditable(boolean editable);
+
+    /**
+     * @return 文本编辑器的当前内容
+     */
+    ByteArray getContents();
+
+    /**
+     * 以编程方式设置文本编辑器中的内容
+     *
+     * @param contents 要设置到文本编辑器中的内容
+     */
+    void setContents(ByteArray contents);
+
+    /**
+     * 更新编辑器下方搜索栏中显示的搜索表达式
+     *
+     * @param expression 搜索表达式
+     */
+    @Override
+    void setSearchExpression(String expression);
+
+    /**
+     * @return 如果用户自上次编程设置内容后修改了编辑器内容，则返回true
+     */
+    @Override
+    boolean isModified();
+
+    /**
+     * @return 当前编辑器中光标位置的索引
+     */
+    @Override
+    int caretPosition();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户在编辑器中的当前选择的{@link Optional}对象
+     */
+    @Override
+    Optional<Selection> selection();
+
+    /**
+     * @return 编辑器的UI组件，供扩展程序添加到自己的用户界面中
+     */
+    @Override
+    Component uiComponent();
+}
 ```
-#### 
+#### WebSocketMessageEditor
 ```java
+/*
+ * 版权所有 (c) 2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor;
+
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.ui.Selection;
+
+import java.awt.Component;
+import java.util.Optional;
+
+/**
+ * 为扩展程序提供Burp Suite的WebSocket消息编辑器实例，用于扩展程序自身的用户界面。
+ */
+public interface WebSocketMessageEditor extends Editor
+{
+    /**
+     * @return 消息编辑器的当前内容
+     */
+    ByteArray getContents();
+
+    /**
+     * 以编程方式设置消息编辑器中的内容
+     *
+     * @param contents 要设置到消息编辑器中的内容
+     */
+    void setContents(ByteArray contents);
+
+    /**
+     * 更新编辑器下方搜索栏中显示的搜索表达式
+     *
+     * @param expression 搜索表达式
+     */
+    @Override
+    void setSearchExpression(String expression);
+
+    /**
+     * @return 如果用户自上次编程设置内容后修改了编辑器内容，则返回true
+     */
+    @Override
+    boolean isModified();
+
+    /**
+     * @return 当前消息编辑器中光标位置的索引
+     */
+    @Override
+    int caretPosition();
+
+    /**
+     * 如果用户没有进行选择，则返回{@link Optional#empty()}
+     *
+     * @return 包含用户在编辑器中的当前选择的{@link Optional}对象
+     */
+    @Override
+    Optional<Selection> selection();
+
+    /**
+     * @return 编辑器的UI组件，供扩展程序添加到自己的用户界面中
+     */
+    @Override
+    Component uiComponent();
+}
 ```
 #### extension
-##### 
+##### EditorCreationContext
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
+package burp.api.montoya.ui.editor.extension;
+
+import burp.api.montoya.core.ToolSource;
+
+/**
+ * 该接口用于<code>ExtensionHttpRequestEditor</code>或<code>ExtensionHttpResponseEditor</code>
+ * 获取当前显示消息的详细信息。创建Burp HTTP消息编辑器实例的扩展可以选择性地提供
+ * <code>IMessageEditorController</code>的实现，当编辑器需要获取当前消息的更多信息时
+ * (例如将其发送到其他Burp工具)会调用该实现。通过<code>IMessageEditorTabFactory</code>
+ * 提供自定义编辑器标签页的扩展将为每个生成的标签页实例接收一个<code>IMessageEditorController</code>
+ * 对象引用，标签页在需要获取当前消息的更多信息时可以调用该对象。
+ */
+public interface EditorCreationContext
+{
+    /**
+     * 指示哪个Burp工具正在请求编辑器。
+     *
+     * @return 请求编辑器的工具来源
+     */
+    ToolSource toolSource();
+
+    /**
+     * 指示Burp工具请求的编辑器模式。
+     * 例如Proxy期望只读编辑器，Repeater期望默认编辑器。
+     *
+     * @return 编辑器所需的模式
+     */
+    EditorMode editorMode();
+}
 ```
-##### 
+##### EditorMode
 ```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
 
-```
-##### 
-```java
+package burp.api.montoya.ui.editor.extension;
 
+/**
+ * 枚举类型，用于描述Burp Suite消息编辑器的不同模式。
+ */
+public enum EditorMode
+{
+    /**
+     * 默认编辑模式，允许用户查看和修改消息内容
+     */
+    DEFAULT,
+    
+    /**
+     * 只读模式，仅允许用户查看消息内容而不能修改
+     */
+    READ_ONLY
+}
 ```
 ##### ExtensionProvidedEditor
 ```java
@@ -11063,6 +11499,32 @@ public interface ExtensionProvidedWebSocketMessageEditor
      * @return 如果用户在编辑器中修改了当前消息则返回true
      */
     boolean isModified();
+}
+```
+##### HttpRequestEditorProvider
+```java
+/*
+ * 版权所有 (c) 2022-2023。PortSwigger Ltd. 保留所有权利。
+ *
+ * 此代码可用于扩展Burp Suite社区版和Burp Suite专业版的功能，
+ * 前提是该使用不违反这些产品的许可条款。
+ */
+
+package burp.api.montoya.ui.editor.extension;
+
+/**
+ * 扩展程序可以通过注册此接口的实例，在Burp的用户界面中提供自定义的HTTP请求编辑器。
+ */
+public interface HttpRequestEditorProvider
+{
+    /**
+     * 当Burp需要从扩展程序获取新的HTTP请求编辑器时调用此方法。
+     *
+     * @param creationContext 包含需要请求编辑器的上下文详细信息
+     *
+     * @return 返回一个 {@link ExtensionProvidedHttpRequestEditor} 实例
+     */
+    ExtensionProvidedHttpRequestEditor provideHttpRequestEditor(EditorCreationContext creationContext);
 }
 ```
 ##### HttpResponseEditorProvider
