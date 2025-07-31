@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "8a04974d90b55ee9",
+        "id": "d51cef75e0bb85ee",
         "type": "tabs",
         "children": [
           {
-            "id": "8368033758ea74e1",
+            "id": "49d5a75437cf184d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "dev/burp插件开发.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "burp插件开发"
+              "title": "新标签页"
             }
           }
         ]
@@ -78,8 +74,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 283.5
   },
   "right": {
     "id": "ae450dbe397b2f32",
@@ -95,7 +90,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "dev/burp插件开发.md",
+                "file": "hack/kali-linux.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +100,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "burp插件开发 的反向链接列表"
+              "title": "kali-linux 的反向链接列表"
             }
           },
           {
@@ -114,12 +109,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "dev/burp插件开发.md",
+                "file": "hack/kali-linux.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "burp插件开发 的出链列表"
+              "title": "kali-linux 的出链列表"
             }
           },
           {
@@ -128,8 +123,8 @@
             "state": {
               "type": "tag",
               "state": {
-                "sortOrder": "alphabetical",
-                "useHierarchy": false,
+                "sortOrder": "frequency",
+                "useHierarchy": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
@@ -143,13 +138,26 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "dev/burp插件开发.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "burp插件开发 的大纲"
+              "title": "大纲"
+            }
+          },
+          {
+            "id": "132d81e989b1b954",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
             }
           }
         ],
@@ -157,7 +165,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 397.5
+    "width": 324.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -169,18 +177,27 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "8368033758ea74e1",
+<<<<<<< Updated upstream
+  "active": "3e86271a9a88ee0f",
   "lastOpenFiles": [
     "dev/burp插件开发.md",
+=======
+  "active": "49d5a75437cf184d",
+  "lastOpenFiles": [
+>>>>>>> Stashed changes
+    "tools/burp插件开发.md",
     "tools/burpsuite.md",
-    "hack/kali-linux.md",
+    "dev/burp.md",
+    "hack/web-hack.md",
+    "hack/RedTeam.md",
+    "README.md",
+    "temporary/blog.md",
+    "Pasted image 20250728154228.png",
     "code/GPG.md",
     "code",
+    "hack/kali-linux.md",
     "tools/browser.md",
-    "hack/RedTeam.md",
     "tools/vscode.md",
-    "Pasted image 20250728154228.png",
-    "hack/web-hack.md",
     "hack/oscp.md",
     "hack/apt.md",
     "hack/android_secure_test.md",
@@ -193,8 +210,8 @@
     "server/代理服务器nginx.md",
     "小视频.md",
     "hack/firewall.md",
-    "README.md",
     "未命名.canvas",
+    "未命名",
     "dev/studyJava.md"
   ]
 }
