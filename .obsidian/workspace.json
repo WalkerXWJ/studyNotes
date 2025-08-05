@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "93e0667a3b337084",
+        "id": "0185482d6a5163bc",
         "type": "tabs",
         "children": [
           {
-            "id": "c368017bebd68924",
+            "id": "f7683dfc0fde7818",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tools/adguard home.md",
+                "file": "dev/adguard home.md",
                 "mode": "source",
                 "source": false
               },
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "ae450dbe397b2f32",
@@ -143,7 +142,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "tools/adguard home.md",
+                "file": "dev/adguard home.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -169,10 +168,13 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "c368017bebd68924",
+  "active": "3e86271a9a88ee0f",
   "lastOpenFiles": [
+    "tools/SentinelScan Pro.md",
+    "dev-project",
+    "未命名.md",
+    "dev/adguard home.md",
     "dev/burp插件开发.md",
-    "tools/adguard home.md",
     "dev/python.md",
     "tools/burpsuite.md",
     "hack/kali-linux.md",
@@ -196,7 +198,6 @@
     "小视频.md",
     "hack/firewall.md",
     "README.md",
-    "未命名.canvas",
-    "dev/studyJava.md"
+    "未命名.canvas"
   ]
 }
