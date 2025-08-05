@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "安全防护技术/网页禁止复制和选中.md",
+                "file": "浏览器/edge浏览器扩展开发.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "网页禁止复制和选中"
+              "title": "edge浏览器扩展开发"
             }
           }
         ]
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "安全防护技术/网页禁止复制和选中.md",
+                "file": "浏览器/edge浏览器扩展开发.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "网页禁止复制和选中 的大纲"
+              "title": "edge浏览器扩展开发 的大纲"
             }
           },
           {
@@ -184,11 +184,12 @@
   },
   "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
+    "安全防护技术/网页禁止复制和选中.md",
+    "浏览器/edge浏览器扩展开发.md",
     "tools/SentinelScan Pro.md",
     "浏览器/浏览器.md",
     "攻防技术/RedTeam.md",
     "浏览器",
-    "安全防护技术/网页禁止复制和选中.md",
     "安全防护技术/javascript 反调试.md",
     "编程技术/studyPython.md",
     "编程技术/python.md",
