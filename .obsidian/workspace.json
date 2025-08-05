@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "dev/studyPython.md",
+                "file": "攻防技术/RedTeam.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "studyPython"
+              "title": "RedTeam"
             }
           }
         ]
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "dev/studyPython.md",
+                "file": "攻防技术/RedTeam.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "studyPython 的大纲"
+              "title": "RedTeam 的大纲"
             }
           },
           {
@@ -184,35 +184,35 @@
   },
   "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
+    "安全防护技术/禁止复制和选中.md",
+    "安全防护技术/javascript 反调试.md",
+    "编程技术/studyPython.md",
     "tools/SentinelScan Pro.md",
-    "dev/python.md",
-    "dev/adguard home.md",
+    "编程技术/python.md",
+    "编程技术/adguard home.md",
     "browser/浏览器学习.md",
     "browser/edge浏览器扩展开发.md",
     "tools/browser.md",
     "browser",
-    "dev/studyPython.md",
     "tools/adguard home.md",
-    "dev/burp插件开发.md",
+    "编程技术/burp插件开发.md",
     "tools/burp插件开发.md",
     "tools/burpsuite.md",
     "dev/burp.md",
-    "hack/web-hack.md",
-    "hack/RedTeam.md",
+    "攻防技术/web-hack.md",
+    "攻防技术/RedTeam.md",
     "README.md",
     "temporary/blog.md",
     "Pasted image 20250728154228.png",
-    "code/GPG.md",
-    "code",
-    "hack/kali-linux.md",
+    "术语/GPG.md",
+    "术语",
+    "攻防技术/kali-linux.md",
     "tools/vscode.md",
-    "hack/oscp.md",
-    "hack/apt.md",
-    "hack/android_secure_test.md",
-    "hack/metasploit.md",
-    "hack/hack_tools.md",
-    "datebase/postgresql.md",
-    "datebase/数据库管理软件DBeaver.md",
+    "攻防技术/oscp.md",
+    "攻防技术/apt.md",
+    "攻防技术/android_secure_test.md",
+    "攻防技术/metasploit.md",
+    "攻防技术/hack_tools.md",
     "未命名.canvas"
   ]
 }

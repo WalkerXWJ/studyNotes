@@ -54,7 +54,7 @@ ln -s /opt/dnscat2/client/dnscat /usr/bin/dnscat
 
 **利用方式：** 通过我们拥有的恶意域名设置一个权威服务器，利用DNS解析对恶意软件进行命令执行和控制。
 
-<img title="" src="./../images/dnscat2-利用流程示意图.png" alt="" width="667">
+<img title="" src="./../附件图片/dnscat2-利用流程示意图.png" alt="" width="667">
 
 ```bash
 # 
