@@ -184,6 +184,9 @@
   },
   "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
+    "tools/SentinelScan Pro.md",
+    "dev/python.md",
+    "dev/adguard home.md",
     "browser/浏览器学习.md",
     "browser/edge浏览器扩展开发.md",
     "tools/browser.md",
@@ -210,9 +213,6 @@
     "hack/hack_tools.md",
     "datebase/postgresql.md",
     "datebase/数据库管理软件DBeaver.md",
-    "server/ servlet容器Jetty.md",
-    "server/servlet容器Tomcat.md",
-    "server/代理服务器nginx.md",
     "未命名.canvas"
   ]
 }
