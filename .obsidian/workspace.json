@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "d51cef75e0bb85ee",
+        "id": "c98727e77dbe1aaf",
         "type": "tabs",
         "children": [
           {
-            "id": "49d5a75437cf184d",
+            "id": "61c201b02aa12ac3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "dev/burp插件开发.md",
+                "file": "dev/studyPython.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "burp插件开发"
+              "title": "studyPython"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5,
-    "collapsed": true
+    "width": 283.5
   },
   "right": {
     "id": "ae450dbe397b2f32",
@@ -143,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "dev/burp插件开发.md",
+                "file": "dev/studyPython.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "burp插件开发 的大纲"
+              "title": "studyPython 的大纲"
             }
           },
           {
@@ -167,7 +166,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -183,8 +182,14 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "49d5a75437cf184d",
+  "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
+    "browser/浏览器学习.md",
+    "browser/edge浏览器扩展开发.md",
+    "tools/browser.md",
+    "browser",
+    "dev/studyPython.md",
+    "tools/adguard home.md",
     "dev/burp插件开发.md",
     "tools/burp插件开发.md",
     "tools/burpsuite.md",
@@ -197,7 +202,6 @@
     "code/GPG.md",
     "code",
     "hack/kali-linux.md",
-    "tools/browser.md",
     "tools/vscode.md",
     "hack/oscp.md",
     "hack/apt.md",
@@ -209,10 +213,6 @@
     "server/ servlet容器Jetty.md",
     "server/servlet容器Tomcat.md",
     "server/代理服务器nginx.md",
-    "小视频.md",
-    "hack/firewall.md",
-    "未命名.canvas",
-    "未命名",
-    "dev/studyJava.md"
+    "未命名.canvas"
   ]
 }
