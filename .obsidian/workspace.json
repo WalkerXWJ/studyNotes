@@ -4,6 +4,7 @@
     "type": "split",
     "children": [
       {
+<<<<<<< Updated upstream
         "id": "c98727e77dbe1aaf",
         "type": "tabs",
         "children": [
@@ -19,6 +20,19 @@
               },
               "icon": "lucide-file",
               "title": "从软件信息中学习英语"
+=======
+        "id": "99d29858a7305d76",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "415159e75dee2dca",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+>>>>>>> Stashed changes
             }
           }
         ]
@@ -143,12 +157,17 @@
             "state": {
               "type": "outline",
               "state": {
+<<<<<<< Updated upstream
                 "file": "英语/从软件信息中学习英语.md",
                 "followCursor": true,
+=======
+                "followCursor": false,
+>>>>>>> Stashed changes
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
+<<<<<<< Updated upstream
               "title": "从软件信息中学习英语 的大纲"
             }
           },
@@ -164,6 +183,9 @@
               },
               "icon": "lucide-file",
               "title": "插件不再活动"
+=======
+              "title": "大纲"
+>>>>>>> Stashed changes
             }
           }
         ],
@@ -180,9 +202,11 @@
       "canvas:新建白板": false,
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
-      "command-palette:打开命令面板": false
+      "command-palette:打开命令面板": false,
+      "workspaces:管理工作区布局": false
     }
   },
+<<<<<<< Updated upstream
   "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
     "英语",
@@ -203,6 +227,17 @@
     "tools/adguard home.md",
     "编程技术/burp插件开发.md",
     "tools/burp插件开发.md",
+=======
+  "active": "415159e75dee2dca",
+  "lastOpenFiles": [
+    "dev/github-collection.md",
+    "dev/adguard home.md",
+    "tools/SentinelScan Pro.md",
+    "dev-project",
+    "未命名.md",
+    "dev/burp插件开发.md",
+    "dev/python.md",
+>>>>>>> Stashed changes
     "tools/burpsuite.md",
     "dev/burp.md",
     "攻防技术/web-hack.md",
