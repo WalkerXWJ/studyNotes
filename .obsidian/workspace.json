@@ -5,6 +5,7 @@
     "children": [
       {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         "id": "c98727e77dbe1aaf",
         "type": "tabs",
         "children": [
@@ -20,6 +21,19 @@
               },
               "icon": "lucide-file",
               "title": "从软件信息中学习英语"
+=======
+        "id": "99d29858a7305d76",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "415159e75dee2dca",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+>>>>>>> Stashed changes
 =======
         "id": "99d29858a7305d76",
         "type": "tabs",
@@ -158,15 +172,19 @@
               "type": "outline",
               "state": {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 "file": "英语/从软件信息中学习英语.md",
                 "followCursor": true,
 =======
+=======
+>>>>>>> Stashed changes
                 "followCursor": false,
 >>>>>>> Stashed changes
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
               "title": "从软件信息中学习英语 的大纲"
             }
@@ -183,6 +201,9 @@
               },
               "icon": "lucide-file",
               "title": "插件不再活动"
+=======
+              "title": "大纲"
+>>>>>>> Stashed changes
 =======
               "title": "大纲"
 >>>>>>> Stashed changes
@@ -207,6 +228,7 @@
     }
   },
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "active": "61c201b02aa12ac3",
   "lastOpenFiles": [
     "英语",
@@ -230,6 +252,10 @@
 =======
   "active": "415159e75dee2dca",
   "lastOpenFiles": [
+=======
+  "active": "415159e75dee2dca",
+  "lastOpenFiles": [
+>>>>>>> Stashed changes
     "dev/github-collection.md",
     "dev/adguard home.md",
     "tools/SentinelScan Pro.md",
