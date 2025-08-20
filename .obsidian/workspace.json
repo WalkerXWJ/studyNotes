@@ -5,8 +5,11 @@
     "children": [
       {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         "id": "175b8b2133ed525d",
 =======
+=======
+>>>>>>> Stashed changes
         "id": "c98727e77dbe1aaf",
 >>>>>>> Stashed changes
         "type": "tabs",
@@ -18,7 +21,11 @@
               "type": "markdown",
               "state": {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 "file": "tools/burpsuite.md",
+=======
+                "file": "攻防技术/metasploit.md",
+>>>>>>> Stashed changes
 =======
                 "file": "攻防技术/metasploit.md",
 >>>>>>> Stashed changes
@@ -27,7 +34,11 @@
               },
               "icon": "lucide-file",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               "title": "burpsuite"
+=======
+              "title": "metasploit"
+>>>>>>> Stashed changes
 =======
               "title": "metasploit"
 >>>>>>> Stashed changes
@@ -155,7 +166,11 @@
               "type": "outline",
               "state": {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 "file": "tools/burpsuite.md",
+=======
+                "file": "攻防技术/metasploit.md",
+>>>>>>> Stashed changes
 =======
                 "file": "攻防技术/metasploit.md",
 >>>>>>> Stashed changes
@@ -165,7 +180,11 @@
               },
               "icon": "lucide-list",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
               "title": "burpsuite 的大纲"
+=======
+              "title": "metasploit 的大纲"
+>>>>>>> Stashed changes
 =======
               "title": "metasploit 的大纲"
 >>>>>>> Stashed changes
@@ -204,10 +223,15 @@
     }
   },
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "active": "d07f4ee1a42ef8ff",
   "lastOpenFiles": [
     "英语/从软件信息中学习英语.md",
     "英语",
+=======
+  "active": "61c201b02aa12ac3",
+  "lastOpenFiles": [
+>>>>>>> Stashed changes
     "浏览器/edge浏览器扩展开发.md",
 =======
   "active": "61c201b02aa12ac3",
@@ -215,6 +239,9 @@
     "浏览器/edge浏览器扩展开发.md",
     "英语/从软件信息中学习英语.md",
     "英语",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     "安全防护技术/网页禁止复制和选中.md",
     "tools/SentinelScan Pro.md",
