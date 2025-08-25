@@ -1,47 +1,22 @@
 {
   "main": {
-    "id": "c9919876d5df9578",
+    "id": "60aa77bf3a59f9eb",
     "type": "split",
     "children": [
       {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        "id": "175b8b2133ed525d",
-=======
-=======
->>>>>>> Stashed changes
-        "id": "c98727e77dbe1aaf",
->>>>>>> Stashed changes
+        "id": "3417f11a835d29a2",
         "type": "tabs",
         "children": [
           {
-            "id": "d07f4ee1a42ef8ff",
+            "id": "a58abb345ac3399f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "release-notes",
               "state": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                "file": "tools/burpsuite.md",
-=======
-                "file": "攻防技术/metasploit.md",
->>>>>>> Stashed changes
-=======
-                "file": "攻防技术/metasploit.md",
->>>>>>> Stashed changes
-                "mode": "source",
-                "source": false
+                "currentVersion": "1.9.10"
               },
-              "icon": "lucide-file",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              "title": "burpsuite"
-=======
-              "title": "metasploit"
->>>>>>> Stashed changes
-=======
-              "title": "metasploit"
->>>>>>> Stashed changes
+              "icon": "lucide-book-up",
+              "title": "版本说明 1.9.10"
             }
           }
         ]
@@ -50,15 +25,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "eaa39253fdd83aa8",
+    "id": "86eb8ccb61d92fe2",
     "type": "split",
     "children": [
       {
-        "id": "355161e72cbdee9b",
+        "id": "9e6e8a8cc4832fc6",
         "type": "tabs",
         "children": [
           {
-            "id": "3e86271a9a88ee0f",
+            "id": "d3ef6e5e5718a471",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -71,7 +46,7 @@
             }
           },
           {
-            "id": "215ebc46cc95463e",
+            "id": "2e3fbcabbb6c8811",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -88,7 +63,7 @@
             }
           },
           {
-            "id": "89d8ff60162a9c8b",
+            "id": "eff21c86f5029d0c",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -101,23 +76,22 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5
+    "width": 300
   },
   "right": {
-    "id": "ae450dbe397b2f32",
+    "id": "b2bf8fb495e00bc4",
     "type": "split",
     "children": [
       {
-        "id": "0967a7d3b9f46c4f",
+        "id": "895c51abb1cb6081",
         "type": "tabs",
         "children": [
           {
-            "id": "1a34ea78d6d38b27",
+            "id": "729cf190e38c54c0",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "hack/kali-linux.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,25 +101,24 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "kali-linux 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
-            "id": "e213e0c1387df1a5",
+            "id": "62f1825f6711beed",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "hack/kali-linux.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "kali-linux 的出链列表"
+              "title": "出链"
             }
           },
           {
-            "id": "7a3642296d0b8e7b",
+            "id": "627571765183f365",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -160,117 +133,38 @@
             }
           },
           {
-            "id": "1fe744c58fe29305",
+            "id": "eaf82b23d87b7c2a",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                "file": "tools/burpsuite.md",
-=======
-                "file": "攻防技术/metasploit.md",
->>>>>>> Stashed changes
-=======
-                "file": "攻防技术/metasploit.md",
->>>>>>> Stashed changes
-                "followCursor": true,
+                "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-              "title": "burpsuite 的大纲"
-=======
-              "title": "metasploit 的大纲"
->>>>>>> Stashed changes
-=======
-              "title": "metasploit 的大纲"
->>>>>>> Stashed changes
-            }
-          },
-          {
-            "id": "132d81e989b1b954",
-            "type": "leaf",
-            "state": {
-              "type": "all-properties",
-              "state": {
-                "sortOrder": "frequency",
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-file",
-              "title": "插件不再活动"
+              "title": "大纲"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 324.5
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
-      "workspaces:管理工作区布局": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
-      "command-palette:打开命令面板": false
+      "command-palette:打开命令面板": false,
+      "workspaces:管理工作区布局": false,
+      "bases:创建新数据库": false
     }
   },
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "active": "d07f4ee1a42ef8ff",
-  "lastOpenFiles": [
-    "英语/从软件信息中学习英语.md",
-    "英语",
-=======
-  "active": "61c201b02aa12ac3",
-  "lastOpenFiles": [
->>>>>>> Stashed changes
-    "浏览器/edge浏览器扩展开发.md",
-=======
-  "active": "61c201b02aa12ac3",
-  "lastOpenFiles": [
-    "浏览器/edge浏览器扩展开发.md",
-    "英语/从软件信息中学习英语.md",
-    "英语",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-    "安全防护技术/网页禁止复制和选中.md",
-    "tools/SentinelScan Pro.md",
-    "浏览器/浏览器.md",
-    "攻防技术/RedTeam.md",
-    "浏览器",
-    "安全防护技术/javascript 反调试.md",
-    "编程技术/studyPython.md",
-    "编程技术/python.md",
-    "编程技术/adguard home.md",
-    "browser/浏览器学习.md",
-    "browser/edge浏览器扩展开发.md",
-    "browser",
-    "tools/adguard home.md",
-    "编程技术/burp插件开发.md",
-    "tools/burp插件开发.md",
-    "tools/burpsuite.md",
-    "dev/burp.md",
-    "攻防技术/web-hack.md",
-    "README.md",
-    "temporary/blog.md",
-    "Pasted image 20250728154228.png",
-    "术语/GPG.md",
-    "术语",
-    "攻防技术/kali-linux.md",
-    "tools/vscode.md",
-    "攻防技术/oscp.md",
-    "攻防技术/apt.md",
-    "攻防技术/android_secure_test.md",
-    "未命名.canvas"
-  ]
+  "active": "a58abb345ac3399f",
+  "lastOpenFiles": []
 }
