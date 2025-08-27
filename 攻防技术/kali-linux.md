@@ -288,7 +288,6 @@ Warning: Some index files failed to download. They have been ignored, or old one
 如果您的 Kali 安装已超过 2 年，则可能不再受支持。请考虑更新到最新版本以继续接收更新。
 解决此问题的另一种方法是检索最新的密钥并将其存储在 apt 可以找到它的地方。
 ```bash
-┌──(root㉿vbox-kali)-[~]
-└─# sudo wget https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
+sudo wget https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
 ```
 ****************

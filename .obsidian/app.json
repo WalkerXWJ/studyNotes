@@ -6,5 +6,12 @@
   "showLineNumber": true,
   "smartIndentList": true,
   "showInlineTitle": true,
-  "newFileLocation": "root"
+  "newFileLocation": "root",
+  "pdfExportSettings": {
+    "includeName": true,
+    "pageSize": "Letter",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
 }

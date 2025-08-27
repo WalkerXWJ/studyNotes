@@ -4,19 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "3417f11a835d29a2",
+        "id": "1a205e5d26c891f1",
         "type": "tabs",
         "children": [
           {
-            "id": "a58abb345ac3399f",
+            "id": "ccf658c9bdc8240f",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.9.10"
+                "file": "temporary/工具.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "版本说明 1.9.10"
+              "icon": "lucide-file",
+              "title": "工具"
             }
           }
         ]
@@ -92,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "temporary/工具.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -101,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "反向链接"
+              "title": "工具 的反向链接列表"
             }
           },
           {
@@ -138,20 +141,21 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "temporary/工具.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "工具 的大纲"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -165,6 +169,34 @@
       "bases:创建新数据库": false
     }
   },
-  "active": "a58abb345ac3399f",
-  "lastOpenFiles": []
+  "active": "ccf658c9bdc8240f",
+  "lastOpenFiles": [
+    "编程技术/python.md",
+    "攻防技术/kali-linux.md",
+    "攻防技术/靶场练习笔记.md",
+    "攻防技术/android_secure_test.md",
+    "tools/burpsuite.md",
+    "tools/SentinelScan Pro.md",
+    "英语/从软件信息中学习英语.md",
+    "数据库/postgresql.md",
+    "数据库/数据库管理软件DBeaver.md",
+    "术语/GPG.md",
+    "浏览器/edge浏览器扩展开发.md",
+    "浏览器/浏览器.md",
+    "攻防技术/RedTeam.md",
+    "攻防技术/oscp.md",
+    "攻防技术/metasploit.md",
+    "攻防技术/hack_tools.md",
+    "攻防技术/firewall.md",
+    "攻防技术/apt.md",
+    "附件图片/dnscat2-利用流程示意图.png",
+    "服务器软件/servlet容器Tomcat.md",
+    "服务器软件/代理服务器nginx.md",
+    "服务器软件/ servlet容器Jetty.md",
+    "编程技术/studyPython.md",
+    "编程技术/studyJavaScript.md",
+    "编程技术/studyJava.md",
+    "编程技术/studyBash.md",
+    "编程技术/github-collection.md"
+  ]
 }
