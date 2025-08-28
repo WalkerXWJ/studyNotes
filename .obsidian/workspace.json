@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "temporary/工具.md",
+                "file": "绘画/素描.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "工具"
+              "title": "素描"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "temporary/工具.md",
+                "file": "绘画/素描.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "工具 的反向链接列表"
+              "title": "素描 的反向链接列表"
             }
           },
           {
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "temporary/工具.md",
+                "file": "绘画/素描.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "工具 的大纲"
+              "title": "素描 的大纲"
             }
           }
         ],
@@ -171,11 +171,14 @@
   },
   "active": "ccf658c9bdc8240f",
   "lastOpenFiles": [
+    "tools/burpsuite.md",
+    "绘画/素描.md",
+    "绘画",
+    "temporary/工具.md",
     "编程技术/python.md",
     "攻防技术/kali-linux.md",
     "攻防技术/靶场练习笔记.md",
     "攻防技术/android_secure_test.md",
-    "tools/burpsuite.md",
     "tools/SentinelScan Pro.md",
     "英语/从软件信息中学习英语.md",
     "数据库/postgresql.md",
@@ -195,8 +198,6 @@
     "服务器软件/ servlet容器Jetty.md",
     "编程技术/studyPython.md",
     "编程技术/studyJavaScript.md",
-    "编程技术/studyJava.md",
-    "编程技术/studyBash.md",
-    "编程技术/github-collection.md"
+    "编程技术/studyJava.md"
   ]
 }
