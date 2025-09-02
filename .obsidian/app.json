@@ -1,7 +1,7 @@
 {
   "promptDelete": false,
   "alwaysUpdateLinks": true,
-  "attachmentFolderPath": "/",
+  "attachmentFolderPath": "附件图片",
   "readableLineLength": false,
   "showLineNumber": true,
   "smartIndentList": true,
@@ -13,5 +13,6 @@
     "landscape": false,
     "margin": "0",
     "downscalePercent": 100
-  }
+  },
+  "useMarkdownLinks": true
 }

@@ -66,7 +66,7 @@ sudo systemctl reload-or-restart systemd-resolved
 8.8.4.4
 ```
 下滑页面，点击 测试上游dns，显示【指定的 DNS 服务器现已正常运行】则配置没问题。
-### 配置证书已支持加密dns协议
+### 配置证书以支持加密dns协议
 证书生成脚本
 ```bash
 #!/bin/bash
