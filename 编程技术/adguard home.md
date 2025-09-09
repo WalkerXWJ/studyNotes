@@ -49,9 +49,9 @@ sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 # sudo: unable to resolve host ubuntu24: Temporary failure in name resolution
 # 解决办法如下：
 # 编辑 /etc/hosts
-# 添加如下内容
-# 127.0.0.1   localhost
-# 127.0.1.1   ubuntu24
+# 添加如下内容 ubuntu24 换成你的设置的虚拟机名称  如果你不记得了，在重启DNSStubListener时错误中会显示 ⬆️上面的错误中也显示了
+127.0.0.1   localhost
+127.0.1.1   ubuntu24
 ```
 重启DNSStubListener
 ```bash
@@ -112,3 +112,61 @@ mac电脑
 4. 打开系统设置，【网络】-【详细信息】-【DNS】，选择dns内容，按减号删除原有dns，添加你的adguard home服务的ip地址即可。到此配置结束，可以正常使用了。
 ### 添加更多的拦截规则
 访问adguard home的问题页面，【过滤器】-【DNS黑名单】-【添加黑名单】-【从列表中选择】，喜欢什么就添加点什么。
+注意需要开放的一些端口：
+```markdown
+# DNS服务器必须开放的端口
+
+## 核心端口（必须开放）
+
+### UDP 53
+**主要用途**：DNS查询和响应
+- 客户端到服务器的DNS查询
+- 服务器到客户端的DNS响应
+- 递归查询和迭代查询
+- 大多数DNS流量的默认端口
+
+### TCP 53  
+**主要用途**：
+- DNS区域传输（AXFR/IXFR）
+- 大型DNS响应（超过512字节时）
+- DNSSEC相关通信
+- 某些特定的DNS查询
+
+## 辅助端口（推荐开放）
+
+### UDP 953
+**主要用途**：rndc（远程名称守护进程控制）
+- DNS服务器远程管理
+- 配置重载、状态查询等
+
+### TCP 953
+**主要用途**：rndc over TCP
+- 安全的远程控制通信
+
+## 现代DNS协议端口
+
+### UDP 853
+**主要用途**：DNS over TLS (DoT)
+- 加密的DNS通信
+- 提高隐私和安全性
+
+### TCP 853  
+**主要用途**：DNS over TLS (DoT)
+- TLS加密的DNS查询
+
+### UDP 443 / TCP 443
+**主要用途**：DNS over HTTPS (DoH)
+- 基于HTTPS的DNS查询
+- 绕过网络限制
+
+## 管理端口
+
+### TCP 22
+**主要用途**：SSH远程管理
+- 服务器配置和维护
+- 日志查看和故障排除
+
+## 防火墙配置示例
+
+### iptables 规则示例
+```
