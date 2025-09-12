@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "编程技术/burp插件开发.md",
+                "file": "tools/工具.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "burp插件开发"
+              "title": "工具"
             }
           }
         ]
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "编程技术/burp插件开发.md",
+                "file": "tools/工具.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "burp插件开发 的大纲"
+              "title": "工具 的大纲"
             }
           }
         ],
@@ -171,6 +171,7 @@
   },
   "active": "d3ef6e5e5718a471",
   "lastOpenFiles": [
+    "编程技术/burp插件开发.md",
     "浏览器/SentinelScan Pro.md",
     "tools/SentinelScan Pro.md",
     "编程技术/adguard home.md",
@@ -195,9 +196,8 @@
     "README.md",
     "Pasted image 20250829193734.png",
     "小视频.md",
-    "temporary/工具.md",
+    "tools/工具.md",
     "攻防技术/metasploit.md",
-    "攻防技术/apt.md",
     "附件图片/Pasted image 20250829195244.png",
     "附件图片/Pasted image 20250829194707.png",
     "附件图片/Pasted image 20250829194722.png",
