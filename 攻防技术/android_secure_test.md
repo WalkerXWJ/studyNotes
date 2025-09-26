@@ -79,3 +79,47 @@ public class Test {
 
 - `dx`命令位置：`\sdk\build-tools\`路径下
 - 命令格式：`dx --dex --output=classes.dex Test.class`
+## nuxus 5 手机root
+1. 系统设置中找到版本号，多次点击打开开发者模式。
+2. 授权手机允许电脑进行adb链接
+```bash
+# 手机授权之前 adb devices 的输出
+adb devices     
+List of devices attached
+00f14aabf15dd26b        unauthorized
+# 手机授权之后 adb devices 的输出
+adb devices     
+List of devices attached
+00f14aabf15dd26b        device
+
+```
+3. 开发这选项中找到OEM解锁，打开选项，这个也就是刷机中常说的bootloader锁。
+4. 进入bootloader界面
+```bash
+# 通过以下命令进入 或 关机后使用电源键和音量减键 进入
+adb reboot bootloader 
+```
+5. 解锁OME
+```bash
+fastboot oem unlock
+# 通过音量键 选择yes
+# bootloader界面 显示 unlocked 标识已解锁 ，locked 标识未解锁
+
+```
+6. 官方镜像站点下载nexus 5 的刷机文件
+手机设置中确认系统版本号
+```markdown
+型号：nexus 5x
+android 版本：8.0.0
+版本号：OPR4.170623.006
+```
+版本代号确认：
+```http
+# 确认网址：
+https://source.android.com/docs/setup/reference/build-numbers?hl=zh-cn#source-code-tags-and-builds
+
+# 代号
+Oreo
+```
+
+6. 

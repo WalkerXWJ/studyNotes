@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tools/adguard home.md",
+                "file": "攻防技术/RedTeam.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "adguard home"
+              "title": "RedTeam"
             }
           }
         ]
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "tools/adguard home.md",
+                "file": "攻防技术/RedTeam.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "adguard home 的大纲"
+              "title": "RedTeam 的大纲"
             }
           }
         ],
@@ -171,11 +171,13 @@
   },
   "active": "9949717c47729360",
   "lastOpenFiles": [
+    "攻防技术/android_secure_test.md",
+    "攻防技术/kali-linux.md",
+    "tools/adguard home.md",
     "tools/工具.md",
     "编程技术/burp插件开发.md",
     "浏览器/SentinelScan Pro.md",
     "tools/SentinelScan Pro.md",
-    "tools/adguard home.md",
     "tools/vscode.md",
     "tools/parallels.md",
     "tools/burpsuite.md",
@@ -196,8 +198,6 @@
     "攻防技术/firewall.md",
     "README.md",
     "Pasted image 20250829193734.png",
-    "小视频.md",
-    "攻防技术/metasploit.md",
     "附件图片/Pasted image 20250829195244.png",
     "附件图片/Pasted image 20250829194707.png",
     "附件图片/Pasted image 20250829194722.png",

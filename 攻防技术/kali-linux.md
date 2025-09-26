@@ -291,3 +291,24 @@ Warning: Some index files failed to download. They have been ignored, or old one
 sudo wget https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
 ```
 ****************
+## NO_PUBKE
+```bash
+┌──(root㉿kali-linux-2024-2)-[/home/parallels]
+└─# apt update                                                      
+Get:1 http://mirrors.ustc.edu.cn/kali kali-rolling InRelease [34.0 kB]
+Err:1 http://mirrors.ustc.edu.cn/kali kali-rolling InRelease
+  The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED65462EC8D5E4C5
+Warning: GPG error: http://mirrors.ustc.edu.cn/kali kali-rolling InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED65462EC8D5E4C5
+Error: The repository 'http://mirrors.ustc.edu.cn/kali kali-rolling InRelease' is not signed.
+Notice: Updating from such a repository can't be done securely, and is therefore disabled by default.
+Notice: See apt-secure(8) manpage for repository creation and user configuration details.
+Notice: Repository 'Kali Linux' changed its 'firmware component' value from 'non-free' to 'non-free-firmware'
+Notice: More information about this can be found online at: https://www.kali.org/blog/non-free-firmware-transition/
+
+```
+解决办法：下载并导入密钥
+```bash
+# 会有密钥存储方式过时的警告 当前可以忽略 属于未来的兼容性警告
+wget -q -O - https://archive.kali.org/archive-key.asc | sudo apt-key add
+apt full-upgrade
+```
