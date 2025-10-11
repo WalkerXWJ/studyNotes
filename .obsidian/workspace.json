@@ -13,15 +13,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "攻防技术/RedTeam.md",
+                "file": "代码审计/java代码审计学习.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "RedTeam"
+              "title": "java代码审计学习"
+            }
+          },
+          {
+            "id": "30427c6618205006",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "脚本/国标下载脚本.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "国标下载脚本"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -141,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "攻防技术/RedTeam.md",
+                "file": "脚本/国标下载脚本.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "RedTeam 的大纲"
+              "title": "国标下载脚本 的大纲"
             }
           }
         ],
@@ -169,8 +184,17 @@
       "bases:创建新数据库": false
     }
   },
-  "active": "9949717c47729360",
+  "active": "30427c6618205006",
   "lastOpenFiles": [
+    "体系/ISO27001.md",
+    "脚本/国标下载脚本.md",
+    "未命名",
+    "脚本",
+    "代码审计/java代码审计学习.md",
+    "体系",
+    "编程技术/github-collection.md",
+    "代码审计",
+    "攻防技术/RedTeam.md",
     "攻防技术/android_secure_test.md",
     "攻防技术/kali-linux.md",
     "tools/adguard home.md",
@@ -192,11 +216,6 @@
     "浏览器/浏览器.md",
     "绘画/素描.md",
     "攻防技术/web-hack.md",
-    "攻防技术/RedTeam.md",
-    "攻防技术/oscp.md",
-    "浏览器/edge浏览器扩展开发.md",
-    "攻防技术/firewall.md",
-    "README.md",
     "Pasted image 20250829193734.png",
     "附件图片/Pasted image 20250829195244.png",
     "附件图片/Pasted image 20250829194707.png",

@@ -31,8 +31,13 @@ SecGPT网络安全大模型
 [https://github.com/TianWen-Lab/TranSec](https://github.com/TianWen-Lab/TranSec)
 
 AuxTools - 图形化渗透测试辅助工具
-
 [https://github.com/doimet/AuxTools](https://github.com/doimet/AuxTools)
+
+xkinfoscan - 多功能网络信息扫描工具
+[https://github.com/xk11z/xkinfoscan](https://github.com/xk11z/xkinfoscan)
+
+蓝队分析研判工具箱
+
 
 ## POC
 

@@ -11,7 +11,14 @@
 
 ## 工具安装
 
-> 前面还有很多内容没有写
+安装ptf
+```bash
+# TrustedSec 公司的渗透测试框架 pentest
+git clone https://github.com/trustedsec/ptf /opt/ptf
+cd /opt/ptf
+./ptf
+use modules/install_update_all 
+```
 
 安装手动安装powershell
 
