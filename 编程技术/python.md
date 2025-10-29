@@ -17,5 +17,51 @@ apt upgrade python3
 
 安装python3-venv
 ```bash
-apt install python-venv
+sudo apt install python-venv
 ```
+创建虚拟环境
+```bash
+mkdir bhp
+cd bhp
+# 创建名称为venv3的python虚拟环境
+# -m 参数选项来调用venv包
+# venv3 要创建的环境名
+python -m  venv venv3
+# 启动名称为venv3的虚拟环境
+source  venv3/bin/activate
+```
+### 激活环境后搜索和安装软件包
+```bash
+# 搜索包 search方法于2020年12月14日出现搜索滥用的过大流量，2022年1月3日因滥用情况未缓解XMLRPC搜索已被永久禁用
+pip search hashcarck
+# ⬆️ 不可用了
+```
+安装lxml库
+```bash
+pip install lxml
+```
+验证lxml库是否安装好了
+```bash
+# 进入python shell 导入包未报错 表示软件包已安装
+python
+>>> from lxml import etree
+>>> exit()
+```
+## 安装ide工具
+常见的Interrated Development Environment集成开发环境工具，一般包含代码编辑器（语法高亮、自动检查错误）和调试器。
+IDE工具
+- PyCharm
+- Visual studio code
+- WingIDE
+文本编辑工具
+- vim
+- nano
+- notepad
+- emacs
+```bash
+# kali安装vscode
+apt install code-oss
+```
+## 保持代码整洁
+代码开发遵循python社区格式规范PEP 8.
+文章链接：[https://peps.pythonlang.cn/pep-0008/](https://peps.pythonlang.cn/pep-0008/)

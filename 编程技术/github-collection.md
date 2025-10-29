@@ -36,6 +36,9 @@ AuxTools - 图形化渗透测试辅助工具
 xkinfoscan - 多功能网络信息扫描工具
 [https://github.com/xk11z/xkinfoscan](https://github.com/xk11z/xkinfoscan)
 
+Sirius Scan是业内首款真正开源的通用漏洞扫描工具
+https://github.com/SiriusScan/Sirius
+
 蓝队分析研判工具箱
 
 
