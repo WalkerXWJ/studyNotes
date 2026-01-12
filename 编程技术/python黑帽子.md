@@ -29,6 +29,8 @@ cd bhp
 python -m  venv venv3
 # 启动名称为venv3的虚拟环境
 source  venv3/bin/activate
+# 退出当前虚拟环境
+deactivate
 ```
 ### 激活环境后搜索和安装软件包
 ```bash
@@ -65,3 +67,35 @@ apt install code-oss
 ## 保持代码整洁
 代码开发遵循python社区格式规范PEP 8.
 文章链接：[https://peps.pythonlang.cn/pep-0008/](https://peps.pythonlang.cn/pep-0008/)
+1. 第一部分：导入模块均是`from xxx import xxx` ，每行按字母顺序排列；
+2. 第二部分：导入整包 `import xxx` ，每行按字母顺序排列；
+3. 第三部分：类和函数定义
+4. 第四部分：main代码块，增加main代码块支持两种方式调用程序。第一种命令行启动程序，这时候模块的内部名时__main__，因此 main 代码块会执行。第二种方式，通过 import 文件名 导入你的代码，main代码块不会执行，可以调用文件中的所有类和函数。
+## python网络编程
+socket模块：此模块可以快速开发出tcp/udp客户端、服务端，直接调用原始socket等。
+### TCP客户端
+```python
+import socket
+
+target_host = "www.baidu.com"
+target_port = 80
+
+# 1. creat a socket object
+# AF_INET 表示将使用标准的ipv4地址或主机名，SOCK_STREAM 表示这是一个tcp客户端
+client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+# 2. connect the client
+client.connect((target_host,target_port))
+
+# 3. send some bytes date
+client.send(b'GET / HTTP/1.1\r\nHost: wwww.baidu.com\r\n\r\n')
+
+# 4. receive some date
+response = client.recv(4096)
+
+print(">>> response :")
+print(response.decode())
+# 5. close socket
+client.close()
+
+```
