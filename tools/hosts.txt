@@ -1,0 +1,51 @@
+# hosts
+
+# black microsoft
+
+127.0.0.1 ntp.msn.cn
+127.0.0.1 assets.msn.cn
+127.0.0.1 img-s.msn.cn
+127.0.0.1 browser.events.data.msn.cn
+127.0.0.1 c.msn.cn
+
+# black lixiang
+
+127.0.0.1 track.lixiang.com
+
+# black xiaomi
+
+127.0.0.1 sentry.d.xiaomi.net
+127.0.0.1 ssl-cdn.static.browser.mi-img.com
+127.0.0.1 tracking.miui.com
+
+# fack
+
+127.0.0.1 sdk.51.la
+127.0.0.1 collect-v6.51.la
+
+# black weichat
+
+# wechat ad image
+
+127.0.0.1 wximg.wxs.qq.com
+
+# wechat ad mp4
+
+127.0.0.1 wxsmw.wxs.qq.com
+
+# wechat ad js
+
+127.0.0.1 badjs.weixinbridge.com
+
+# wechat ad ipdns
+
+127.0.0.1 ipv4.gdt.qq.com
+127.0.0.1 dns.weixin.qq.com.cn
+
+# 微信公众号图片加载域名
+
+# 127.0.0.1 res.wx.qq.com
+
+127.0.0.1 dev.tg.wan.360.cn
+127.0.0.1 szextshort.weixin.qq.com
+127.0.0.1 szshort.weixin.qq.com

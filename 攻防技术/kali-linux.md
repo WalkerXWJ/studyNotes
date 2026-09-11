@@ -1,22 +1,34 @@
 # 基础使用
+
 ## 更新软件
+
 ### 更新所有软件包
+
 更新kali所有软件包
+
 ```bash
 $ sudo apt update     
 ```
+
 更新包列表
+
 ```bash
 $ sudo apt full-upgrade 
 ```
+
 ### 更新指定软件包
+
 更新单个特定包
+
 ```bash
 $ sudo apt install --only-upgrade package_name
 ```
+
 ### kali源配置文件
+
 源配置文件：`/etc/apt/sources.list`
 默认配置信息如下：
+
 ```bash
 ┌──(user㉿vbox-kali)-[/root]
 └─$ cat /etc/apt/sources.list
@@ -28,22 +40,30 @@ deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmwa
 ```
 
 ## 元包
+
 元包`metapackages`：用于一次安装多个包，创建为对其他包的依赖项列表。
 建议在安装`metapackages`之前更新系统，命令如下：
+
 ```bash
 $ sudo apt update
 $ sudo apt full-upgrade -y
 ```
+
 安装`metapackages`: `kali-linux-default`
+
 ```bash
 $ sudo apt install kali-linux-default
 ```
+
 元包的安装，还支持通过菜单的形式进行安装，通过如下命令进入：
+
 ```bash
 $ kali-tweaks
 ```
+
 执行命令后，会显示metapackages的选项卡，可以通过⬆️⬇️⬅️➡️和回车键进行选择和确认。
 metapackages介绍：
+
 ```markdwon
 # System
 kali-linux-core: Kali Linux 基础系统 - 包含始终需要的基础组件  
@@ -95,7 +115,9 @@ kali-linux-large: 我们之前镜像的默认工具集
 kali-linux-everything: 包含此处列出的所有元包和工具  
 kali-desktop-live: 从镜像启动时的实时会话使用
 ```
+
 ## 安装 Flatpak
+
 ```bash
 # Flatpak 是一个用于 Linux 系统的通用软件打包和分发技术
 # 搜索应用：flatpak search 应用名称
@@ -109,16 +131,19 @@ apt install -y flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 # 为 GNOME 软件安装 Flatpak 插件,之后就可以在软件中心 安装flatpak软件了 ,kali 应用中：software
 apt install gnome-software-plugin-flatpak
-
 ```
+
 主题支持：
+
 ```bash
 # 如果你想让 flatpak 应用程序看起来与系统更一致，你可以强制它们使用你的本地主题：
 mkdir -p ~/.themes
 cp -a /usr/share/themes/* ~/.themes/
 flatpak override --filesystem=~/.themes/
 ```
+
 ## 安装 snap
+
 ```bash
 # Snap 是 Canonical 开发的另一种通用 Linux 软件打包格式，类似于 Flatpak
 # 搜索应用：snap find 关键词
@@ -133,68 +158,88 @@ apt install -y snapd
 systemctl enable --now snapd apparmor
 # 重启系统
 ```
+
 ## 安装tor浏览器
+
 <span style="color:green">官方命令，提示找不到torbrowser-launcher</span>
+
 ```bash
 sudo apt install -y tor torbrowser-launcher
 # 第一次它将下载并安装 Tor 浏览器，包括签名验证
 # 下次它将用于更新和启动 Tor 浏览器。
 torbrowser-launcher
 ```
+
 ## 工具信息查询
+
 ### 本地工具信息查询
+
 ```bash
 man 工具名称
 工具名称 --help
 ```
+
 ### 在线信息查询
+
 https://www.kali.org/tools/
+
 # kali tools
 
 ## MetaSploit框架
+
 根据 [Kali Linux 网络服务策略](https://www.kali.org/docs/policy/kali-linux-network-service-policy/)，默认情况下，没有网络服务（包括数据库服务_）_在启动时运行，因此需要采取几个步骤才能启动并运行 [Metasploit](https://www.metasploit.com/) 并支持数据库。
 快速启动并运行所有内容：
+
 ```bash
 sudo msfdb init
 ```
+
 1. 查看msfdb的命令交互有哪些
-```bash
-msfdb       
+   
+   
+   
+   ```bash
+   msfdb       
+   Manage the metasploit framework database
+   You can use an specific port number for the
+   PostgreSQL connection setting the PGPORT variable
+   in the current shell.
+   
+   Example: PGPORT=5433 msfdb init
+   
+   msfdb init # start and initialize the database
+    msfdb reinit # delete and reinitialize the database
+    msfdb delete # delete database and stop using it
+    msfdb start # start the database
+    msfdb stop # stop the database
+    msfdb status # check service status
+    msfdb run # start the database and run msfconsole
+   ```
 
-Manage the metasploit framework database
 
-You can use an specific port number for the
-PostgreSQL connection setting the PGPORT variable
-in the current shell.
 
-Example: PGPORT=5433 msfdb init
-
-  msfdb init     # start and initialize the database
-  msfdb reinit   # delete and reinitialize the database
-  msfdb delete   # delete database and stop using it
-  msfdb start    # start the database
-  msfdb stop     # stop the database
-  msfdb status   # check service status
-  msfdb run      # start the database and run msfconsole
 ```
 2. 启动metasploit的postgresql
 ```bash
 msfdb start
 ```
+
 3. 检查是否正在监听 5432 端口，验证postgresql是否正在运行
-```bash
-┌──(root㉿vbox-kali)-[~]
-└─# ss -ant 
-┌──(root㉿vbox-kali)-[~]
-└─# msfdb status
-● postgresql.service - PostgreSQL RDBMS
+   
+   ```bash
+   ┌──(root㉿vbox-kali)-[~]
+   └─# ss -ant 
+   ┌──(root㉿vbox-kali)-[~]
+   └─# msfdb status
+   ● postgresql.service - PostgreSQL RDBMS
      Loaded: loaded (/usr/lib/systemd/system/postgresql.service; disabled; preset: disabled)
      Active: active (exited) since Tue 2025-07-29 02:33:10 CDT; 5min ago
- Invocation: 466ebb98d90d485cab4be32e0f0b9976
+   Invocation: 466ebb98d90d485cab4be32e0f0b9976
     Process: 23081 ExecStart=/bin/true (code=exited, status=0/SUCCESS)
    Main PID: 23081 (code=exited, status=0/SUCCESS)
    Mem peak: 1.7M
         CPU: 2ms
+   ```
 
 Jul 29 02:33:10 vbox-kali systemd[1]: Starting postgresql.service - PostgreSQL RDBMS...
 Jul 29 02:33:10 vbox-kali systemd[1]: Finished postgresql.service - PostgreSQL RDBMS.
@@ -207,34 +252,43 @@ UID          PID    PPID  C STIME TTY      STAT   TIME CMD
 postgres   23047       1  0 02:33 ?        Ss     0:00 /usr/lib/postgresql/17/bin/postgres -D /var/lib/postgresql/17/main -c config_file=/etc/postgresql/17/main/postgresql.conf
 
 [+] Detected configuration file (/usr/share/metasploit-framework/config/database.yml)
+
 ```
 4. 初始化 msf 的 postgresql数据库
 ```bash
 sudo msfdb init
+```
 
-```
 5. 启动msfconsole
-```bash
-msfconsole -q
-```
+   
+   ```bash
+   msfconsole -q
+   ```
 
 ## THC Hydra
+
 Hydra 是一个并行网络登录破解程序，支持多种协议 攻击。它非常快速和灵活，并且很容易添加新模块。
 hydra支持的协议：
+
 ```text
 adam6500 asterisk cisco cisco-enable cobaltstrike cvs firebird ftp[s] http[s]-{head|get|post} http[s]-{get|post}-form http-proxy http-proxy-urlenum icq imap[s] irc ldap2[s] ldap3[-{cram|digest}md5][s] memcached mongodb mssql mysql nntp oracle-listener oracle-sid pcanywhere pcnfs pop3[s] postgres radmin2 rdp redis rexec rlogin rpcap rsh rtsp s7-300 sip smb smtp[s] smtp-enum snmp socks5 ssh sshkey svn teamspeak telnet[s] vmauthd vnc xmpp
 ```
+
 安装<span style="color:green">hydra</span>
+
 ```bash
 apt install hydra
 ```
+
 <span style="color:green">dpl4hydra </span>生成一个默认的密码列表文件
+
 ```
 dpl4hydra -h
 dpl4hydra refresh
-
 ```
+
 <span style="color:green">hydra-wizard </span> 交互式测试命令
+
 ```bash
 # man hydra-wizard
 
@@ -263,13 +317,17 @@ hydra-wizard由Shivang Desai shivang.ice.2010@gmail.com开发。
 
                                                                                 2014年1月19日 
 ```
+
 <span style="color:green">pw-inspeactor</span> 减少密码列表的工具
 
 .................
 
 # 常见问题
+
 ## 由kali linux签名密钥过期导致的`apt`错误
+
 [[GPG]] 密钥用于对存储库进行签名，以确保更新包时的真实性、完整性和信任度。每隔 2-3 年，Kali 团队要么延长用于签署 APT 存储库的 [[GPG]] 密钥的生命周期，要么用新密钥替换它。这可能会导致长时间未更新其 kali-archive-keyring 包的用户出现错误。错误将如下所示：
+
 ```bash
 ┌──(root㉿vbox-kali)-[~]
 └─# apt update              
@@ -282,16 +340,93 @@ Warning: An error occurred during the signature verification. The repository is 
 Warning: Failed to fetch http://http.kali.org/kali/dists/kali-rolling/InRelease  Sub-process /usr/bin/sqv returned an error code (1), error message is: Verifying signature:            Not live until 2025-07-28T06:24:11Z
 Warning: Some index files failed to download. They have been ignored, or old ones used instead.
 ```
+
 预防问题：
 为避免将来出现此问题，请执行以下作：
 定期更新您的系统，尤其是` kali-archive-keyring` 包。
 如果您的 Kali 安装已超过 2 年，则可能不再受支持。请考虑更新到最新版本以继续接收更新。
 解决此问题的另一种方法是检索最新的密钥并将其存储在 apt 可以找到它的地方。
+
 ```bash
 sudo wget https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
 ```
+
+```bash
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# apt update                                                                            
+Get:1 http://mirrors.ustc.edu.cn/kali kali-rolling InRelease [34.0 kB]
+Err:1 http://mirrors.ustc.edu.cn/kali kali-rolling InRelease
+  The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED65462EC8D5E4C5
+Fetched 34.0 kB in 3s (12.5 kB/s)
+53 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Warning: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. GPG error: http://mirrors.ustc.edu.cn/kali kali-rolling InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED65462EC8D5E4C5
+Warning: Failed to fetch http://http.kali.org/kali/dists/kali-rolling/InRelease  The following signatures couldn't be verified because the public key is not available: NO_PUBKEY ED65462EC8D5E4C5
+Warning: Some index files failed to download. They have been ignored, or old ones used instead.
+
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ED65462EC8D5E4C5
+Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
+Executing: /tmp/apt-key-gpghome.OP7zd2Lovc/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys ED65462EC8D5E4C5
+gpg: key ED65462EC8D5E4C5: public key "Kali Linux Archive Automatic Signing Key (2025) <devel@kali.org>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# apt update
+Get:1 http://mirrors.ustc.edu.cn/kali kali-rolling InRelease [34.0 kB]
+Get:2 http://mirrors.ustc.edu.cn/kali kali-rolling/main arm64 Packages [20.7 MB]
+Get:3 http://mirrors.ustc.edu.cn/kali kali-rolling/main arm64 Contents (deb) [49.5 MB]                                                                
+Get:4 http://mirrors.ustc.edu.cn/kali kali-rolling/contrib arm64 Packages [102 kB]                                                                    
+Get:5 http://mirrors.ustc.edu.cn/kali kali-rolling/contrib arm64 Contents (deb) [179 kB]                                                              
+Get:6 http://mirrors.ustc.edu.cn/kali kali-rolling/non-free arm64 Packages [149 kB]                                                                   
+Get:7 http://mirrors.ustc.edu.cn/kali kali-rolling/non-free arm64 Contents (deb) [877 kB]                                                             
+Get:8 http://mirrors.ustc.edu.cn/kali kali-rolling/non-free-firmware arm64 Packages [14.5 kB]                                                         
+Get:9 http://mirrors.ustc.edu.cn/kali kali-rolling/non-free-firmware arm64 Contents (deb) [37.8 kB]                                                   
+Fetched 71.6 MB in 28s (2585 kB/s)                                                                                                                    
+2288 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Warning: http://http.kali.org/kali/dists/kali-rolling/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+```
+
+```bash
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# apt upgrade -y
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+Unsatisfied dependencies:
+ freerdp2-x11 : Conflicts: freerdp-x11 but 3.24.2+dfsg-1 is to be installed
+Error: Broken packages
+
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# apt remove freerdp2-x11
+The following package was automatically installed and is no longer required:
+  libfreerdp-client2-2t64
+Use 'apt autoremove' to remove it.
+
+REMOVING:
+  freerdp2-x11
+
+Summary:
+  Upgrading: 0, Installing: 0, Removing: 1, Not Upgrading: 2288
+  Freed space: 872 kB
+
+Continue? [Y/n] y
+(Reading database ... 407648 files and directories currently installed.)
+Removing freerdp2-x11 (2.11.5+dfsg1-1) ...
+Processing triggers for man-db (2.12.1-2) ...
+Processing triggers for kali-menu (2024.3.1) ...
+
+┌──(root㉿kali-linux-2024-2)-[~]
+└─# apt upgrade -y  
+```
+
 ****************
+
 ## NO_PUBKE
+
 ```bash
 ┌──(root㉿kali-linux-2024-2)-[/home/parallels]
 └─# apt update                                                      
@@ -304,9 +439,10 @@ Notice: Updating from such a repository can't be done securely, and is therefore
 Notice: See apt-secure(8) manpage for repository creation and user configuration details.
 Notice: Repository 'Kali Linux' changed its 'firmware component' value from 'non-free' to 'non-free-firmware'
 Notice: More information about this can be found online at: https://www.kali.org/blog/non-free-firmware-transition/
-
 ```
+
 解决办法：下载并导入密钥
+
 ```bash
 # 会有密钥存储方式过时的警告 当前可以忽略 属于未来的兼容性警告
 wget -q -O - https://archive.kali.org/archive-key.asc | sudo apt-key add

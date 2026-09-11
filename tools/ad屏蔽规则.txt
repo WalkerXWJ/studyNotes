@@ -1,0 +1,91 @@
+# 令人讨厌的字节域名
+
+||applog.snssdk.com^
+||content-open.douyin.com^
+||dig.bdurl.net
+||effect.snssdk.com^
+||i-lq.snssdk.com^
+||ib-lg.snssdk.com^
+||ichannel.snssdk.com^
+||is.snssdk.com^
+||p11-flow-imagex-sign.byteimg.com^
+||p11.douyinpic.com^
+||p26-sign.douyinpic.com^
+||p26.douyinpic.com^
+||p3-ad-sign.byteimg.com^
+||p3-novel-sign.byteimg.com^
+||p3-novel.byteimg.com^
+||p3-sign.douyinpic.com^
+||p3-webcast.douyinpic.com^
+||p6-novel-sign.byteimg.com^
+||p6-novel.byteimg.com^
+||p9-novel-sign.byteimg.com^
+||p9-novel-sign.byteimg.com^
+||pitaya.bytedance.com^
+||pull-hls-f5-vs-tsl.douyincdn.com^
+||pull-hls-hs-f5-vs-tsl.douyincdn.com^
+||pull-hls-spe-l6.douyincdn.com^
+||pull-tsl-b26.douyincdn.com^
+||pull-tsl-c26.douyincdn.com^
+||pull-tsl-f26.douyincdn.com^
+||pull-tsl-g6.douyincdn.com^
+||pull-tsl-spe-13.douyincdn.com^
+||pull-tsl-vr-126.douyincdn.com^
+||reading-lq.snssdk.com^
+||sf3-cdn-tos.douyinstatic.com^
+||vas-lf-x.snssdk.com^
+||vod-settings.bytedanceapi.com^
+||webcast3-open-lg.douyin.com^
+||www.bytedance.com^
+||shark-tracer.netease.com^
+
+# 令人讨厌的微信域名
+
+# black microsoft
+
+||ntp.msn.cn^
+||assets.msn.cn^
+||img-s.msn.cn^
+||browser.events.data.msn.cn^
+||c.msn.cn^
+
+# black lixiang
+
+||track.lixiang.com^
+
+# black xiaomi
+
+||sentry.d.xiaomi.net^
+||ssl-cdn.static.browser.mi-img.com^
+||tracking.miui.com^
+
+# fack
+
+||sdk.51.la^
+||collect-v6.51.la^
+
+# black weichat
+
+# wechat ad image
+
+||wximg.wxs.qq.com^
+
+# wechat ad mp4
+
+||wxsmw.wxs.qq.com^
+
+# wechat ad js
+
+||badjs.weixinbridge.com^
+
+# wechat ad ipdns
+
+||ipv4.gdt.qq.com^
+||dns.weixin.qq.com.cn^
+
+# ⬇️ 微信公众号图片加载域名
+
+#||res.wx.qq.com^
+||dev.tg.wan.360.cn^
+||szextshort.weixin.qq.com^
+||szshort.weixin.qq.com^
